@@ -746,7 +746,7 @@ class Simulation {
     }
 
     simulateParticles(dt) {
-        let qt = new ParticleQuadTree(this.topLeftCorner, this.bottomRightCorner, 10);
+        let qt = new ParticleQuadTree(this.topLeftCorner, this.bottomRightCorner);
         for (let particle of this.aliveParticles) {
             qt.add(particle);
         }
