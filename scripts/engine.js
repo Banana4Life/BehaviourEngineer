@@ -372,8 +372,9 @@ function compileShader(gl, type, source) {
     gl.compileShader(shader);
 
     if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
+        let infoLog = gl.getShaderInfoLog(shader);
         gl.deleteShader(shader);
-        throw new Error('An error occurred compiling the shaders: ' + gl.getShaderInfoLog(shader));
+        throw new Error('An error occurred compiling the shaders: ' + infoLog);
     }
 
     return shader;
@@ -410,8 +411,9 @@ function loadShader(gl, baseName, attributes, uniforms) {
         gl.attachShader(shaderProgram, fragmentShader);
         gl.linkProgram(shaderProgram);
         if (!gl.getProgramParameter(shaderProgram, gl.LINK_STATUS)) {
+            let infoLog = gl.getProgramInfoLog(shaderProgram);
             gl.deleteProgram(shaderProgram);
-            throw new Error('Unable to initialize the shader program: ' + gl.getProgramInfoLog(shaderProgram));
+            throw new Error('Unable to initialize the shader program: ' + infoLog);
         }
 
         let shader = {
