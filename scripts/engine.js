@@ -877,15 +877,16 @@ class Particle {
 }
 
 class ParticleQuadTree {
-    constructor(topLeft, bottomRight, limit = 40, depth = 0) {
-        if (this.depth > 20) {
-            throw "tree too deep"
+    constructor(topLeft, bottomRight, limit = 40, maxDepth = 20, depth = 0) {
+        if (depth > maxDepth) {
+            throw new Error("tree too deep");
         }
         this.topLeft = topLeft;
         this.bottomRight = bottomRight;
         this.objects = [];
         this.limit = limit;
         this.depth = depth;
+        this.maxDepth = maxDepth;
         this.hasChildren = false;
 
         this.topLeftQuad = null;
@@ -920,15 +921,18 @@ class ParticleQuadTree {
 
     forEachQuad(f) {
         if (!f(this.topLeftQuad)) {
-            return;
+            return true;
         }
         if (!f(this.topRightQuad)) {
-            return;
+            return true;
         }
         if (!f(this.bottomLeftQuad)) {
-            return;
+            return true;
         }
-        f(this.bottomRightQuad);
+        if (!f(this.bottomRightQuad)) {
+            return true;
+        }
+        return false;
     }
 
     add(particle) {
@@ -937,22 +941,25 @@ class ParticleQuadTree {
 
     addNode(particle) {
         if (this.hasChildren) {
-            this.forEachQuad(quad => {
+            let success = this.forEachQuad(quad => {
                 if (quad.contains(particle.x, particle.y)) {
                     quad.addNode(particle);
                     return false;
                 }
                 return true;
             });
+            if (!success) {
+                throw new Error("Unable to put a particle in any of the quads! This is a bug...")
+            }
         } else {
-            if (this.objects.length >= this.limit) {
+            if (this.objects.length >= this.limit && this.depth < this.maxDepth) {
                 let oldObjects = this.objects;
                 this.objects = [];
                 const [tl, tr, bl, br] = ParticleQuadTree.calculateInnerPoints(this.topLeft, this.bottomRight);
-                this.topLeftQuad = new ParticleQuadTree(tl[0], tl[1], this.limit, this.depth + 1);
-                this.topRightQuad = new ParticleQuadTree(tr[0], tr[1], this.limit, this.depth + 1);
-                this.bottomLeftQuad = new ParticleQuadTree(bl[0], bl[1], this.limit, this.depth + 1);
-                this.bottomRightQuad = new ParticleQuadTree(br[0], br[1], this.limit, this.depth + 1);
+                this.topLeftQuad = new ParticleQuadTree(tl[0], tl[1], this.limit, this.maxDepth, this.depth + 1);
+                this.topRightQuad = new ParticleQuadTree(tr[0], tr[1], this.limit, this.maxDepth, this.depth + 1);
+                this.bottomLeftQuad = new ParticleQuadTree(bl[0], bl[1], this.limit, this.maxDepth, this.depth + 1);
+                this.bottomRightQuad = new ParticleQuadTree(br[0], br[1], this.limit, this.maxDepth, this.depth + 1);
                 this.hasChildren = true;
 
                 for (let oldObject of oldObjects) {
