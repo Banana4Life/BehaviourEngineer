@@ -12,9 +12,10 @@
             return new GameParticle();
         }
 
-        clickedAt(e) {
-            let [x, y,] = this.browserPositionToWorld(e.clientX, e.clientY);
-            console.log("clicked at", x, ",", y);
+        clickedAt(screenX, screenY) {
+            console.debug("clicked at", screenX, ",", screenY, "on canvas");
+            let [x, y,] = this.browserPositionToWorld(screenX, screenY);
+            console.debug("clicked at", x, ",", y, "in world");
             if (this.canSpawn()) {
                 let particle = this.spawn(particleType.ANIMATE);
                 particle.x = x;
@@ -176,16 +177,19 @@
 
     function runGame(canvas, gl, [particleShader]) {
         let sim = new GameSimulation(canvas, gl, particleShader);
+
         window.addEventListener('mousemove', e => {
-            sim.mouseX = e.clientX - canvas.clientLeft;
-            sim.mouseY = e.clientY - canvas.clientTop;
+            let [x, y] = clickToElement(e, canvas);
+            sim.mouseX = x;
+            sim.mouseY = y;
             sim.mouseReachable = true;
         });
         window.addEventListener('mouseout', () => {
             sim.mouseReachable = false;
         });
-        window.addEventListener('click', e => {
-            sim.clickedAt(e);
+        canvas.addEventListener('click', e => {
+            let [x, y] = clickToElement(e, canvas);
+            sim.clickedAt(x, y);
         });
 
         const halfWidth = (canvas.width / 2);
