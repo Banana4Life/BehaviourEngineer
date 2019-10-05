@@ -705,15 +705,11 @@ class Simulation {
         return mat4.multiplyV4(this.reverseProjection, [x, y, 0, 1]);
     }
 
-    reactToSight(visibleNeighbours) {
+    makeDescision(particle, visibleNeighbours) {
 
     }
 
-    makeDescision(particle) {
-
-    }
-
-    doAction(particle, dt) {
+    doAction(particle, visibleNeighbours, dt) {
 
     }
 
@@ -757,7 +753,6 @@ class Simulation {
             });
 
             visibleNeighborsWithDistance.sort((a, b) => a[1] - b[1]);
-            this.reactToSight(particle, visibleNeighborsWithDistance);
 
             // for (let [otherParticle, distSqr] of visibleNeighborsWithDistance) {
             //     if (distSqr <= particle.attackRange * particle.attackRange && otherParticle.strength < particle.strength) {
@@ -777,10 +772,10 @@ class Simulation {
 
             particle.decisionTimeout -= dt;
             if (particle.decisionTimeout <= 0) {
-                this.makeDescision(particle);
+                this.makeDescision(particle, visibleNeighborsWithDistance);
                 particle.decisionTimeout = particle.decisionDuration;
             }
-            this.doAction(particle, dt);
+            this.doAction(particle, visibleNeighborsWithDistance, dt);
 
             if (particle.alive) {
                 this.tempParticles.push(particle);

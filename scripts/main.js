@@ -21,17 +21,7 @@
             }
         }
 
-        reactToSight(particle, visibleNeighbours) {
-            if (particle.type === particleType.ANIMATE) {
-                for (let [neighbour, distance] of visibleNeighbours) {
-                    if (neighbour.type === particleType.FOOD && distance <= sqr(particle.feedingRange)) {
-                        neighbour.init(particleType.DEAD_FOOD);
-                    }
-                }
-            }
-        }
-
-        makeDescision(particle) {
+        makeDescision(particle, visibleNeighbours) {
             switch (particle.type) {
                 case particleType.DEAD_FOOD:
                     particle.init(particleType.FOOD);
@@ -49,13 +39,21 @@
             }
         }
 
-        doAction(particle, dt) {
+        doAction(particle, visibleNeighbours, dt) {
             switch (particle.type) {
                 case particleType.DEAD_FOOD:
                     // ?
                     break;
                 case particleType.ANIMATE:
+                    if (particle.type === particleType.ANIMATE) {
+                        for (let [neighbour, distance] of visibleNeighbours) {
+                            if (neighbour.type === particleType.FOOD && distance <= sqr(particle.feedingRange)) {
+                                neighbour.init(particleType.DEAD_FOOD); // eat food
+                            }
+                        }
+                    }
                     this.doMovement(particle, dt);
+                    particle.energy -= dt * particle.speed; // movement costs energy
                     break;
                 case particleType.FOOD:
                     // ?
@@ -81,15 +79,15 @@
                     break;
                 case particleType.ANIMATE:
                     this.speed = 50;
-
                     this.decisionDuration = 2;
                     this.sightRange = 30;
                     this.feedingRange = 15;
+                    this.energy = 100;
                     break;
                 case particleType.DEAD_FOOD:
                     this.decisionDuration = 4 + random(1, 5) + random(1, 5);
                     this.decisionTimeout = this.decisionDuration;
-                    this.color = color.hsv2rgb(random(15, 45), random(.6,1), 1);
+                    this.color = color.hsv2rgb(random(25 , 45), random(.6,1), 0.2);
                     break;
                 default:
                     this.color = color.magenta;
