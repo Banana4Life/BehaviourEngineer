@@ -51,7 +51,7 @@
                 case particleType.ANIMATE:
                     if (particle.type === particleType.ANIMATE) {
                         for (let [neighbour, distance] of visibleNeighbours) {
-                            if (neighbour.type === particleType.FOOD || neighbour.type === particleType.CORPSE && distance <= sqr(particle.feedingRange)) {
+                            if ((neighbour.type === particleType.FOOD || neighbour.type === particleType.CORPSE) && distance <= sqr(particle.feedingRange)) {
                                 if (neighbour.type === particleType.FOOD) {
                                     neighbour.init(particleType.DEAD_FOOD); // eat food
                                 }
@@ -59,29 +59,44 @@
                                     this.kill(neighbour); // eat corpse
                                 }
                                 particle.energy += neighbour.foodValue;
-                                if (particle.energy >= particle.maxEnergy) {
-                                    particle.energy -= particle.offSpringCost;
-                                    let newParticle = this.spawn(particle.type); // TODO parent traits
-                                    newParticle.x = particle.x;
-                                    newParticle.y = particle.y;
-                                }
                             }
 
                             // canibalism?
                             // attack range?
-                            if (neighbour.type === particleType.ANIMATE && distance <= sqr(particle.feedingRange)) {
+                            if (particle !== neighbour && neighbour.type === particleType.ANIMATE && distance <= sqr(particle.feedingRange)) {
                                 // need half energy of enemy, and must be hungry (under half energy)
                                 if (particle.energy * 2 > neighbour.energy && particle.energy * 2 < particle.maxEnergy) {
-                                    particle.energy += neighbour.energy; // eat all energy of enemy
+                                    particle.energy -= neighbour.energy / 2; // expend half of enemy energy
                                     neighbour.init(particleType.CORPSE);
+                                    console.log("canibalism!")
+                                }
+                            }
+
+                            if (neighbour.type === particleType.ANIMATE && particle.team !== neighbour.team && distance <= sqr(particle.feedingRange)) {
+                                if (particle.energy > neighbour.energy) {
+                                    particle.energy -= neighbour.energy / 2;
+                                    neighbour.init(particleType.CORPSE);
+                                    console.log(`FIGHT ${particle.team} killed ${neighbour.team}`)
+                                } else {
+                                    neighbour.energy -= particle.energy / 2;
+                                    particle.init(particleType.CORPSE);
+                                    console.log(`FIGHT ${neighbour.team} killed ${particle.team}`)
                                 }
                             }
                         }
+
+                        // If we have more than max energy produce offspring
+                        if (particle.energy >= particle.maxEnergy) {
+                            particle.energy -= particle.offSpringCost;
+                            let newParticle = this.spawn(particle.type); // TODO parent traits
+                            newParticle.assignParent(particle);
+                        }
+                        particle.energy = Math.min(particle.maxEnergy, particle.energy);
                     }
                     this.doMovement(particle, dt);
                     particle.energy -= dt * particle.speed; // movement costs energy
                     if (particle.energy <= 0) {
-                        this.kill(particle);
+                        particle.init(particleType.CORPSE);
                     }
                     break;
                 case particleType.FOOD:
@@ -96,10 +111,17 @@
             super();
         }
 
+        assignParent(parent) {
+            this.team = parent.team;
+            this.color = parent.color;
+            this.x = parent.x;
+            this.y = parent.y;
+        }
+
         init(type) {
             this.type = type;
             this.decisionTimeout = 0;
-
+            this.size = 10;
             switch (this.type) {
                 case particleType.FOOD:
                     // somewhat green
@@ -110,8 +132,8 @@
                 case particleType.ANIMATE:
                     this.speed = 50;
                     this.decisionDuration = 2;
-                    this.sightRange = 30;
-                    this.feedingRange = 15;
+                    this.sightRange = 50;
+                    this.feedingRange = 5 + this.size;
                     this.energy = 500;
                     this.offSpringCost = 200;
                     this.maxEnergy = 600;
@@ -186,6 +208,15 @@
             for (let i = 0; i < 500; ++i) {
                 randomizeAndPlace(sim.spawn(particleType.FOOD));
             }
+
+            let team2 = sim.spawn(particleType.ANIMATE);
+            team2.team = 2;
+            team2.color = color.hsv2rgb(60, 1, 1);
+            randomizeAndPlace(team2);
+            let team3 = sim.spawn(particleType.ANIMATE);
+            team3.team = 3;
+            team3.color = color.hsv2rgb(30,1,1);
+            randomizeAndPlace(team3);
             onFinish()
         }
 
