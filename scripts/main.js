@@ -3,6 +3,7 @@
     const particleType = {
         FOOD: "FOOD",
         DEAD_FOOD: "DEAD_FOOD",
+        CORPSE: "CORPSE",
         ANIMATE: "ANIMATE",
     };
 
@@ -26,6 +27,9 @@
                 case particleType.DEAD_FOOD:
                     particle.init(particleType.FOOD);
                     break;
+                case particleType.CORPSE:
+                    this.kill(particle);
+                    break;
                 case particleType.ANIMATE:
                     let angle = random(0, 2 * Math.PI);
                     let vx = Math.cos(angle);
@@ -47,13 +51,38 @@
                 case particleType.ANIMATE:
                     if (particle.type === particleType.ANIMATE) {
                         for (let [neighbour, distance] of visibleNeighbours) {
-                            if (neighbour.type === particleType.FOOD && distance <= sqr(particle.feedingRange)) {
-                                neighbour.init(particleType.DEAD_FOOD); // eat food
+                            if (neighbour.type === particleType.FOOD || neighbour.type === particleType.CORPSE && distance <= sqr(particle.feedingRange)) {
+                                if (neighbour.type === particleType.FOOD) {
+                                    neighbour.init(particleType.DEAD_FOOD); // eat food
+                                }
+                                if (neighbour.type === particleType.CORPSE) {
+                                    this.kill(neighbour); // eat corpse
+                                }
+                                particle.energy += neighbour.foodValue;
+                                if (particle.energy >= particle.maxEnergy) {
+                                    particle.energy -= particle.offSpringCost;
+                                    let newParticle = this.spawn(particle.type); // TODO parent traits
+                                    newParticle.x = particle.x;
+                                    newParticle.y = particle.y;
+                                }
+                            }
+
+                            // canibalism?
+                            // attack range?
+                            if (neighbour.type === particleType.ANIMATE && distance <= sqr(particle.feedingRange)) {
+                                // need half energy of enemy, and must be hungry (under half energy)
+                                if (particle.energy * 2 > neighbour.energy && particle.energy * 2 < particle.maxEnergy) {
+                                    particle.energy += neighbour.energy; // eat all energy of enemy
+                                    neighbour.init(particleType.CORPSE);
+                                }
                             }
                         }
                     }
                     this.doMovement(particle, dt);
                     particle.energy -= dt * particle.speed; // movement costs energy
+                    if (particle.energy <= 0) {
+                        this.kill(particle);
+                    }
                     break;
                 case particleType.FOOD:
                     // ?
@@ -76,18 +105,28 @@
                     // somewhat green
                     this.color = color.hsv2rgb(random(90, 130), random(.6,1), 1);
                     this.decisionDuration = 10;
+                    this.foodValue = 100;
                     break;
                 case particleType.ANIMATE:
                     this.speed = 50;
                     this.decisionDuration = 2;
                     this.sightRange = 30;
                     this.feedingRange = 15;
-                    this.energy = 100;
+                    this.energy = 500;
+                    this.offSpringCost = 200;
+                    this.maxEnergy = 600;
+                    this.color = color.blue;
                     break;
                 case particleType.DEAD_FOOD:
                     this.decisionDuration = 4 + random(1, 5) + random(1, 5);
                     this.decisionTimeout = this.decisionDuration;
                     this.color = color.hsv2rgb(random(25 , 45), random(.6,1), 0.2);
+                    break;
+                case particleType.CORPSE:
+                    this.decisionDuration = 15 + random(5, 20);
+                    this.decisionTimeout = this.decisionDuration;
+                    this.color = color.hsv2rgb(random(-20 , +20), random(.8,1), 0.7);
+                    this.foodValue = 20;
                     break;
                 default:
                     this.color = color.magenta;
@@ -144,7 +183,7 @@
             // } else {
             //     onFinish();
             // }
-            for (let i = 0; i < 1000; ++i) {
+            for (let i = 0; i < 500; ++i) {
                 randomizeAndPlace(sim.spawn(particleType.FOOD));
             }
             onFinish()
