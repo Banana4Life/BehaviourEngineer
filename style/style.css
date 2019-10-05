@@ -8,7 +8,7 @@ html, body {
 body {
   font-family: Consolas monospace; }
 
-html, body, div:not(.wrapper):not(.panel), canvas {
+html, body, #main, #game-panel, canvas {
   width: 100%;
   height: 100%;
   display: block; }
@@ -17,26 +17,33 @@ html, body, div:not(.wrapper):not(.panel), canvas {
   float: left;
   width: 80%; }
   #game-panel .wrapper {
-    height: calc(100% - 4em);
-    padding: 1em; }
+    height: calc(100% - 2em); }
 
 #menu-panel {
   float: right;
   width: 20%; }
+  #menu-panel h2 {
+    padding: 6px;
+    margin: 0; }
   #menu-panel .wrapper {
     overflow-x: hidden;
     overflow-y: auto; }
+    #menu-panel .wrapper > div {
+      border: 1px solid gray; }
 
 div.wrapper {
   margin: 1em; }
 
 canvas {
   image-rendering: crisp-edges;
-  border: 1px solid red; }
+  border: 1px solid gray; }
 
 .panel {
-  border: 1px solid gray;
-  font-weight: bold; }
+  font-weight: bold;
+  padding: 6px;
+  margin-bottom: 4px; }
+  .panel h3 {
+    margin: 0; }
   .panel span {
     font-weight: normal;
     font-style: italic; }

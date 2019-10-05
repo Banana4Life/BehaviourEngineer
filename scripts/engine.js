@@ -196,7 +196,7 @@ const color = {
             [hue, saturation, value, alpha] = hue;
         }
         const chroma = value * saturation;
-        const hueSection = hue / 60;
+        const hueSection = ((hue + 360) % 360) / 60;
         const x = chroma * (1 - Math.abs((hueSection % 2) - 1));
         const m = value - chroma;
 
@@ -717,7 +717,7 @@ class Simulation {
         return mat4.multiplyV4(this.reverseProjection, [x, y, 0, 1]);
     }
 
-    makeDescision(particle, visibleNeighbours) {
+    makeDecision(particle, visibleNeighbours) {
 
     }
 
@@ -784,7 +784,7 @@ class Simulation {
 
             particle.decisionTimeout -= dt;
             if (particle.decisionTimeout <= 0) {
-                this.makeDescision(particle, visibleNeighborsWithDistance);
+                this.makeDecision(particle, visibleNeighborsWithDistance);
                 particle.decisionTimeout = particle.decisionDuration;
             }
             this.doAction(particle, visibleNeighborsWithDistance, dt);

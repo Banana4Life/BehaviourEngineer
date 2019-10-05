@@ -65,8 +65,15 @@
             }
         }
 
-        makeDescision(particle, visibleNeighbours) {
+        makeDecision(particle, visibleNeighbours) {
             switch (particle.type) {
+                case particleType.FOOD:
+                    particle.size = particle.size + 0.5;
+                    particle.foodValue += 10;
+                    if (particle.size > 20) {
+                        particle.size = 20; // max size do smth. as a plant?
+                    }
+                    break;
                 case particleType.DEAD_FOOD:
                     this.initWithType(particle, particleType.FOOD);
                     break;
@@ -80,20 +87,19 @@
                     particle.vx = vx * particle.speed;
                     particle.vy = vy * particle.speed;
                     break;
-                case particleType.FOOD:
-                    // ?
-                    break;
             }
         }
 
         init(particle) {
             particle.decisionTimeout = 0;
-            particle.size = 10;
+
             switch (particle.type) {
                 case particleType.FOOD:
                     // somewhat green
+                    particle.size = 10;
                     particle.color = color.hsv2rgb(random(90, 130), random(.6,1), 1);
-                    particle.decisionDuration = 10;
+                    particle.decisionDuration = random(2,8);
+                    particle.decisionTimeout = particle.decisionDuration;
                     particle.foodValue = 100;
                     break;
                 case particleType.ANIMATE:
@@ -101,7 +107,6 @@
                     particle.speed = 50;
                     particle.decisionDuration = 2;
                     particle.sightRange = 50;
-                    particle.feedingRange = 5 + particle.size;
                     particle.energy = 500;
                     particle.offSpringCost = 200;
                     particle.maxEnergy = 600;
@@ -114,13 +119,13 @@
                     break;
                 case particleType.CORPSE:
                     this.tracker.addDeath(particle.team);
-
                     particle.decisionDuration = 15 + random(5, 20);
                     particle.decisionTimeout = particle.decisionDuration;
                     particle.color = color.hsv2rgb(random(-20 , +20), random(.8,1), 0.7);
                     particle.foodValue = Math.max(20, particle.maxEnergy / 2);
                     break;
                 default:
+                    particle.size = 10;
                     particle.color = color.magenta;
             }
         }
@@ -133,7 +138,7 @@
                 case particleType.ANIMATE:
                     if (particle.type === particleType.ANIMATE) {
                         for (let [neighbour, distance] of visibleNeighbours) {
-                            if ((neighbour.type === particleType.FOOD || neighbour.type === particleType.CORPSE) && distance <= sqr(particle.feedingRange)) {
+                            if ((neighbour.type === particleType.FOOD || neighbour.type === particleType.CORPSE) && distance <= sqr(neighbour.size) + sqr(particle.size)) {
                                 if (neighbour.type === particleType.FOOD) {
                                     this.initWithType(neighbour, particleType.DEAD_FOOD); // eat food
                                 }
@@ -157,7 +162,7 @@
                             }
                             */
 
-                            if (neighbour.type === particleType.ANIMATE && particle.team !== neighbour.team && distance <= sqr(particle.feedingRange)) {
+                            if (neighbour.type === particleType.ANIMATE && particle.team !== neighbour.team && distance <= sqr(neighbour.size) + sqr(particle.size)) {
                                 if (particle.energy > neighbour.energy) {
                                     particle.energy -= neighbour.energy / 2;
                                     this.initWithType(neighbour, particleType.CORPSE);
@@ -286,12 +291,6 @@
             randomizeAndPlace(team3);
             onFinish()
         }
-
-
-
-        let player = sim.spawn();
-
-        player.color = color.hsv2rgb(random(90, 130), random(.6,1), 1);
 
         setupWorld(() => {
             renderLoop(window, 0, dt => {
