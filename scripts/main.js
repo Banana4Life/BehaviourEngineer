@@ -215,6 +215,11 @@ const movementType = {
             particle.size = halfSize;
             newParticle.energy = particle.energy / 2;
             particle.energy = particle.energy / 2;
+
+            // MUTATION
+            newParticle.behaviorWeights = newParticle.behaviorWeights.map(weight => {
+                Math.min(1000, Math.max(0, weight + random(-0.05, 0.05)))
+            })
         }
 
 
