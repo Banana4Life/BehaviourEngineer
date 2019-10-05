@@ -10,6 +10,7 @@ const movementType = {
     FREEZE: new MovementFreeze(),
     RANDOM_WALK: new MovementRandomWalk(),
     SEEK_FOOD: new MovementSeekFood(),
+    HUNT_WEAK: new HuntWeak(),
 };
 
 class Species {
@@ -144,8 +145,8 @@ class Species {
                     particle.offSpringCost = 200;
                     particle.maxEnergy = 600;
                     particle.color = color.blue;
-                    particle.behaviors = [movementType.RANDOM_WALK, movementType.SEEK_FOOD, movementType.FREEZE];
-                    particle.behaviorWeights = [5,5,1];
+                    particle.behaviors = [movementType.RANDOM_WALK, movementType.SEEK_FOOD, movementType.FREEZE, movementType.HUNT_WEAK];
+                    particle.behaviorWeights = [5,5,1,50];
                     break;
                 case particleType.DEAD_FOOD:
                     particle.decisionDuration = 4 + random(1, 5) + random(1, 5);
@@ -243,9 +244,8 @@ class Species {
             particle.energy = particle.energy / 2;
 
             // MUTATION
-            newParticle.behaviorWeights = newParticle.behaviorWeights.map(weight => {
-                Math.min(1000, Math.max(0, weight + random(-0.05, 0.05)))
-            })
+            newParticle.behaviorWeights = particle.behaviorWeights.map(weight =>
+                Math.min(1000, Math.max(0, weight + random(-0.05, 0.05))))
         }
 
 
