@@ -10,3 +10,57 @@ function getElementContentPos(elem) {
     let elemRect = elem.getBoundingClientRect();
     return [elemRect.left + leftBorder, elemRect.top + topBorder];
 }
+
+function cumulativeDensity(weightsList)
+{
+    let cdf = new Array(weightsList.length);
+    let prev = 0.0;
+    for (let i = 0; i < weightsList.length; i++)
+    {
+        prev += weightsList[i];
+        cdf[i] = prev;
+    }
+
+    return cdf;
+}
+
+function binaryFindSelectedValue(valuesList, cdfList, lower, upper, selection)
+{
+    let mid = Math.floor((lower + upper) / 2.0);
+
+    let lowerEdge;
+    if (mid === 0)
+    {
+        lowerEdge = 0.0;
+    }
+    else
+    {
+        lowerEdge = cdfList[mid - 1];
+    }
+    let upperEdge = cdfList[mid];
+
+    if (selection < lowerEdge)
+    {
+        return binaryFindSelectedValue(valuesList, cdfList, lower, mid, selection);
+    }
+
+    if (selection >= upperEdge)
+    {
+        return binaryFindSelectedValue(valuesList, cdfList, mid, upper, selection);
+    }
+
+    return valuesList[mid];
+}
+
+function chooseWeighted(weightsList, valuesList, selection)
+{
+    let cdfList = cumulativeDensity(weightsList);
+    let sum = cdfList[cdfList.length - 1];
+
+    return binaryFindSelectedValue(valuesList, cdfList, 0, valuesList.length, selection * sum);
+}
+
+function chooseRandomWeighted(weightsList, valuesList)
+{
+    return chooseWeighted(weightsList, valuesList, Math.random());
+}

@@ -87,7 +87,18 @@ const movementType = {
                     this.kill(particle);
                     break;
                 case particleType.CELL:
-                    particle.movementType.calculate(particle, visibleNeighbours);
+                    if (particle.currentBehaviour) {
+                        // Is the behaviour still valid?
+                        if (particle.currentBehaviour.canExecute(particle, visibleNeighbours)) {
+                            if (particle.currentBehaviour.keepExecuting(particle, visibleNeighbours)) {
+                                particle.currentBehaviour.calculate(particle, visibleNeighbours);
+                                break;
+                            }
+                        }
+                    }
+                    let newBehaviour = chooseRandomWeighted(particle.behaviorWeights, particle.behaviors);
+                    particle.currentBehaviour = newBehaviour;
+                    newBehaviour.calculate(particle, visibleNeighbours);
                     break;
             }
         }
@@ -113,8 +124,8 @@ const movementType = {
                     particle.offSpringCost = 200;
                     particle.maxEnergy = 600;
                     particle.color = color.blue;
-                    particle.movementType = movementType.SEEK_FOOD;
-                    // particle.movementType = movementType.RANDOM_WALK;
+                    particle.behaviors = [movementType.RANDOM_WALK, movementType.SEEK_FOOD, movementType.FREEZE];
+                    particle.behaviorWeights = [5,5,1];
                     break;
                 case particleType.DEAD_FOOD:
                     particle.decisionDuration = 4 + random(1, 5) + random(1, 5);
@@ -162,7 +173,7 @@ const movementType = {
                                 } else {
                                     neighbour.energy -= particle.energy / 2;
                                     this.initWithType(particle, particleType.CORPSE);
-                                    console.log(`FIGHT ${neighbour.id}(${neighbour.team}) killed ${particle.id}(${particle.team})`)
+                                    console.log(`FIGHT ${neighbour.id}(${neighbour.team}) killed ${particle.id}(${particle.team})`);
                                     return;
                                 }
                             }
