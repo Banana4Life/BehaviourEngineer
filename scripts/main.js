@@ -1,11 +1,18 @@
+// Particle Types
+const particleType = {
+    FOOD: "FOOD",
+    DEAD_FOOD: "DEAD_FOOD",
+    CORPSE: "CORPSE",
+    CELL: "CELL",
+};
+
+const movementType = {
+    FREEZE: new MovementFreeze(),
+    RANDOM_WALK: new MovementRandomWalk(),
+    SEEK_FOOD: new MovementSeekFood(),
+};
+
 (function () {
-    // Particle Types
-    const particleType = {
-        FOOD: "FOOD",
-        DEAD_FOOD: "DEAD_FOOD",
-        CORPSE: "CORPSE",
-        ANIMATE: "ANIMATE",
-    };
 
     class Tracker {
         constructor() {
@@ -13,16 +20,15 @@
             this.deaths = [0,0,0];
         }
 
-
-        addDeath(team) {
-            this.deaths[team]++;
-            this.liveCount[team]--;
+        addDeath(particle) {
+            this.deaths[particle.team]++;
+            this.liveCount[particle.team]--;
 
             this.updateTrackerPanel();
         }
 
-        addLive(team) {
-            this.liveCount[team]++;
+        addLive(particle) {
+            this.liveCount[particle.team]++;
 
             this.updateTrackerPanel();
         }
@@ -38,7 +44,6 @@
                                          <div>Team 3 <span>${this.deaths[2]}</span></div>`;
         }
 
-
     }
 
     class GameSimulation extends Simulation {
@@ -46,10 +51,11 @@
         constructor(canvas, gl, shader) {
             super(canvas, gl, shader);
             this.tracker = new Tracker();
+            this.particleCounter = 0;
         }
 
         createParticle() {
-            return new GameParticle();
+            return new GameParticle(this.particleCounter++);
         }
 
         clickedAt(screenX, screenY) {
@@ -57,9 +63,9 @@
             let [x, y,] = this.browserPositionToWorld(screenX, screenY);
             console.debug("clicked at", x, ",", y, "in world");
             if (this.canSpawn()) {
-                let particle = this.spawn(particleType.ANIMATE);
+                let particle = this.spawn(particleType.CELL);
                 particle.team = 0;
-                this.tracker.addLive(particle.team);
+                this.tracker.addLive(particle);
                 particle.x = x;
                 particle.y = y;
             }
@@ -80,19 +86,15 @@
                 case particleType.CORPSE:
                     this.kill(particle);
                     break;
-                case particleType.ANIMATE:
-                    let angle = random(0, 2 * Math.PI);
-                    let vx = Math.cos(angle);
-                    let vy = Math.sin(angle);
-                    particle.vx = vx * particle.speed;
-                    particle.vy = vy * particle.speed;
+                case particleType.CELL:
+                    particle.movementType.calculate(particle, visibleNeighbours);
                     break;
             }
         }
 
         init(particle) {
             particle.decisionTimeout = 0;
-
+            particle.sightRange = 0;
             switch (particle.type) {
                 case particleType.FOOD:
                     // somewhat green
@@ -102,15 +104,17 @@
                     particle.decisionTimeout = particle.decisionDuration;
                     particle.foodValue = 100;
                     break;
-                case particleType.ANIMATE:
+                case particleType.CELL:
                     particle.size = 15;
                     particle.speed = 50;
                     particle.decisionDuration = 2;
-                    particle.sightRange = 50;
+                    particle.sightRange = 300;
                     particle.energy = 500;
                     particle.offSpringCost = 200;
                     particle.maxEnergy = 600;
                     particle.color = color.blue;
+                    particle.movementType = movementType.SEEK_FOOD;
+                    // particle.movementType = movementType.RANDOM_WALK;
                     break;
                 case particleType.DEAD_FOOD:
                     particle.decisionDuration = 4 + random(1, 5) + random(1, 5);
@@ -118,7 +122,7 @@
                     particle.color = color.hsv2rgb(random(25 , 45), random(.6,1), 0.2);
                     break;
                 case particleType.CORPSE:
-                    this.tracker.addDeath(particle.team);
+                    this.tracker.addDeath(particle);
                     particle.decisionDuration = 15 + random(5, 20);
                     particle.decisionTimeout = particle.decisionDuration;
                     particle.color = color.hsv2rgb(random(-20 , +20), random(.8,1), 0.7);
@@ -135,10 +139,10 @@
                 case particleType.DEAD_FOOD:
                     // ?
                     break;
-                case particleType.ANIMATE:
-                    if (particle.type === particleType.ANIMATE) {
+                case particleType.CELL:
+                    if (particle.type === particleType.CELL) {
                         for (let [neighbour, distance] of visibleNeighbours) {
-                            if ((neighbour.type === particleType.FOOD || neighbour.type === particleType.CORPSE) && distance <= sqr(neighbour.size) + sqr(particle.size)) {
+                            if (neighbour.alive && (neighbour.type === particleType.FOOD || neighbour.type === particleType.CORPSE) && distance <= sqr(neighbour.size) + sqr(particle.size)) {
                                 if (neighbour.type === particleType.FOOD) {
                                     this.initWithType(neighbour, particleType.DEAD_FOOD); // eat food
                                 }
@@ -150,27 +154,16 @@
                                 particle.maxEnergy += 1;
                             }
 
-                            // canibalism?
-                            /*
-                            if (particle !== neighbour && neighbour.type === particleType.ANIMATE && distance <= sqr(particle.feedingRange)) {
-                                // need half energy of enemy, and must be hungry (under half energy)
-                                if (particle.energy * 2 > neighbour.energy && particle.energy * 2 < particle.maxEnergy) {
-                                    particle.energy -= neighbour.energy / 2; // expend half of enemy energy
-                                    this.initWithType(neighbour, particleType.CORPSE);
-                                    console.log("canibalism!")
-                                }
-                            }
-                            */
-
-                            if (neighbour.type === particleType.ANIMATE && particle.team !== neighbour.team && distance <= sqr(neighbour.size) + sqr(particle.size)) {
+                            if (neighbour.type === particleType.CELL && particle.team !== neighbour.team && distance <= sqr(neighbour.size) + sqr(particle.size)) {
                                 if (particle.energy > neighbour.energy) {
                                     particle.energy -= neighbour.energy / 2;
                                     this.initWithType(neighbour, particleType.CORPSE);
-                                    console.log(`FIGHT ${particle.team} killed ${neighbour.team}`)
+                                    console.log(`FIGHT ${particle.id}(${particle.team}) killed ${neighbour.id}(${neighbour.team})`)
                                 } else {
                                     neighbour.energy -= particle.energy / 2;
                                     this.initWithType(particle, particleType.CORPSE);
-                                    console.log(`FIGHT ${neighbour.team} killed ${particle.team}`)
+                                    console.log(`FIGHT ${neighbour.id}(${neighbour.team}) killed ${particle.id}(${particle.team})`)
+                                    return;
                                 }
                             }
                         }
@@ -197,9 +190,10 @@
             particle.energy -= particle.offSpringCost;
 
             let newParticle = this.spawn(particle.type);
+            console.log(`${particle.id}(${particle.team}) splits into ${newParticle.id}... prevteam: ${newParticle.team}`);
 
             newParticle.team = particle.team;
-            this.tracker.addLive(newParticle.team);
+            this.tracker.addLive(newParticle);
 
             newParticle.color = particle.color;
             newParticle.x = particle.x;
@@ -216,8 +210,9 @@
     }
 
     class GameParticle extends Particle {
-        constructor() {
+        constructor(id) {
             super();
+            this.id = id;
         }
 
 
@@ -279,16 +274,17 @@
                 randomizeAndPlace(sim.spawn(particleType.FOOD));
             }
 
-            let team2 = sim.spawn(particleType.ANIMATE);
+            let team2 = sim.spawn(particleType.CELL);
             team2.team = 1;
             team2.color = color.hsv2rgb(60, 1, 1);
-            sim.tracker.addLive(team2.team);
+            sim.tracker.addLive(team2);
             randomizeAndPlace(team2);
-            let team3 = sim.spawn(particleType.ANIMATE);
+            let team3 = sim.spawn(particleType.CELL);
             team3.team = 2;
             team3.color = color.hsv2rgb(30,1,1);
-            sim.tracker.addLive(team3.team);
+            sim.tracker.addLive(team3);
             randomizeAndPlace(team3);
+
             onFinish()
         }
 

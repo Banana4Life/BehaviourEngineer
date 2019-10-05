@@ -121,6 +121,28 @@ const mat4 = {
 
 };
 
+const vec2d = {
+    squaredLength(x, y) {
+        if (Array.isArray(x)) {
+            [x, y] = x;
+        }
+        return x * x + y * y;
+    },
+    length: function (x, y) {
+        if (Array.isArray(x)) {
+            [x, y] = x;
+        }
+        return Math.sqrt(vec2d.squaredLength(x, y));
+    },
+    normalize: function (x, y) {
+        if (Array.isArray(x)) {
+            [x, y] = x;
+        }
+        const len = vec2d.length(x, y);
+        return [x / len, y / len];
+    },
+};
+
 const vec = {
     squaredLength(x, y, z) {
         if (Array.isArray(x)) {
@@ -128,6 +150,7 @@ const vec = {
         }
         return x * x + y * y * z * z;
     },
+
     length: function (x, y, z) {
         if (Array.isArray(x)) {
             [x, y, z] = x;
@@ -676,6 +699,9 @@ class Simulation {
     }
 
     kill(particle) {
+        if (!particle.alive) {
+            throw new Error("Dead Particles cannot die! (I think)")
+        }
         particle.alive = false;
         this.deadParticles.push(particle);
     }
@@ -1032,6 +1058,9 @@ class ParticleQuadTree {
     }
 
     forEachInCircle(centerX, centerY, radius, f) {
+        if (radius <= 0) {
+            return [];
+        }
         const rl = [centerX - radius, centerY + radius];
         const br = [centerX + radius, centerY - radius];
 
