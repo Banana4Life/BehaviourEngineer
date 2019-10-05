@@ -24,19 +24,23 @@ class Species {
 (function () {
 
     class Tracker {
-        constructor(canvas, factions) {
-            this.chart = new SmoothieChart({interpolation: 'bezier', minValue: 0, labels: {disabled: false}});
+        constructor(canvas, species) {
+            this.chart = new SmoothieChart({interpolation: 'bezier', minValue: 0, labels: {disabled: false}, tooltip: true, responsive: true});
             this.chart.streamTo(canvas);
             this.speciesState = new Map();
-            for (let faction of factions) {
+            for (let aSpecies of species) {
                 let state = {
-                    faction: faction,
+                    species: aSpecies,
                     liveCount: 0,
                     deaths: 0,
                     series: new TimeSeries(),
                 };
-                this.speciesState.set(faction.id, state);
-                this.chart.addTimeSeries(state.series, { strokeStyle: color.vec2css(faction.color) });
+                this.speciesState.set(aSpecies.id, state);
+                let seriesConf = {
+                    strokeStyle: color.vec2css(aSpecies.color),
+                    tooltipLabel: aSpecies.name,
+                };
+                this.chart.addTimeSeries(state.series, seriesConf);
             }
         }
 
