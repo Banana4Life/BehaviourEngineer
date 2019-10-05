@@ -31,6 +31,7 @@ div.wrapper {
   margin: 1em; }
 
 canvas {
-  image-rendering: crisp-edges; }
+  image-rendering: crisp-edges;
+  border: 1px solid red; }
 
 /*# sourceMappingURL=style.css.map */

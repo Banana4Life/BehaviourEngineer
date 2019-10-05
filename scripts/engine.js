@@ -630,7 +630,7 @@ class Simulation {
         return this.aliveParticles.length < this.particlePoolSize;
     }
 
-    spawn() {
+    spawn(type) {
         if (!this.canSpawn()) {
             return null;
         }
@@ -638,11 +638,16 @@ class Simulation {
         if (this.deadParticles.length > 0) {
             particle = this.deadParticles.shift();
         } else {
-            particle = new Particle();
+            particle = this.createParticle();
         }
+        particle.init(type);
         this.aliveParticles.push(particle);
         particle.spawn();
         return particle;
+    }
+
+    createParticle() {
+        return new Particle();
     }
 
     kill(particle) {
@@ -681,20 +686,42 @@ class Simulation {
         return this.browserPositionToWorld(this.mouseX, this.mouseY);
     }
 
-    clickedAt(e) {
-        let [x, y,] = this.browserPositionToWorld(e.clientX, e.clientY);
-        console.log("clicked at", x, ",", y);
-        if (this.canSpawn()) {
-            let particle = this.spawn();
-            particle.x = x;
-            particle.y = y;
-        }
-    }
-
     browserPositionToWorld(browserX, browserY) {
         const x = browserX / (this.canvas.width / 2) - 1;
         const y = (this.canvas.height - browserY) / (this.canvas.height / 2) - 1;
         return mat4.multiplyV4(this.reverseProjection, [x, y, 0, 1]);
+    }
+
+    reactToSight(visibleNeighbours) {
+
+    }
+
+    makeDescision(particle) {
+
+    }
+
+    doAction(particle, dt) {
+
+    }
+
+    doMovement(particle, dt) {
+        let newX = particle.x + particle.vx * dt;
+        let newY = particle.y + particle.vy * dt;
+
+        if (newX < this.topLeftCorner[0]) {
+            newX = this.bottomRightCorner[0] - (this.topLeftCorner[0] - newX);
+        } else if (newX >= this.bottomRightCorner[0]) {
+            newX = this.topLeftCorner[0] + (newX - this.bottomRightCorner[0]);
+        }
+
+        if (newY > this.topLeftCorner[1]) {
+            newY = this.bottomRightCorner[1] + (newY - this.topLeftCorner[1]);
+        } else if (newY <= this.bottomRightCorner[1]) {
+            newY = this.topLeftCorner[1] - (this.bottomRightCorner[1] - newY);
+        }
+
+        particle.x = newX;
+        particle.y = newY;
     }
 
     simulateParticles(dt) {
@@ -717,42 +744,30 @@ class Simulation {
             });
 
             visibleNeighborsWithDistance.sort((a, b) => a[1] - b[1]);
+            this.reactToSight(particle, visibleNeighborsWithDistance);
 
-            for (let [otherParticle, distSqr] of visibleNeighborsWithDistance) {
-                if (distSqr <= particle.attackRange * particle.attackRange && otherParticle.strength < particle.strength) {
-                    this.kill(otherParticle);
-                }
-            }
+            // for (let [otherParticle, distSqr] of visibleNeighborsWithDistance) {
+            //     if (distSqr <= particle.attackRange * particle.attackRange && otherParticle.strength < particle.strength) {
+            //         this.kill(otherParticle);
+            //     }
+            // }
 
-            for (let [otherParticle,] of visibleNeighborsWithDistance) {
-                if (otherParticle.alive && otherParticle.male !== particle.male && this.canSpawn()) {
-                    let child = this.spawn();
-                    Particle.crossover(particle, otherParticle, child);
-                    child.x = particle.x + (otherParticle.x - particle.x);
-                    child.y = particle.y + (otherParticle.y - particle.y);
-                    break;
-                }
-            }
+            // for (let [otherParticle,] of visibleNeighborsWithDistance) {
+            //     if (otherParticle.alive && otherParticle.male !== particle.male && this.canSpawn()) {
+            //         let child = this.spawn();
+            //         Particle.crossover(particle, otherParticle, child);
+            //         child.x = particle.x + (otherParticle.x - particle.x);
+            //         child.y = particle.y + (otherParticle.y - particle.y);
+            //         break;
+            //     }
+            // }
 
             particle.decisionTimeout -= dt;
             if (particle.decisionTimeout <= 0) {
-                let angle = random(0, 2 * Math.PI);
-                let vx = Math.cos(angle);
-                let vy = Math.sin(angle);
-                particle.vx = vx * particle.speed;
-                particle.vy = vy * particle.speed;
-
-                particle.decisionTimeout = particle.decisionDuration * 1000;
+                this.makeDescision(particle);
+                particle.decisionTimeout = particle.decisionDuration;
             }
-
-            this.moveParticle(particle, dt);
-
-            // if (particle.male) {
-            //     particle.color = color.blue;
-            // } else {
-            //     particle.color = color.magenta;
-            // }
-
+            this.doAction(particle, dt);
 
             if (particle.alive) {
                 this.tempParticles.push(particle);
@@ -762,25 +777,7 @@ class Simulation {
 
     }
 
-    moveParticle(particle, dt) {
-        let newX = particle.x + particle.vx * dt;
-        let newY = particle.y + particle.vy * dt;
 
-        if (newX < this.topLeftCorner[0]) {
-            newX = this.bottomRightCorner[0] - (this.topLeftCorner[0] - newX);
-        } else if (newX >= this.bottomRightCorner[0]) {
-            newX = this.topLeftCorner[0] + (newX - this.bottomRightCorner[0]);
-        }
-
-        if (newY > this.topLeftCorner[1]) {
-            newY = this.bottomRightCorner[1] + (newY - this.topLeftCorner[1]);
-        } else if (newY <= this.bottomRightCorner[1]) {
-            newY = this.topLeftCorner[1] - (this.bottomRightCorner[1] - newY);
-        }
-
-        particle.x = newX;
-        particle.y = newY;
-    }
 
     render() {
         this.gl.clearColor(0, 0, 0, 0);
@@ -1045,4 +1042,8 @@ function renderLoop(root, pt, f) {
 
 function gaussianRand() {
     return (Math.random() + Math.random()) / 2;
+}
+
+function sqr(number) {
+    return number * number;
 }
