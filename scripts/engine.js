@@ -144,7 +144,10 @@ const vec2d = {
 };
 
 const vec = {
-    squaredLength(x, y, z) {
+    distance: function(a, b) {
+        return [b[0] - a[0], b[1] - a[1], b[2] - a[2]];
+    },
+    squaredLength: function(x, y, z) {
         if (Array.isArray(x)) {
             [x, y, z] = x;
         }
@@ -1095,6 +1098,14 @@ function renderLoop(root, pt, f) {
         f(dt);
         renderLoop(root, t, f);
     });
+}
+
+function measureTime(label, f) {
+    const start = Date.now();
+    const r = f();
+    const delta = Date.now() - start;
+    console.debug(`Time taken for ${label}: ${delta}ms`);
+    return r;
 }
 
 function gaussianRand() {

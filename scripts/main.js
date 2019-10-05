@@ -286,9 +286,7 @@ const movementType = {
             // } else {
             //     onFinish();
             // }
-            for (let i = 0; i < 500; ++i) {
-                randomizeAndPlace(sim.spawn(particleType.FOOD));
-            }
+            generateFood();
 
             let team2 = sim.spawn(particleType.CELL);
             team2.team = 1;
@@ -301,7 +299,43 @@ const movementType = {
             sim.tracker.addLive(team3);
             randomizeAndPlace(team3);
 
-            onFinish()
+            onFinish();
+        }
+
+        function generateFood() {
+            const gridRes = 70;
+            let [startX, startY, ] = sim.topLeftCorner;
+            let [lengthX, lengthY, ] = vec.distance(sim.topLeftCorner, sim.bottomRightCorner);
+            let stepX = lengthX / gridRes;
+            let stepY = lengthY / gridRes;
+
+            let noise = openSimplexNoise(Date.now());
+
+            const gradients = [[1, 128], [1.5, 32]];
+            const threshold = 0.4;
+
+            for (let yc = 0; yc < gridRes; ++yc) {
+                for (let xc = 0; xc < gridRes; ++xc) {
+                    let x = (startX + stepX * xc) + (stepX / 2);
+                    let y = (startY + stepY * yc) + (stepY / 2);
+                    let v = 0;
+                    for (let [a, f] of gradients) {
+                        v += noise.noise2D(x / f, y / f) * a;
+                    }
+                    v /= gradients.length;
+
+                    if (v > threshold) {
+                        let particle = sim.spawn(particleType.FOOD);
+
+                        let offX = random(-1, 1) * stepX / 2;
+                        let offY = random(-1, 1) * stepY / 2;
+                        particle.x = x + offX;
+                        particle.y = y + offY;
+                    }
+                }
+            }
+
+            console.log(lengthX, lengthY, stepX, stepY);
         }
 
         setupWorld(() => {
