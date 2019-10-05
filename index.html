@@ -9,13 +9,16 @@
 <div id="main">
     <div id="game-panel">
         <div class="wrapper">
-            <canvas></canvas>
+            <canvas id="simulation"></canvas>
         </div>
     </div>
     <div id="menu-panel">
         <div class="wrapper">
             <div>
                 <h2>Menu</h2>
+                <div class="panel">
+                    <canvas id="cell-tracker"></canvas>
+                </div>
                 <div class="panel">
                     <h3>Live Cells</h3>
                     <div id="panel-info-live-count">
@@ -33,7 +36,8 @@
     </div>
 </div>
 
-<script src="scripts/noise.js"></script>
+<script src="scripts/vendored/smoothie.js"></script>
+<script src="scripts/vendored/open-simplex-noise.js"></script>
 <script src="scripts/util.js"></script>
 <script src="scripts/engine.js"></script>
 <script src="scripts/behaviours.js"></script>

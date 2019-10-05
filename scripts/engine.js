@@ -227,6 +227,19 @@ const color = {
     blue: [0, 0, 1, 1],
     magenta: [1, 0, 1, 1],
 
+    vec2css: function(r, g, b, a) {
+        if (Array.isArray(r)) {
+            [r, g, b, a] = r;
+        }
+
+        function toCSS(v) {
+            return Math.floor((v * 255.0) % 256);
+        }
+
+
+        return `rgba(${toCSS(r)}, ${toCSS(g)}, ${toCSS(b)}, ${a})`;
+    },
+
     hsv2rgb: function (hue, saturation, value, alpha = 1) {
         if (Array.isArray(hue)) {
             [hue, saturation, value, alpha] = hue;

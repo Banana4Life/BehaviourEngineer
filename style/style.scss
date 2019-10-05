@@ -10,7 +10,7 @@ body {
   font-family: Consolas monospace;
 }
 
-html, body, #main, #game-panel, canvas {
+html, body, #main, #game-panel, canvas#simulation {
   width: 100%;
   height: 100%;
   display: block;

@@ -12,45 +12,64 @@ const movementType = {
     SEEK_FOOD: new MovementSeekFood(),
 };
 
+class Species {
+    constructor(id, name, color) {
+        this.id = id;
+        this.name = name;
+        this.color = color;
+    }
+}
+
 (function () {
 
     class Tracker {
-        constructor() {
-            this.liveCount = [0,0,0];
-            this.deaths = [0,0,0];
+        constructor(canvas, factions) {
+            this.chart = new SmoothieChart({interpolation: 'bezier', minValue: 0, labels: {disabled: false}});
+            this.chart.streamTo(canvas);
+            this.speciesState = new Map();
+            for (let faction of factions) {
+                let state = {
+                    faction: faction,
+                    liveCount: 0,
+                    deaths: 0,
+                    series: new TimeSeries(),
+                };
+                this.speciesState.set(faction.id, state);
+                this.chart.addTimeSeries(state.series, { strokeStyle: color.vec2css(faction.color) });
+            }
         }
 
         addDeath(particle) {
-            this.deaths[particle.team]++;
-            this.liveCount[particle.team]--;
-
-            this.updateTrackerPanel();
+            let state = this.speciesState.get(particle.team);
+            state.deaths++;
+            state.liveCount--;
         }
 
         addLive(particle) {
-            this.liveCount[particle.team]++;
-
-            this.updateTrackerPanel();
+            let state = this.speciesState.get(particle.team);
+            state.liveCount++;
         }
 
         updateTrackerPanel() {
-            let liveCountPanel = document.getElementById("panel-info-live-count");
-            liveCountPanel.innerHTML = `<div>Team 1 <span>${this.liveCount[0]}</span></div>
-                                        <div>Team 2 <span>${this.liveCount[1]}</span></div>
-                                        <div>Team 3 <span>${this.liveCount[2]}</span></div>`;
-            let deathCountPanel = document.getElementById("panel-info-death-count");
-            deathCountPanel.innerHTML = `<div>Team 1 <span>${this.deaths[0]}</span></div>
-                                         <div>Team 2 <span>${this.deaths[1]}</span></div>
-                                         <div>Team 3 <span>${this.deaths[2]}</span></div>`;
+            let now = Date.now();
+            this.speciesState.forEach((state, id) => {
+                state.series.append(now, state.liveCount);
+            });
         }
 
     }
 
     class GameSimulation extends Simulation {
 
-        constructor(canvas, gl, shader) {
+        constructor(canvas, trackerCanvas, gl, shader) {
             super(canvas, gl, shader);
-            this.tracker = new Tracker();
+            this.playerSpecies = new Species(0, "Player", color.blue);
+            this.species = [
+                this.playerSpecies,
+                new Species(1, "Enemey 1", color.hsv2rgb(60, 1, 1)),
+                new Species(2, "Enemey 2", color.hsv2rgb(30, 1, 1)),
+            ];
+            this.tracker = new Tracker(trackerCanvas, this.species);
             this.particleCounter = 0;
         }
 
@@ -64,7 +83,8 @@ const movementType = {
             console.debug("clicked at", x, ",", y, "in world");
             if (this.canSpawn()) {
                 let particle = this.spawn(particleType.CELL);
-                particle.team = 0;
+                particle.team = this.playerSpecies.id;
+                particle.color = this.playerSpecies.color;
                 this.tracker.addLive(particle);
                 particle.x = x;
                 particle.y = y;
@@ -197,6 +217,12 @@ const movementType = {
             }
         }
 
+
+        update(dt) {
+            super.update(dt);
+            this.tracker.updateTrackerPanel();
+        }
+
         split(particle) {
             particle.energy -= particle.offSpringCost;
 
@@ -230,11 +256,10 @@ const movementType = {
             super();
             this.id = id;
         }
-
-
     }
 
-    let canvas = document.querySelector("canvas");
+
+    let canvas = document.querySelector("canvas#simulation");
     let gl = canvas.getContext("webgl");
     gl.getExtension('OES_standard_derivatives');
     gl.enable(gl.BLEND);
@@ -253,7 +278,8 @@ const movementType = {
     });
 
     function runGame(canvas, gl, [particleShader]) {
-        let sim = new GameSimulation(canvas, gl, particleShader);
+        let cellTrackerCanvas = document.querySelector("canvas#cell-tracker");
+        let sim = new GameSimulation(canvas, cellTrackerCanvas, gl, particleShader);
         GAME_SIMULATION = sim;
         window.addEventListener('mousemove', e => {
             let [x, y] = clickToElement(e, canvas);
@@ -288,16 +314,15 @@ const movementType = {
             // }
             generateFood();
 
-            let team2 = sim.spawn(particleType.CELL);
-            team2.team = 1;
-            team2.color = color.hsv2rgb(60, 1, 1);
-            sim.tracker.addLive(team2);
-            randomizeAndPlace(team2);
-            let team3 = sim.spawn(particleType.CELL);
-            team3.team = 2;
-            team3.color = color.hsv2rgb(30,1,1);
-            sim.tracker.addLive(team3);
-            randomizeAndPlace(team3);
+            sim.species.forEach(species => {
+                if (species !== sim.playerSpecies) {
+                    let first = sim.spawn(particleType.CELL);
+                    first.team = species.id;
+                    first.color = species.color;
+                    sim.tracker.addLive(first);
+                    randomizeAndPlace(first);
+                }
+            });
 
             onFinish();
         }
