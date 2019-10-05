@@ -150,7 +150,7 @@ class Species {
                     particle.maxEnergy = 600;
                     particle.color = color.blue;
                     particle.behaviors = [movementType.RANDOM_WALK, movementType.SEEK_FOOD, movementType.FREEZE, movementType.HUNT_WEAK];
-                    particle.behaviorWeights = [5,5,1,50];
+                    particle.behaviorWeights = [5,5,1,1];
                     break;
                 case particleType.DEAD_FOOD:
                     particle.decisionDuration = 4 + random(1, 5) + random(1, 5);
@@ -192,13 +192,13 @@ class Species {
 
                             if (neighbour.type === particleType.CELL && particle.team !== neighbour.team && distance <= sqr(neighbour.size) + sqr(particle.size)) {
                                 if (particle.energy > neighbour.energy) {
-                                    particle.energy -= neighbour.energy / 2;
+                                    particle.energy -= neighbour.energy / 3;
                                     this.initWithType(neighbour, particleType.CORPSE);
-                                    console.log(`FIGHT ${particle.id}(${particle.team}) killed ${neighbour.id}(${neighbour.team})`)
+                                    // console.log(`FIGHT ${particle.id}(${particle.team}) killed ${neighbour.id}(${neighbour.team})`)
                                 } else {
-                                    neighbour.energy -= particle.energy / 2;
+                                    neighbour.energy -= particle.energy / 3;
                                     this.initWithType(particle, particleType.CORPSE);
-                                    console.log(`FIGHT ${neighbour.id}(${neighbour.team}) killed ${particle.id}(${particle.team})`);
+                                    // console.log(`FIGHT ${neighbour.id}(${neighbour.team}) killed ${particle.id}(${particle.team})`);
                                     return;
                                 }
                             }
@@ -232,7 +232,7 @@ class Species {
             particle.energy -= particle.offSpringCost;
 
             let newParticle = this.spawn(particle.type);
-            console.log(`${particle.id}(${particle.team}) splits into ${newParticle.id}... prevteam: ${newParticle.team}`);
+            // console.log(`${particle.id}(${particle.team}) splits into ${newParticle.id}... prevteam: ${newParticle.team}`);
 
             newParticle.team = particle.team;
             this.tracker.addLive(newParticle);
@@ -278,7 +278,7 @@ class Species {
     Promise.all(shaders).then(loadedShaders => {
         runGame(canvas, gl, loadedShaders);
     }, err => {
-        console.log("Error!", err)
+        console.error("Error!", err)
     });
 
     function runGame(canvas, gl, [particleShader]) {

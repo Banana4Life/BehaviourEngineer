@@ -55,35 +55,35 @@ class MovementRandomWalk {
 class HuntWeak extends BasicMovement {
     keepExecuting(particle, visibleNeighbours) {
         return visibleNeighbours.filter(([p,d]) => p.id === particle.huntGoal
-            && this.isWeakEnemy(particle, p)
-            && d < sqr(particle.size + 5)
+            && this.isWeakEnemy(particle, d, p)
         ).length === 1
     }
 
     canExecute(particle, visibleNeighbours) {
-        return visibleNeighbours.filter(([p,]) => this.isWeakEnemy(particle, p)).length > 0;
+        return visibleNeighbours.filter(([p,d]) => this.isWeakEnemy(particle, d, p)).length > 0;
     }
 
     calculate(particle, visibleNeighbours) {
-        let weaklings = visibleNeighbours.filter(([p,]) => this.isWeakEnemy(particle, p));
+        let weaklings = visibleNeighbours.filter(([p,d]) => this.isWeakEnemy(particle, d, p));
         for (let [weakling,] of weaklings) {
             if (Math.random() > 0.3) {
                 continue; // sometimes go after other
             }
             this.pathTo(particle, weakling);
             particle.huntGoal = weakling.id;
-            particle.decisionDuration = 1.5;
+            particle.decisionDuration = 0.2;
             return;
         }
 
-        movementType.RANDOM_WALK.calculate(particle, visibleNeighbours);
+        movementType.SEEK_FOOD.calculate(particle, visibleNeighbours);
     }
 
-    isWeakEnemy(particle, prey) {
+    isWeakEnemy(particle, d, prey) {
         return prey.type === particleType.CELL
             && particle.id !== prey.id
             && particle.team !== prey.team
-            && prey.energy < particle.energy / 2;
+            && prey.energy < particle.energy - 40
+            && d < sqr(particle.size + prey.size + 40);
     }
 }
 

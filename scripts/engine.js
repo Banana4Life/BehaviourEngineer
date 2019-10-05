@@ -226,6 +226,7 @@ const color = {
     green: [0, 1, 0, 1],
     blue: [0, 0, 1, 1],
     magenta: [1, 0, 1, 1],
+    white: [1, 1, 1, 1],
 
     vec2css: function(r, g, b, a) {
         if (Array.isArray(r)) {
