@@ -372,53 +372,64 @@ function compileShader(gl, type, source) {
     gl.compileShader(shader);
 
     if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
-        console.log('An error occurred compiling the shaders:', gl.getShaderInfoLog(shader));
         gl.deleteShader(shader);
-        return null;
+        throw new Error('An error occurred compiling the shaders: ' + gl.getShaderInfoLog(shader));
     }
 
     return shader;
 }
 
-function buildShader(gl, vertex, fragment, attributes, uniforms) {
-    const vertexShader = compileShader(gl, gl.VERTEX_SHADER, vertex);
-    if (vertexShader === null) {
-        return null;
-    }
-    const fragmentShader = compileShader(gl, gl.FRAGMENT_SHADER, fragment);
-    if (fragmentShader === null) {
-        return null;
-    }
+function loadShader(gl, baseName, attributes, uniforms) {
 
-    // Create the shader program
-
-    const shaderProgram = gl.createProgram();
-    gl.attachShader(shaderProgram, vertexShader);
-    gl.attachShader(shaderProgram, fragmentShader);
-    gl.linkProgram(shaderProgram);
-
-    // If creating the shader program failed, alert
-
-    if (!gl.getProgramParameter(shaderProgram, gl.LINK_STATUS)) {
-        console.log('Unable to initialize the shader program:', gl.getProgramInfoLog(shaderProgram));
-        return null;
+    function location(name, type) {
+        switch (type) {
+            case gl.VERTEX_SHADER:
+                return `${name}.vert`;
+            case gl.FRAGMENT_SHADER:
+                return `${name}.frag`;
+            default:
+                throw "unknown type";
+        }
     }
 
-    let shader = {
-        program: shaderProgram,
-        attribute: {},
-        uniform: {},
-    };
-
-    for (let attribute of attributes) {
-        shader.attribute[attribute] = gl.getAttribLocation(shaderProgram, attribute);
+    function compile(as) {
+        return source => compileShader(gl, as, source);
     }
 
-    for (let uniform of uniforms) {
-        shader.uniform[uniform] = gl.getUniformLocation(shaderProgram, uniform);
-    }
+    let vertex = fetch(location(baseName, gl.VERTEX_SHADER))
+        .then(response => response.text())
+        .then(compile(gl.VERTEX_SHADER));
 
-    return shader;
+    let fragment = fetch(location(baseName, gl.FRAGMENT_SHADER))
+        .then(response => response.text())
+        .then(compile(gl.FRAGMENT_SHADER));
+
+    return Promise.all([vertex, fragment]).then(([vertexShader, fragmentShader]) => {
+        const shaderProgram = gl.createProgram();
+        gl.attachShader(shaderProgram, vertexShader);
+        gl.attachShader(shaderProgram, fragmentShader);
+        gl.linkProgram(shaderProgram);
+        if (!gl.getProgramParameter(shaderProgram, gl.LINK_STATUS)) {
+            gl.deleteProgram(shaderProgram);
+            throw new Error('Unable to initialize the shader program: ' + gl.getProgramInfoLog(shaderProgram));
+        }
+
+        let shader = {
+            program: shaderProgram,
+            attribute: {},
+            uniform: {},
+        };
+
+        for (let attribute of attributes) {
+            shader.attribute[attribute] = gl.getAttribLocation(shaderProgram, attribute);
+        }
+
+        for (let uniform of uniforms) {
+            shader.uniform[uniform] = gl.getUniformLocation(shaderProgram, uniform);
+        }
+
+        return shader;
+    });
 }
 
 class Mesh {
