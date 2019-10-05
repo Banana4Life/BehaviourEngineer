@@ -8,7 +8,7 @@ html, body {
 body {
   font-family: Consolas monospace; }
 
-html, body, div:not(.wrapper), canvas {
+html, body, div:not(.wrapper):not(.panel), canvas {
   width: 100%;
   height: 100%;
   display: block; }
@@ -33,5 +33,12 @@ div.wrapper {
 canvas {
   image-rendering: crisp-edges;
   border: 1px solid red; }
+
+.panel {
+  border: 1px solid gray;
+  font-weight: bold; }
+  .panel span {
+    font-weight: normal;
+    font-style: italic; }
 
 /*# sourceMappingURL=style.css.map */

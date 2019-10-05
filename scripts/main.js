@@ -7,7 +7,47 @@
         ANIMATE: "ANIMATE",
     };
 
+    class Tracker {
+        constructor() {
+            this.liveCount = [0,0,0];
+            this.deaths = [0,0,0];
+        }
+
+
+        addDeath(team) {
+            this.deaths[team]++;
+            this.liveCount[team]--;
+
+            this.updateTrackerPanel();
+        }
+
+        addLive(team) {
+            this.liveCount[team]++;
+
+            this.updateTrackerPanel();
+        }
+
+        updateTrackerPanel() {
+            let liveCountPanel = document.getElementById("panel-info-live-count");
+            liveCountPanel.innerHTML = `<div>Team 1 <span>${this.liveCount[0]}</span></div>
+                                        <div>Team 2 <span>${this.liveCount[1]}</span></div>
+                                        <div>Team 3 <span>${this.liveCount[2]}</span></div>`;
+            let deathCountPanel = document.getElementById("panel-info-death-count");
+            deathCountPanel.innerHTML = `<div>Team 1 <span>${this.deaths[0]}</span></div>
+                                         <div>Team 2 <span>${this.deaths[1]}</span></div>
+                                         <div>Team 3 <span>${this.deaths[2]}</span></div>`;
+        }
+
+
+    }
+
     class GameSimulation extends Simulation {
+
+        constructor(canvas, gl, shader) {
+            super(canvas, gl, shader);
+            this.tracker = new Tracker();
+        }
+
         createParticle() {
             return new GameParticle();
         }
@@ -18,6 +58,8 @@
             console.debug("clicked at", x, ",", y, "in world");
             if (this.canSpawn()) {
                 let particle = this.spawn(particleType.ANIMATE);
+                particle.team = 0;
+                this.tracker.addLive(particle.team);
                 particle.x = x;
                 particle.y = y;
             }
@@ -55,6 +97,7 @@
                     particle.foodValue = 100;
                     break;
                 case particleType.ANIMATE:
+                    particle.size = 15;
                     particle.speed = 50;
                     particle.decisionDuration = 2;
                     particle.sightRange = 50;
@@ -70,6 +113,8 @@
                     particle.color = color.hsv2rgb(random(25 , 45), random(.6,1), 0.2);
                     break;
                 case particleType.CORPSE:
+                    this.tracker.addDeath(particle.team);
+
                     particle.decisionDuration = 15 + random(5, 20);
                     particle.decisionTimeout = particle.decisionDuration;
                     particle.color = color.hsv2rgb(random(-20 , +20), random(.8,1), 0.7);
@@ -96,12 +141,12 @@
                                     this.kill(neighbour); // eat corpse
                                 }
                                 particle.energy += neighbour.foodValue;
-                                particle.size += 0.1;
+                                particle.size += 1;
                                 particle.maxEnergy += 1;
                             }
 
                             // canibalism?
-                            // attack range?
+                            /*
                             if (particle !== neighbour && neighbour.type === particleType.ANIMATE && distance <= sqr(particle.feedingRange)) {
                                 // need half energy of enemy, and must be hungry (under half energy)
                                 if (particle.energy * 2 > neighbour.energy && particle.energy * 2 < particle.maxEnergy) {
@@ -110,6 +155,7 @@
                                     console.log("canibalism!")
                                 }
                             }
+                            */
 
                             if (neighbour.type === particleType.ANIMATE && particle.team !== neighbour.team && distance <= sqr(particle.feedingRange)) {
                                 if (particle.energy > neighbour.energy) {
@@ -144,14 +190,21 @@
 
         split(particle) {
             particle.energy -= particle.offSpringCost;
+
             let newParticle = this.spawn(particle.type);
+
             newParticle.team = particle.team;
+            this.tracker.addLive(newParticle.team);
+
             newParticle.color = particle.color;
             newParticle.x = particle.x;
             newParticle.y = particle.y;
+
             let halfSize = Math.max(newParticle.size, particle.size / 2);
             newParticle.size = halfSize;
             particle.size = halfSize;
+            newParticle.energy = particle.energy / 2;
+            particle.energy = particle.energy / 2;
         }
 
 
@@ -185,7 +238,7 @@
 
     function runGame(canvas, gl, [particleShader]) {
         let sim = new GameSimulation(canvas, gl, particleShader);
-
+        GAME_SIMULATION = sim;
         window.addEventListener('mousemove', e => {
             let [x, y] = clickToElement(e, canvas);
             sim.mouseX = x;
@@ -222,12 +275,14 @@
             }
 
             let team2 = sim.spawn(particleType.ANIMATE);
-            team2.team = 2;
+            team2.team = 1;
             team2.color = color.hsv2rgb(60, 1, 1);
+            sim.tracker.addLive(team2.team);
             randomizeAndPlace(team2);
             let team3 = sim.spawn(particleType.ANIMATE);
-            team3.team = 3;
+            team3.team = 2;
             team3.color = color.hsv2rgb(30,1,1);
+            sim.tracker.addLive(team3.team);
             randomizeAndPlace(team3);
             onFinish()
         }
