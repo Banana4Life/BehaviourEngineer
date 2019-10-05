@@ -165,7 +165,7 @@
 
 
     let shaders = [
-        loadShader(gl, "scripts/shader/particle", ["vertexPosition", "color"], ["projectionMatrix", "viewMatrix", "modelMatrix", "size"])
+        loadShader(gl, "scripts/shader/particle", ["vertexPosition", "color", "size"], ["projectionMatrix", "viewMatrix", "modelMatrix"])
     ];
 
     Promise.all(shaders).then(loadedShaders => {

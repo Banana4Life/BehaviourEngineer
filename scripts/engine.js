@@ -628,6 +628,7 @@ class Simulation {
 
         this.particlePointBuffer = gl.createBuffer();
         this.particleColorBuffer = gl.createBuffer();
+        this.particleSizeBuffer = gl.createBuffer();
         this.mouseX = 0;
         this.mouseY = 0;
         this.mouseReachable = false;
@@ -793,29 +794,9 @@ class Simulation {
 
         this.gl.useProgram(this.shader.program);
 
-        this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.particlePointBuffer);
-        let vertexData = new Float32Array(this.aliveParticles.length * 2);
-        for (let i = 0; i < this.aliveParticles.length; ++i) {
-            let bufOffset = i * 2;
-            vertexData[bufOffset] = this.aliveParticles[i].x;
-            vertexData[bufOffset + 1] = this.aliveParticles[i].y;
-        }
-        this.gl.bufferData(this.gl.ARRAY_BUFFER, vertexData, this.gl.STATIC_DRAW);
-        this.gl.vertexAttribPointer(this.shader.attribute["vertexPosition"], 2, this.gl.FLOAT, false, 0, 0);
-        this.gl.enableVertexAttribArray(this.shader.attribute["vertexPosition"]);
-
-        this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.particleColorBuffer);
-        let colorData = new Float32Array(this.aliveParticles.length * 4);
-        for (let i = 0; i < this.aliveParticles.length; ++i) {
-            let bufOffset = i * 4;
-            colorData[bufOffset] = this.aliveParticles[i].color[0];
-            colorData[bufOffset + 1] = this.aliveParticles[i].color[1];
-            colorData[bufOffset + 2] = this.aliveParticles[i].color[2];
-            colorData[bufOffset + 3] = this.aliveParticles[i].color[3];
-        }
-        this.gl.bufferData(this.gl.ARRAY_BUFFER, colorData, this.gl.STATIC_DRAW);
-        this.gl.vertexAttribPointer(this.shader.attribute["color"], 4, this.gl.FLOAT, false, 0, 0);
-        this.gl.enableVertexAttribArray(this.shader.attribute["color"]);
+        this.uploadParticleAttribute("size", this.particleSizeBuffer, p => p.size, this.gl.FLOAT, 1);
+        this.uploadParticleAttribute("vertexPosition", this.particlePointBuffer, p => [p.x, p.y], this.gl.FLOAT, 2);
+        this.uploadParticleAttribute("color", this.particleColorBuffer, p => p.color, this.gl.FLOAT, 4);
 
         this.gl.uniformMatrix4fv(this.shader.uniform["modelMatrix"], false, mat4.identity);
         this.gl.uniformMatrix4fv(this.shader.uniform["viewMatrix"], false, this.view);
@@ -823,6 +804,31 @@ class Simulation {
         this.gl.uniform1f(this.shader.uniform["size"], this.particleSize);
 
         this.gl.drawArrays(this.gl.POINTS, 0, this.aliveParticles.length);
+    }
+
+    uploadParticleAttribute(name, buffer, particleValue, type, size) {
+        let data;
+        if (type === this.gl.FLOAT) {
+            data = new Float32Array(this.aliveParticles.length * size);
+        } else {
+            throw new Error("Unknown attribute data type: " + type)
+        }
+        for (let particleIndex = 0; particleIndex < this.aliveParticles.length; ++particleIndex) {
+            let bufOffset = particleIndex * size;
+            let particle = this.aliveParticles[particleIndex];
+            let attribValue = particleValue(particle);
+            if (size === 1 && !Array.isArray(attribValue)) {
+                data[bufOffset] = attribValue;
+            } else {
+                for (let attribIndex = 0; attribIndex < size; ++attribIndex) {
+                    data[bufOffset + attribIndex] = attribValue[attribIndex];
+                }
+            }
+        }
+        this.gl.bindBuffer(this.gl.ARRAY_BUFFER, buffer);
+        this.gl.bufferData(this.gl.ARRAY_BUFFER, data, this.gl.STATIC_DRAW);
+        this.gl.vertexAttribPointer(this.shader.attribute[name], size, type, false, 0, 0);
+        this.gl.enableVertexAttribArray(this.shader.attribute[name]);
     }
 }
 

@@ -1,5 +1,6 @@
-varying mediump vec4 pointColor;
 #extension GL_OES_standard_derivatives : enable
+
+varying mediump vec4 pointColor;
 
 void main() {
     mediump vec2 diff = 2.0 * gl_PointCoord - 1.0;
