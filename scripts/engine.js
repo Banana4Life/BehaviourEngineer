@@ -644,8 +644,19 @@ class Simulation {
         return this.aliveParticles.length < this.particlePoolSize;
     }
 
+
+    initWithType(particle, type) {
+        particle.type = type;
+        this.init(particle);
+    }
+
+    init(particle) {
+
+    }
+
     spawn(type) {
         if (!this.canSpawn()) {
+            console.log("Cannot Spawn! :(")
             return null;
         }
         let particle;
@@ -654,7 +665,7 @@ class Simulation {
         } else {
             particle = this.createParticle();
         }
-        particle.init(type);
+        this.initWithType(particle, type);
         this.aliveParticles.push(particle);
         particle.spawn();
         return particle;

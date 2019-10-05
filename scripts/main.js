@@ -26,7 +26,7 @@
         makeDescision(particle, visibleNeighbours) {
             switch (particle.type) {
                 case particleType.DEAD_FOOD:
-                    particle.init(particleType.FOOD);
+                    this.initWithType(particle, particleType.FOOD);
                     break;
                 case particleType.CORPSE:
                     this.kill(particle);
@@ -44,6 +44,42 @@
             }
         }
 
+        init(particle) {
+            particle.decisionTimeout = 0;
+            particle.size = 10;
+            switch (particle.type) {
+                case particleType.FOOD:
+                    // somewhat green
+                    particle.color = color.hsv2rgb(random(90, 130), random(.6,1), 1);
+                    particle.decisionDuration = 10;
+                    particle.foodValue = 100;
+                    break;
+                case particleType.ANIMATE:
+                    particle.speed = 50;
+                    particle.decisionDuration = 2;
+                    particle.sightRange = 50;
+                    particle.feedingRange = 5 + particle.size;
+                    particle.energy = 500;
+                    particle.offSpringCost = 200;
+                    particle.maxEnergy = 600;
+                    particle.color = color.blue;
+                    break;
+                case particleType.DEAD_FOOD:
+                    particle.decisionDuration = 4 + random(1, 5) + random(1, 5);
+                    particle.decisionTimeout = particle.decisionDuration;
+                    particle.color = color.hsv2rgb(random(25 , 45), random(.6,1), 0.2);
+                    break;
+                case particleType.CORPSE:
+                    particle.decisionDuration = 15 + random(5, 20);
+                    particle.decisionTimeout = particle.decisionDuration;
+                    particle.color = color.hsv2rgb(random(-20 , +20), random(.8,1), 0.7);
+                    particle.foodValue = Math.max(20, particle.maxEnergy / 2);
+                    break;
+                default:
+                    particle.color = color.magenta;
+            }
+        }
+
         doAction(particle, visibleNeighbours, dt) {
             switch (particle.type) {
                 case particleType.DEAD_FOOD:
@@ -54,12 +90,14 @@
                         for (let [neighbour, distance] of visibleNeighbours) {
                             if ((neighbour.type === particleType.FOOD || neighbour.type === particleType.CORPSE) && distance <= sqr(particle.feedingRange)) {
                                 if (neighbour.type === particleType.FOOD) {
-                                    neighbour.init(particleType.DEAD_FOOD); // eat food
+                                    this.initWithType(neighbour, particleType.DEAD_FOOD); // eat food
                                 }
                                 if (neighbour.type === particleType.CORPSE) {
                                     this.kill(neighbour); // eat corpse
                                 }
                                 particle.energy += neighbour.foodValue;
+                                particle.size += 0.1;
+                                particle.maxEnergy += 1;
                             }
 
                             // canibalism?
@@ -68,7 +106,7 @@
                                 // need half energy of enemy, and must be hungry (under half energy)
                                 if (particle.energy * 2 > neighbour.energy && particle.energy * 2 < particle.maxEnergy) {
                                     particle.energy -= neighbour.energy / 2; // expend half of enemy energy
-                                    neighbour.init(particleType.CORPSE);
+                                    this.initWithType(neighbour, particleType.CORPSE);
                                     console.log("canibalism!")
                                 }
                             }
@@ -76,11 +114,11 @@
                             if (neighbour.type === particleType.ANIMATE && particle.team !== neighbour.team && distance <= sqr(particle.feedingRange)) {
                                 if (particle.energy > neighbour.energy) {
                                     particle.energy -= neighbour.energy / 2;
-                                    neighbour.init(particleType.CORPSE);
+                                    this.initWithType(neighbour, particleType.CORPSE);
                                     console.log(`FIGHT ${particle.team} killed ${neighbour.team}`)
                                 } else {
                                     neighbour.energy -= particle.energy / 2;
-                                    particle.init(particleType.CORPSE);
+                                    this.initWithType(particle, particleType.CORPSE);
                                     console.log(`FIGHT ${neighbour.team} killed ${particle.team}`)
                                 }
                             }
@@ -88,16 +126,14 @@
 
                         // If we have more than max energy produce offspring
                         if (particle.energy >= particle.maxEnergy) {
-                            particle.energy -= particle.offSpringCost;
-                            let newParticle = this.spawn(particle.type); // TODO parent traits
-                            newParticle.assignParent(particle);
+                           this.split(particle);
                         }
                         particle.energy = Math.min(particle.maxEnergy, particle.energy);
                     }
                     this.doMovement(particle, dt);
                     particle.energy -= dt * particle.speed; // movement costs energy
                     if (particle.energy <= 0) {
-                        particle.init(particleType.CORPSE);
+                        this.initWithType(particle, particleType.CORPSE);
                     }
                     break;
                 case particleType.FOOD:
@@ -105,6 +141,20 @@
                     break;
             }
         }
+
+        split(particle) {
+            particle.energy -= particle.offSpringCost;
+            let newParticle = this.spawn(particle.type);
+            newParticle.team = particle.team;
+            newParticle.color = particle.color;
+            newParticle.x = particle.x;
+            newParticle.y = particle.y;
+            let halfSize = Math.max(newParticle.size, particle.size / 2);
+            newParticle.size = halfSize;
+            particle.size = halfSize;
+        }
+
+
     }
 
     class GameParticle extends Particle {
@@ -112,49 +162,7 @@
             super();
         }
 
-        assignParent(parent) {
-            this.team = parent.team;
-            this.color = parent.color;
-            this.x = parent.x;
-            this.y = parent.y;
-        }
 
-        init(type) {
-            this.type = type;
-            this.decisionTimeout = 0;
-            this.size = 10;
-            switch (this.type) {
-                case particleType.FOOD:
-                    // somewhat green
-                    this.color = color.hsv2rgb(random(90, 130), random(.6,1), 1);
-                    this.decisionDuration = 10;
-                    this.foodValue = 100;
-                    break;
-                case particleType.ANIMATE:
-                    this.speed = 50;
-                    this.decisionDuration = 2;
-                    this.sightRange = 50;
-                    this.feedingRange = 5 + this.size;
-                    this.energy = 500;
-                    this.offSpringCost = 200;
-                    this.maxEnergy = 600;
-                    this.color = color.blue;
-                    break;
-                case particleType.DEAD_FOOD:
-                    this.decisionDuration = 4 + random(1, 5) + random(1, 5);
-                    this.decisionTimeout = this.decisionDuration;
-                    this.color = color.hsv2rgb(random(25 , 45), random(.6,1), 0.2);
-                    break;
-                case particleType.CORPSE:
-                    this.decisionDuration = 15 + random(5, 20);
-                    this.decisionTimeout = this.decisionDuration;
-                    this.color = color.hsv2rgb(random(-20 , +20), random(.8,1), 0.7);
-                    this.foodValue = 20;
-                    break;
-                default:
-                    this.color = color.magenta;
-            }
-        }
     }
 
     let canvas = document.querySelector("canvas");
