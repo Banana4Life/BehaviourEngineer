@@ -141,6 +141,16 @@ const vec2d = {
         const len = vec2d.length(x, y);
         return [x / len, y / len];
     },
+    normalizeOrZero: function (x, y) {
+        if (Array.isArray(x)) {
+            [x, y] = x;
+        }
+        const len = vec2d.length(x, y);
+        if (len === 0) {
+            return [0, 0]
+        }
+        return [x / len, y / len];
+    },
 };
 
 const vec = {
@@ -754,9 +764,34 @@ class Simulation {
 
     }
 
-    doMovement(particle, dt) {
-        let newX = particle.x + particle.vx * dt;
-        let newY = particle.y + particle.vy * dt;
+    doMovement(particle, visibleNeighbours, dt) {
+
+        let tooClose = visibleNeighbours.filter(([p,]) => p.team === particle.team && p.type === particleType.CELL)
+                         .filter(([p,d]) => d < sqr(particle.size) + sqr(p.size));
+        let dxSum = 0;
+        let dySum = 0;
+        if (tooClose.length > 0) {
+            for (let [closeParticle,] of tooClose) {
+                let dx = particle.x - closeParticle.x;
+                let dy = particle.y - closeParticle.y;
+                dxSum += dx;
+                dySum += dy;
+            }
+            if (dxSum !== 0 || dySum !== 0) {
+                [dxSum, dySum] = vec2d.normalizeOrZero(dxSum, dySum)
+            }
+        }
+
+        let [vx, vy] = vec2d.normalizeOrZero(
+            particle.vx / particle.speed * 3 + dxSum,
+            particle.vy / particle.speed * 3 + dySum);
+
+        if (isNaN(vx)) {
+            debugger
+        }
+
+        let newX = particle.x + vx * particle.speed * dt;
+        let newY = particle.y + vy * particle.speed * dt;
 
         if (newX < this.topLeftCorner[0]) {
             newX = this.bottomRightCorner[0] - (this.topLeftCorner[0] - newX);

@@ -42,21 +42,29 @@ class MovementSeekFood {
     }
 
     keepExecuting(particle, visibleNeighbours) {
-        return visibleNeighbours.filter(p => p.id === particle.foodGoal).length === 1;
+        return visibleNeighbours.filter(([p,]) => p.id === particle.foodGoal).length === 1;
     }
 
     canExecute(particle, visibleNeighbours) {
-        return visibleNeighbours.filter(p => this.isFood(p)).length > 0;
+        return visibleNeighbours.filter(([p,]) => this.isFood(p)).length > 0;
     }
 
     calculate(particle, visibleNeighbours) {
-        for (let [neighbour, distance] of visibleNeighbours) {
+        let currentGoal = visibleNeighbours
+            .filter(([p,]) => p.id === particle.foodGoal && p.type !== particleType.DEAD_FOOD);
+        if (currentGoal.length === 1) {
+            this.pathTo(particle, currentGoal[0][0]);
+            return;
+        }
+
+        for (let [neighbour,] of visibleNeighbours) {
             if (this.isFood(neighbour)) {
+                if (Math.random() > 0.3) {
+                    continue; // sometimes go after other food
+                }
                 // maybe consider other options?
-                let [dx, dy] = vec2d.normalize(neighbour.x - particle.x, neighbour.y - particle.y);
-                particle.vx = dx * particle.speed;
-                particle.vy = dy * particle.speed;
-                particle.decisionDuration = 0.2;
+
+                this.pathTo(particle, neighbour);
                 particle.foodGoal = neighbour.id;
                 return;
             }
@@ -65,4 +73,13 @@ class MovementSeekFood {
         movementType.RANDOM_WALK.calculate(particle, visibleNeighbours);
     }
 
+    pathTo(particle, goal) {
+        let [dx, dy] = vec2d.normalizeOrZero(goal.x - particle.x, goal.y - particle.y);
+        if (isNaN(dx)) {
+            debugger
+        }
+        particle.vx = dx * particle.speed;
+        particle.vy = dy * particle.speed;
+        particle.decisionDuration = 0.2;
+    }
 }

@@ -185,7 +185,7 @@ const movementType = {
                         }
                         particle.energy = Math.min(particle.maxEnergy, particle.energy);
                     }
-                    this.doMovement(particle, dt);
+                    this.doMovement(particle, visibleNeighbours, dt);
                     particle.energy -= dt * particle.speed; // movement costs energy
                     if (particle.energy <= 0) {
                         this.initWithType(particle, particleType.CORPSE);
