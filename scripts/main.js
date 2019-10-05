@@ -99,6 +99,9 @@
 
     let canvas = document.querySelector("canvas");
     let gl = canvas.getContext("webgl");
+    gl.getExtension('OES_standard_derivatives');
+    gl.enable(gl.BLEND);
+    gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
 
 
 

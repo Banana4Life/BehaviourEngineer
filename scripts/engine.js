@@ -794,11 +794,7 @@ class Simulation {
 
     render() {
         this.gl.clearColor(0, 0, 0, 0);
-        this.gl.clearDepth(1.0);
-        this.gl.enable(this.gl.DEPTH_TEST);
-        this.gl.depthFunc(this.gl.LEQUAL);
-
-        this.gl.clear(this.gl.COLOR_BUFFER_BIT | this.gl.DEPTH_BUFFER_BIT);
+        this.gl.clear(this.gl.COLOR_BUFFER_BIT);
 
         this.gl.useProgram(this.shader.program);
 
