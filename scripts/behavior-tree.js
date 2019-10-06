@@ -370,7 +370,7 @@ class RepeatingBehavior extends BehaviorWrapper {
     }
 
     onStart(context) {
-        this.child.start();
+        this.child.start(context);
         if (this.shouldRepeat(context)) {
             return BehaviorResult.Running;
         }
