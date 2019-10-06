@@ -283,7 +283,7 @@ class BehaviorFilter extends BehaviorNode {
     onContinue(context) {
         super.onStart(context);
         let newContext = this.onPreContinue(this.child, context);
-        let result = this.child.start(newContext);
+        let result = this.child.continue(newContext);
         return this.onPostContinue(this.child, newContext, result);
     }
 
