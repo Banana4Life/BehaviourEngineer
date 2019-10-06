@@ -692,6 +692,7 @@ class Simulation {
         this.updateProjection();
 
         this.simulationSpeedMulti = 1;
+        this.simulationTicksToRun = -1;
     }
 
     setPoolSize(size) {
@@ -764,7 +765,18 @@ class Simulation {
     }
 
     update(dt) {
+        if (this.simulationTicksToRun !== -1) {
+            if (this.simulationTicksToRun > 0) {
+                this.simulationSpeedMulti = 1;
+                dt = 0.016;
+                this.simulationTicksToRun--;
+            } else {
+                this.simulationSpeedMulti = 0;
+            }
+        }
+
         dt *= this.simulationSpeedMulti;
+
         if (this.canvas.width !== this.canvas.clientWidth || this.canvas.height !== this.canvas.clientHeight) {
             this.updateCanvas();
         }

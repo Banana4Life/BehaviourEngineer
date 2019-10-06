@@ -7,6 +7,10 @@ class Behavior {
         return new SequenceBranch([...arguments]);
     }
 
+    static parallelPrioSelector() {
+        return new ParallelPrioritySelector([...arguments]);
+    }
+
     static selector() {
         return new SelectorBranch([...arguments]);
     }
@@ -61,7 +65,7 @@ class BehaviorNode {
             this.onReset(context);
             this.state = BehaviorState.Ready;
         } else {
-            throw new Error("Cannot reset while not new or completed!")
+            throw new Error("Cannot reset while not new or completed! " + this.state)
         }
     }
 
@@ -105,6 +109,7 @@ class BehaviorNode {
             if (this.isComplete()) {
                 this.onComplete(context);
             }
+            // console.log(this.constructor.name + ": Start " + result);
             return result;
         } else {
             throw new Error("Cannot start while not ready!");
@@ -121,6 +126,7 @@ class BehaviorNode {
             if (this.isComplete()) {
                 this.onComplete(context);
             }
+            // console.log(this.constructor.name + ": Cont " + result);
             return result;
         } else {
             throw new Error("Cannot continue while not running!");
@@ -182,7 +188,9 @@ class BehaviorComposite extends BehaviorNode {
     onReset(context) {
         super.onReset(context);
         for (let child of this.children) {
-            child.reset(context);
+            if (child.isNew() || child.isComplete()) {
+                child.reset(context);
+            }
         }
     }
 
@@ -231,7 +239,12 @@ class SelectorBranch extends BehaviorBranch {
     tryChildren(context) {
         for (; this.selected < this.children.length; ++this.selected) {
             let child = this.children[this.selected];
-            let result = child.start(context);
+            let result;
+            if (child.isRunning()) {
+                result = child.continue(context);
+            } else {
+                result = child.start(context);
+            }
             if (result !== BehaviorResult.Failure) {
                 return result;
             }
@@ -293,6 +306,50 @@ class SequenceBranch extends BehaviorBranch {
         return this.runWhilePossible(context);
     }
 }
+
+
+class ParallelPrioritySelector extends BehaviorBranch {
+    constructor(children) {
+        super(children);
+    }
+
+    onReset(context) {
+        super.onReset(context);
+    }
+
+    runWhilePossible(context) {
+        let success = false;
+        let result;
+        for (let child of this.children) {
+            if (success) {
+                if (child.isRunning()) {
+                    child.interrupt(context)
+                }
+            } else {
+                if (child.isReady() || child.isComplete()) {
+                    result = child.restart(context);
+                } else if (child.isRunning()) {
+                    result = child.continue(context);
+                }
+                if (result !== BehaviorResult.Failure) {
+                    success = true;
+                }
+            }
+        }
+        return result;
+
+    }
+
+    onStart(context) {
+        this.active = 0;
+        return this.runWhilePossible(context)
+    }
+
+    onContinue(context) {
+        return this.runWhilePossible(context);
+    }
+}
+
 
 class RandomSequenceBranch extends SequenceBranch {
     constructor(children) {
@@ -561,7 +618,7 @@ class SimpleTask extends BehaviorTask {
     }
 
     executeStart(context) {
-        this.execute(context);
+        return this.execute(context);
     }
 
     checkValid(context) {
@@ -637,9 +694,9 @@ class TimedTask extends SimpleTask {
 }
 
 const BehaviorResult = {
-    Success: 1,
-    Running: 2,
-    Failure: 3,
+    Success: "SUCCESS",
+    Running: "RUNNING",
+    Failure: "FAILURE",
 };
 
 const BehaviorState = {

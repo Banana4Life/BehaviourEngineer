@@ -73,10 +73,16 @@ class Species {
 
         play() {
             this.simulationSpeedMulti = 1;
+            this.simulationTicksToRun = -1;
         }
 
         pause() {
             this.simulationSpeedMulti = 0;
+            this.simulationTicksToRun = 0;
+        }
+
+        tick(ticks) {
+            this.simulationTicksToRun += ticks;
         }
 
         createParticle() {
@@ -117,32 +123,30 @@ class Species {
                     this.kill(particle);
                     break;
                 case particleType.CELL:
-                    if (particle.team === 0) {
-                        if (particle.currentBehaviour && particle.currentBehaviour.isRunning()) {
-                            particle.currentBehaviour.continue({
-                                sim: this,
-                                particle: particle,
-                                visibleNeighbours: visibleNeighbours,
-                                dt: dt
-                            });
+                    let ctx = {
+                        sim: this,
+                        particle: particle,
+                        visibleNeighbours: visibleNeighbours,
+                        dt: dt
+                    };
+                    if (!particle.currentBehaviour) {
+                        particle.currentBehaviour = complex_behavior.superBehavior().repeat();
+                        particle.currentBehaviour.restart(ctx);
+                    } else {
+                        if (particle.currentBehaviour.isRunning()) {
+                            particle.currentBehaviour.continue(ctx);
                         } else {
-                            particle.currentBehaviour = complex_behavior.superBehavior();
-                            particle.currentBehaviour.reset({});
-                            particle.currentBehaviour.start({
-                                sim: this,
-                                particle: particle,
-                                visibleNeighbours: visibleNeighbours,
-                                dt: dt
-                            });
+                            particle.currentBehaviour.restart(ctx);
                         }
-                        break
-                    }
-                    if (!particle.currentBehaviour || particle.currentBehaviour.onContinue({sim: this, particle: particle, visibleNeighbours: visibleNeighbours, dt: dt})) {
-                        let newBehaviour = chooseRandomWeighted(particle.behaviorWeights, behaviours);
-                        particle.currentBehaviour = newBehaviour;
-                        newBehaviour.onStart({sim: this, particle: particle, visibleNeighbours: visibleNeighbours, dt: dt}); // TODO result?
                     }
                     break;
+
+                    // if (!particle.currentBehaviour || particle.currentBehaviour.onContinue({sim: this, particle: particle, visibleNeighbours: visibleNeighbours, dt: dt})) {
+                    //     let newBehaviour = chooseRandomWeighted(particle.behaviorWeights, behaviours);
+                    //     particle.currentBehaviour = newBehaviour;
+                    //     newBehaviour.onStart({sim: this, particle: particle, visibleNeighbours: visibleNeighbours, dt: dt}); // TODO result?
+                    // }
+                    // break;
             }
         }
 
@@ -161,7 +165,7 @@ class Species {
                 case particleType.CELL:
                     particle.size = 15;
                     particle.speed = 50;
-                    particle.decisionDuration = 2;
+                    particle.decisionDuration = 0.2;
                     particle.sightRange = 300;
                     particle.energy = 500;
                     particle.offSpringCost = 200;
@@ -233,7 +237,7 @@ class Species {
             // MUTATION
             newParticle.behaviorWeights = particle.behaviorWeights.map(weight =>
                 Math.min(1000, Math.max(0, weight + random(-0.05, 0.05))))
-            console.log(newParticle.behaviorWeights.map(v => Math.round(v * 100)))
+            // console.log(newParticle.behaviorWeights.map(v => Math.round(v * 100)))
         }
     }
 

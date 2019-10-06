@@ -12,6 +12,12 @@ class Fight extends InstantTask {
 }
 
 class Split extends InstantTask {
+
+    constructor(percent) {
+        super();
+        this.percent = percent;
+    }
+
     executeOnce(context) {
         context.sim.split(context.particle);
         return true;
@@ -19,7 +25,7 @@ class Split extends InstantTask {
 
     checkPrecondition(context) {
         let particle = context.particle;
-        return particle.energy > particle.maxEnergy / 2;
+        return particle.energy > particle.maxEnergy * this.percent;
     }
 }
 
@@ -56,18 +62,19 @@ class HuntWeak extends SimpleTask {
 
     filterContext(context) {
         if (this.isRunning()) {
-            context.visibleNeighbours = context.visibleNeighbours.filter(([p,]) => p.id === context.particle.huntGoal);
+            context.visiblePrey = context.visibleNeighbours.filter(([p,d]) => utils.isWeakEnemy(context.particle, d, p) && p.id === context.particle.huntGoal);
+        } else {
+            context.visiblePrey = context.visibleNeighbours.filter(([p,d]) => utils.isWeakEnemy(context.particle, d, p))
         }
-        context.visibleNeighbours = context.visibleNeighbours.filter(([p,d]) => utils.isWeakEnemy(context.particle, d, p))
     }
 
     checkPrecondition(context) {
-        return context.visibleNeighbours.length > 0;
+        return context.visiblePrey.length > 0;
     }
 
     executeStart(context) {
         let particle = context.particle;
-        for (let [prey,] of context.visibleNeighbours) {
+        for (let [prey,] of context.visiblePrey) {
             // TODO not always pick first?
             utils.pathTo(particle, prey);
             particle.huntGoal = prey.id;
@@ -77,9 +84,9 @@ class HuntWeak extends SimpleTask {
     }
 
     execute(context) {
-        let prey = context.visibleNeighbours;
+        let prey = context.visiblePrey;
         if (prey.length !== 0) {
-            utils.pathTo(prey[0][0]);
+            utils.pathTo(particle, prey[0][0]);
             return BehaviorResult.Running;
         }
         return BehaviorResult.Failure
@@ -90,54 +97,66 @@ class Eat extends InstantTask {
 
     // Filter touching food particles
     filterContext(context) {
-        context.visibleNeighbours = context.visibleNeighbours.filter(([p,d]) => utils.isFood(p) && touches(context.particle, p, d));
+        let particle = context.particle;
+        context.eatableFoods = context.visibleNeighbours.filter(([p,d]) => utils.isFood(p) && touches(particle, p, d));
     }
 
     checkValid(context) {
-        return context.visibleNeighbours.length > 0;
+        return context.particle.serveFood;
     }
 
     executeOnce(context) {
         let particle = context.particle;
-        for (let [food,] of context.visibleNeighbours) {
+        let food = particle.serveFood;
+        particle.serveFood = null;
 
-            particle.energy += food.foodValue;
-            particle.size += 1;
-            if (particle.size > 40) {
-                particle.size = 40;
-                particle.energy += 10;
-            }
-            particle.maxEnergy += 1;
+        // Food is served
+        particle.energy += food.foodValue;
+        particle.size += 1;
+        if (particle.size > 40) {
+            particle.size = 40;
+            particle.energy += 10;
+        }
+        particle.maxEnergy += 1;
 
-            if (food.type === particleType.FOOD) {
+        switch (food.type) {
+            case particleType.FOOD:
                 context.sim.initWithType(food, particleType.DEAD_FOOD); // eat food
-            }
-            if (food.type === particleType.CORPSE) {
+                break;
+            case particleType.CORPSE:
                 context.sim.kill(food); // eat corpse
-            }
+                break;
         }
 
-        particle.decisionDuration = 0;
         return true
     }
 }
 
-class MovementSeekFood extends SimpleTask {
+class PerceptionRadial extends InstantTask {
+    constructor(perceptionRange) {
+        super();
+        this.perceptionRange = perceptionRange;
+    }
+    filterContext(context) {
+        context.visibleNeighbours = context.visibleNeighbours.filter(([p,d]) => touches(context.particle, p, d, this.perceptionRange))
+    }
+}
 
+class SeeFood extends InstantTask {
     // Filter food particles / food goal particle
     filterContext(context) {
-        if (this.isRunning()) {
-            context.visibleNeighbours = context.visibleNeighbours.filter(([p,]) => p.id === context.particle.foodGoal);
-        }
-        context.visibleNeighbours = context.visibleNeighbours.filter(([p,]) => utils.isFood(p));
+        context.visibleFoods = context.visibleNeighbours.filter(([p,]) => utils.isFood(p));
     }
 
     checkPrecondition(context) {
-        return context.visibleNeighbours.length > 0;
+        return context.visibleFoods.length > 0;
     }
+}
+
+class MoveToFood extends SimpleTask {
 
     executeStart(context) {
-        let foods = context.visibleNeighbours;
+        let foods = context.visibleFoods;
         for (let [food,] of foods) {
             // maybe consider other options?
             utils.pathTo(context.particle, food);
@@ -149,8 +168,17 @@ class MovementSeekFood extends SimpleTask {
 
     execute(context) {
         let foods = context.visibleNeighbours;
-        if (foods.length !== 0) {
-            utils.pathTo(context.particle, foods[0][0]);
+        let foodGoal = foods.filter(([p,]) => p.id === context.particle.foodGoal && utils.isFood(p));
+        if (foodGoal.length === 0) {
+            return BehaviorResult.Failure;
+        }
+        if (foodGoal.length === 1) {
+            let [food, d] = foodGoal[0];
+            if (touches(context.particle, food, d)) {
+                context.particle.serveFood = food;
+                return BehaviorResult.Success
+            }
+            utils.pathTo(context.particle, food);
             return BehaviorResult.Running;
         }
         return BehaviorResult.Failure
@@ -185,7 +213,7 @@ const utils = {
 const behaviour = {
     FREEZE: new Freeze(0.5),
     RANDOM_WALK: new RandomWalk(1.5),
-    SEEK_FOOD: new MovementSeekFood(),
+    SEEK_FOOD: new MoveToFood(),
     HUNT_WEAK: new HuntWeak(),
     SPLIT: new Split(),
     FIGHT: new Fight(),
@@ -194,10 +222,24 @@ const behaviour = {
 
 const complex_behavior = {
     superBehavior: function () {
-        return new ParallelBranch([
-            new ParallelBranch(new Eat(), new Split(), new Fight()).repeat(),
-            new SelectorBranch(new MovementSeekFood(), new Freeze(2)).repeat()
-        ]);
+        return Behavior.parallel(
+            new PerceptionRadial(20).repeat(),
+            // new Eat().repeat(),
+            // new Split().repeat(),
+            new Fight().repeat(),
+
+            Behavior.parallelPrioSelector(
+                Behavior.seq(new SeeFood(), new MoveToFood(), new Eat(), new Split(0.8)),
+                new RandomWalk(2))
+                .repeat()
+
+            // Behavior.selector(
+            //     Behavior.seq(new SeesFood(), new MoveToFood()),
+            //     new RandomWalk(2).interuptedBy(new SeesFood().inverted())
+            // ).repeat()
+            //
+
+        );
     }
 };
 
