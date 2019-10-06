@@ -88,6 +88,9 @@ class BehaviorNode {
             this.state = BehaviorState.Starting;
             let result = this.onStart(context);
             this.updateState(result);
+            if (this.isComplete()) {
+                this.onComplete(context);
+            }
             return result;
         } else {
             throw new Error("Cannot start while not ready!");
@@ -101,6 +104,9 @@ class BehaviorNode {
         if (this.isRunning()) {
             let result = this.onContinue(context);
             this.updateState(result);
+            if (this.isComplete()) {
+                this.onComplete(context);
+            }
             return result;
         } else {
             throw new Error("Cannot continue while not running!");
@@ -122,6 +128,10 @@ class BehaviorNode {
     }
 
     onInterrupt(context) {
+
+    }
+
+    onComplete(context) {
 
     }
 }
@@ -296,20 +306,75 @@ class BehaviorTask extends BehaviorNode {
 
 }
 
-class BehaviorFilter extends BehaviorNode {
+class BehaviorWrapper extends BehaviorNode {
+    child;
+
     constructor(child) {
         super();
         this.child = child;
     }
 
+
     onReset(context) {
-        super.onReset(context);
         this.child.reset(context);
+    }
+
+    onStart(context) {
+        return this.child.start(context);
+    }
+
+    onContinue(context) {
+        return this.child.continue(context);
     }
 
     onInterrupt(context) {
         super.onInterrupt(context);
-        this.child.interrupt(context);
+    }
+}
+
+class RepeatingBehavior extends BehaviorWrapper {
+    constructor(child) {
+        super(child);
+    }
+
+    onInterrupt(context) {
+        if (!this.child.isComplete()) {
+            this.child.interrupt();
+        }
+    }
+
+    shouldRepeat(child, context) {
+        return true;
+    }
+
+    onStart(context) {
+        super.onStart(context);
+        this.child.start();
+        if (this.shouldRepeat(context)) {
+            return BehaviorResult.Running;
+        }
+        return BehaviorResult.Success;
+    }
+
+    onContinue(context) {
+        super.onContinue(context);
+        if (this.child.isRunning()) {
+            this.child.continue(context);
+            return BehaviorResult.Running;
+        } else {
+            if (this.shouldRepeat(this.child, context)) {
+                this.child.restart(context);
+                return BehaviorResult.Running;
+            } else {
+                return BehaviorResult.Success;
+            }
+        }
+    }
+}
+
+class BehaviorFilter extends BehaviorWrapper {
+    constructor(child) {
+        super(child);
     }
 
     onStart(context) {
