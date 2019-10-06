@@ -251,8 +251,6 @@ class Species {
             newParticle.behaviorWeights = particle.behaviorWeights.map(weight =>
                 Math.min(1000, Math.max(0, weight + random(-0.05, 0.05))))
         }
-
-
     }
 
     class GameParticle extends Particle {
@@ -272,7 +270,7 @@ class Species {
 
 
     let shaders = [
-        loadShader(gl, "scripts/shader/particle", ["vertexPosition", "color", "size"], ["projectionMatrix", "viewMatrix", "modelMatrix"])
+        loadShader(gl, "scripts/shader/particle", ["vertexPosition", "color", "size"], ["projectionMatrix", "viewMatrix", "modelMatrix", "scale"])
     ];
 
     Promise.all(shaders).then(loadedShaders => {

@@ -684,6 +684,12 @@ class Simulation {
         this.mouseReachable = false;
         this.particleSize = 10;
         this.updateCanvas();
+
+        this.spaceDimension = 1000;
+        this.topLeftCorner = [-this.spaceDimension / 2, this.spaceDimension / 2, 0, 1];
+        this.bottomRightCorner = [this.spaceDimension / 2, -this.spaceDimension / 2, 0, 1];
+
+        this.updateProjection();
     }
 
     setPoolSize(size) {
@@ -736,17 +742,14 @@ class Simulation {
     updateCanvas() {
         this.canvas.width = this.canvas.clientWidth;
         this.canvas.height = this.canvas.clientHeight;
-        this.gl.viewport(0, 0, this.canvas.width, this.canvas.height);
+        let sideLength = Math.min(this.canvas.width, this.canvas.height);
 
-        this.updateProjection();
-
-        this.topLeftCorner = mat4.multiplyV4(this.reverseProjection, [-1, 1, 0, 1]);
-        this.bottomRightCorner = mat4.multiplyV4(this.reverseProjection, [1, -1, 0, 1]);
+        this.gl.viewport((this.canvas.width - sideLength) /2, (this.canvas.height - sideLength) /2, sideLength, sideLength);
     }
 
     updateProjection() {
         this.zoom = window.devicePixelRatio;
-        this.projection = mat4.orthographicProjection(this.canvas.width, this.canvas.height, 10);
+        this.projection = mat4.orthographicProjection(this.spaceDimension, this.spaceDimension, 10);
         this.reverseProjection = mat4.invert(mat4.multiply(this.view, this.projection));
     }
 
@@ -807,6 +810,10 @@ class Simulation {
         let newX = particle.x + vx * particle.speed * dt;
         let newY = particle.y + vy * particle.speed * dt;
 
+        [particle.x, particle.y] = this.applyTorusWorld(newX, newY);
+    }
+
+    applyTorusWorld(newX, newY) {
         if (newX < this.topLeftCorner[0]) {
             newX = this.bottomRightCorner[0] - (this.topLeftCorner[0] - newX);
         } else if (newX >= this.bottomRightCorner[0]) {
@@ -818,9 +825,7 @@ class Simulation {
         } else if (newY <= this.bottomRightCorner[1]) {
             newY = this.topLeftCorner[1] - (this.bottomRightCorner[1] - newY);
         }
-
-        particle.x = newX;
-        particle.y = newY;
+        return [newX, newY];
     }
 
     simulateParticles(dt) {
@@ -890,7 +895,7 @@ class Simulation {
         this.gl.uniformMatrix4fv(this.shader.uniform["modelMatrix"], false, mat4.identity);
         this.gl.uniformMatrix4fv(this.shader.uniform["viewMatrix"], false, this.view);
         this.gl.uniformMatrix4fv(this.shader.uniform["projectionMatrix"], false, this.projection);
-        this.gl.uniform1f(this.shader.uniform["size"], this.particleSize);
+        this.gl.uniform1f(this.shader.uniform["scale"], Math.min(this.canvas.width, this.canvas.height) / this.spaceDimension);
 
         this.gl.drawArrays(this.gl.POINTS, 0, this.aliveParticles.length);
     }
@@ -1027,7 +1032,7 @@ class ParticleQuadTree {
                 return true;
             });
             if (!success) {
-                throw new Error("Unable to put a particle in any of the quads! This is a bug...")
+                throw new Error(`Unable to put a particle in any of the quads! This is a bug... ${particle.x}:${particle.y}`)
             }
         } else {
             if (this.objects.length >= this.limit && this.depth < this.maxDepth) {
