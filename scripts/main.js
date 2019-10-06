@@ -6,13 +6,6 @@ const particleType = {
     CELL: "CELL",
 };
 
-const movementType = {
-    FREEZE: new MovementFreeze(),
-    RANDOM_WALK: new MovementRandomWalk(),
-    SEEK_FOOD: new MovementSeekFood(),
-    HUNT_WEAK: new HuntWeak(),
-};
-
 class Species {
     constructor(id, name, color) {
         this.id = id;
@@ -124,18 +117,17 @@ class Species {
                     this.kill(particle);
                     break;
                 case particleType.CELL:
+                    let newBehaviour = chooseRandomWeighted(particle.behaviorWeights, behaviours);
                     if (particle.currentBehaviour) {
                         // Is the behaviour still valid?
                         if (particle.currentBehaviour.canExecute(particle, visibleNeighbours)) {
                             if (particle.currentBehaviour.keepExecuting(particle, visibleNeighbours)) {
-                                particle.currentBehaviour.calculate(particle, visibleNeighbours);
-                                break;
+                                newBehaviour = particle.currentBehaviour;
                             }
                         }
                     }
-                    let newBehaviour = chooseRandomWeighted(particle.behaviorWeights, particle.behaviors);
                     particle.currentBehaviour = newBehaviour;
-                    newBehaviour.calculate(particle, visibleNeighbours);
+                    newBehaviour.calculate(this, particle, visibleNeighbours);
                     break;
             }
         }
@@ -161,8 +153,7 @@ class Species {
                     particle.offSpringCost = 200;
                     particle.maxEnergy = 600;
                     particle.color = color.blue;
-                    particle.behaviors = [movementType.RANDOM_WALK, movementType.SEEK_FOOD, movementType.FREEZE, movementType.HUNT_WEAK];
-                    particle.behaviorWeights = [5,5,1,1];
+                    particle.behaviorWeights = behavioursDefaultWeights;
                     break;
                 case particleType.DEAD_FOOD:
                     particle.decisionDuration = 4 + random(1, 5) + random(1, 5);
@@ -182,46 +173,16 @@ class Species {
             }
         }
 
+        touches(particle1, particle2, distanceSqr, range = 0) {
+            return distanceSqr <= sqr(particle1.size /2 + particle2.size/2 + range)
+        }
+
         doAction(particle, visibleNeighbours, dt) {
             switch (particle.type) {
                 case particleType.DEAD_FOOD:
                     // ?
                     break;
                 case particleType.CELL:
-                    if (particle.type === particleType.CELL) {
-                        for (let [neighbour, distance] of visibleNeighbours) {
-                            if (neighbour.alive && (neighbour.type === particleType.FOOD || neighbour.type === particleType.CORPSE) && distance <= sqr(neighbour.size) + sqr(particle.size)) {
-                                if (neighbour.type === particleType.FOOD) {
-                                    this.initWithType(neighbour, particleType.DEAD_FOOD); // eat food
-                                }
-                                if (neighbour.type === particleType.CORPSE) {
-                                    this.kill(neighbour); // eat corpse
-                                }
-                                particle.energy += neighbour.foodValue;
-                                particle.size += 1;
-                                particle.maxEnergy += 1;
-                            }
-
-                            if (neighbour.type === particleType.CELL && particle.team !== neighbour.team && distance <= sqr(neighbour.size) + sqr(particle.size)) {
-                                if (particle.energy > neighbour.energy) {
-                                    particle.energy -= neighbour.energy / 3;
-                                    this.initWithType(neighbour, particleType.CORPSE);
-                                    // console.log(`FIGHT ${particle.id}(${particle.team}) killed ${neighbour.id}(${neighbour.team})`)
-                                } else {
-                                    neighbour.energy -= particle.energy / 3;
-                                    this.initWithType(particle, particleType.CORPSE);
-                                    // console.log(`FIGHT ${neighbour.id}(${neighbour.team}) killed ${particle.id}(${particle.team})`);
-                                    return;
-                                }
-                            }
-                        }
-
-                        // If we have more than max energy produce offspring
-                        if (particle.energy >= particle.maxEnergy) {
-                           this.split(particle);
-                        }
-                        particle.energy = Math.min(particle.maxEnergy, particle.energy);
-                    }
                     this.doMovement(particle, visibleNeighbours, dt);
                     particle.energy -= dt * particle.speed; // movement costs energy
                     if (particle.energy <= 0) {
@@ -262,6 +223,7 @@ class Species {
             // MUTATION
             newParticle.behaviorWeights = particle.behaviorWeights.map(weight =>
                 Math.min(1000, Math.max(0, weight + random(-0.05, 0.05))))
+            console.log(newParticle.behaviorWeights.map(v => Math.round(v * 100)))
         }
     }
 
