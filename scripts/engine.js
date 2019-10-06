@@ -672,7 +672,7 @@ class Simulation {
         this.view = mat4.identity;
 
         this.tempParticles = [];
-        this.aliveParticles = [];
+        this.allParticles = [];
         this.deadParticles = [];
         this.particlePoolSize = 5000;
 
@@ -699,7 +699,7 @@ class Simulation {
     }
 
     canSpawn() {
-        return this.aliveParticles.length < this.particlePoolSize;
+        return this.allParticles.length < this.particlePoolSize;
     }
 
 
@@ -720,12 +720,17 @@ class Simulation {
         let particle;
         if (this.deadParticles.length > 0) {
             particle = this.deadParticles.shift();
+            particle.spawn();
         } else {
             particle = this.createParticle();
+            this.allParticles.push(particle);
         }
+
+        // if (this.aliveParticles.filter(p => p.id === particle.id).length > 0) {
+        //     debugger
+        // }
         this.initWithType(particle, type);
-        this.aliveParticles.push(particle);
-        particle.spawn();
+
         return particle;
     }
 
@@ -735,6 +740,7 @@ class Simulation {
 
     kill(particle) {
         if (!particle.alive) {
+            debugger
             throw new Error("Dead Particles cannot die! (I think)")
         }
         particle.alive = false;
@@ -836,19 +842,25 @@ class Simulation {
 
     simulateParticles(dt) {
         let qt = new ParticleQuadTree(this.topLeftCorner, this.bottomRightCorner);
-        for (let particle of this.aliveParticles) {
+        let setOfParticles = new Set();
+
+        for (let particle of this.allParticles) {
+            if (setOfParticles.has(particle)) {
+                debugger
+            }
             qt.add(particle);
+            setOfParticles.add(particle);
         }
 
         this.tempParticles = [];
-        for (let particle of this.aliveParticles) {
+        for (let particle of this.allParticles) {
             if (!particle.alive) {
                 continue;
             }
 
             let visibleNeighborsWithDistance = [];
             qt.forEachInCircle(particle.x, particle.y, particle.sightRange, (p, distanceSqr) => {
-                if (p.alive) {
+                if (p.alive && p.id !== particle.id) {
                     visibleNeighborsWithDistance.push([p, distanceSqr]);
                 }
             });
@@ -882,7 +894,7 @@ class Simulation {
                 this.tempParticles.push(particle);
             }
         }
-        this.aliveParticles = this.tempParticles;
+        this.allParticles = this.tempParticles;
 
     }
 
@@ -903,19 +915,19 @@ class Simulation {
         this.gl.uniformMatrix4fv(this.shader.uniform["projectionMatrix"], false, this.projection);
         this.gl.uniform1f(this.shader.uniform["scale"], Math.min(this.canvas.width, this.canvas.height) / this.spaceDimension);
 
-        this.gl.drawArrays(this.gl.POINTS, 0, this.aliveParticles.length);
+        this.gl.drawArrays(this.gl.POINTS, 0, this.allParticles.length);
     }
 
     uploadParticleAttribute(name, buffer, particleValue, type, size) {
         let data;
         if (type === this.gl.FLOAT) {
-            data = new Float32Array(this.aliveParticles.length * size);
+            data = new Float32Array(this.allParticles.length * size);
         } else {
             throw new Error("Unknown attribute data type: " + type)
         }
-        for (let particleIndex = 0; particleIndex < this.aliveParticles.length; ++particleIndex) {
+        for (let particleIndex = 0; particleIndex < this.allParticles.length; ++particleIndex) {
             let bufOffset = particleIndex * size;
-            let particle = this.aliveParticles[particleIndex];
+            let particle = this.allParticles[particleIndex];
             let attribValue = particleValue(particle);
             if (size === 1 && !Array.isArray(attribValue)) {
                 data[bufOffset] = attribValue;
