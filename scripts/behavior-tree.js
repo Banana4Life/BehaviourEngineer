@@ -167,6 +167,10 @@ class BehaviorNode {
     inverted() {
         return new BehaviorInverter(this);
     }
+
+    interruptedBy(condition) {
+        return
+    }
 }
 
 class BehaviorComposite extends BehaviorNode {
@@ -586,6 +590,28 @@ class BehaviorInverter extends BehaviorFilter {
             case BehaviorResult.Failure:
                 return BehaviorResult.Success;
         }
+    }
+}
+
+class BehaviorInterrupter extends BehaviorWrapper {
+    condition;
+    result;
+
+    constructor(child, condition, result = BehaviorResult.Success) {
+        super(child);
+        this.condition = condition;
+        this.result = result;
+    }
+
+    onContinue(context) {
+        if (this.condition.start(context)) {
+            return this.result;
+        }
+        return super.onContinue(context);
+    }
+
+    clone() {
+        return new BehaviorInterrupter(this.child.clone(), this.condition.clone(), this.result);
     }
 }
 
