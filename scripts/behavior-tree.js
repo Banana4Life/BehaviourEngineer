@@ -1,8 +1,4 @@
 class Behavior {
-    static repeating(node) {
-        return new RepeatingBehavior(node);
-    }
-
     static parallel() {
         return new ParallelBranch([...arguments]);
     }
@@ -153,8 +149,17 @@ class BehaviorNode {
 
     }
 
+    clone() {
+        throw new Error("clone not implemented!")
+    }
+
+    // DSL helpers
     repeat() {
         return new RepeatingBehavior(this);
+    }
+
+    inverted() {
+        return new BehaviorInverter(this);
     }
 }
 
@@ -179,6 +184,14 @@ class BehaviorComposite extends BehaviorNode {
         for (let child of this.children) {
             child.reset(context);
         }
+    }
+
+    clone() {
+        return new this.constructor(this.cloneChildren());
+    }
+
+    cloneChildren() {
+        return this.children.map(c => c.clone());
     }
 }
 
@@ -322,6 +335,10 @@ class ParallelBranch extends BehaviorBranch {
         }
         return BehaviorResult.Failure;
     }
+
+    clone() {
+        return new ParallelBranch(this.cloneChildren(), this.minSuccessful, this.maxFailed);
+    }
 }
 
 class BehaviorTask extends BehaviorNode {
@@ -351,6 +368,10 @@ class BehaviorWrapper extends BehaviorNode {
 
     onInterrupt(context) {
         super.onInterrupt(context);
+    }
+
+    clone() {
+        return new this.constructor(this.child.clone());
     }
 }
 
@@ -518,6 +539,10 @@ class SimpleTask extends BehaviorTask {
     execute(context) {
         return BehaviorResult.Success;
     }
+
+    clone() {
+        return new this.constructor();
+    }
 }
 
 class InstantTask extends SimpleTask {
@@ -569,6 +594,10 @@ class TimedTask extends SimpleTask {
      */
     executeDuringTimer(context) {
         return true;
+    }
+
+    clone() {
+        return new TimedTask(this.duration);
     }
 }
 
