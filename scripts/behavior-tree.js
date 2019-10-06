@@ -1,5 +1,7 @@
 
 class BehaviorNode {
+    state;
+
     constructor() {
         this.state = BehaviorState.New;
     }
@@ -111,6 +113,8 @@ class BehaviorNode {
 }
 
 class BehaviorComposite extends BehaviorNode {
+    children;
+
     constructor(children) {
         super();
         this.children = children;
@@ -220,8 +224,22 @@ class SequenceBranch extends BehaviorBranch {
 }
 
 class ParallelBranch extends BehaviorBranch {
-    constructor(children) {
+    minSuccessful;
+    maxFailed;
+
+    successful;
+    failed;
+
+    constructor(children, minSuccessful, maxFailed) {
         super(children);
+        this.minSuccessful = minSuccessful;
+        this.maxFailed = maxFailed;
+    }
+
+    onReset(context) {
+        super.onReset(context);
+        this.successful = 0;
+        this.failed = 0;
     }
 
     onStart(context) {
@@ -233,20 +251,24 @@ class ParallelBranch extends BehaviorBranch {
     }
 
     runAll(f) {
-        let hasRunning = false;
-        let hasSuccess = false;
         for (let child of this.children) {
             let result = f(child);
-            if (result === BehaviorResult.Running) {
-                hasRunning = true;
-            } else if (result === BehaviorResult.Success) {
-                hasSuccess = true;
+            switch (result) {
+                case BehaviorResult.Success:
+                    this.successful++;
+                    break;
+                case BehaviorResult.Failure:
+                    this.failed++;
+                    break;
             }
         }
-        if (hasRunning) {
+        let completed = this.successful + this.failed === this.children.length;
+        if (!completed) {
             return BehaviorResult.Running;
         }
-        if (hasSuccess) {
+        if (this.failed >= this.maxFailed) {
+            return BehaviorResult.Failure;
+        } else if (this.successful >= this.minSuccessful) {
             return BehaviorResult.Success;
         }
         return BehaviorResult.Failure;
