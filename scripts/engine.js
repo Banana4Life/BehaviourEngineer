@@ -785,7 +785,7 @@ class Simulation {
         return mat4.multiplyV4(this.reverseProjection, [x, y, 0, 1]);
     }
 
-    makeDecision(particle, visibleNeighbours) {
+    makeDecision(particle, visibleNeighbours, dt) {
 
     }
 
@@ -885,7 +885,7 @@ class Simulation {
 
             particle.decisionTimeout -= dt;
             if (particle.decisionTimeout <= 0) {
-                this.makeDecision(particle, visibleNeighborsWithDistance);
+                this.makeDecision(particle, visibleNeighborsWithDistance, dt);
                 particle.decisionTimeout = particle.decisionDuration;
             }
             this.doAction(particle, visibleNeighborsWithDistance, dt);

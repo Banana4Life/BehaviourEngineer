@@ -64,3 +64,7 @@ function chooseRandomWeighted(weightsList, valuesList)
 {
     return chooseWeighted(weightsList, valuesList, Math.random());
 }
+
+function touches(particle1, particle2, distanceSqr, range = 0) {
+    return distanceSqr <= sqr(particle1.size /2 + particle2.size/2 + range)
+}

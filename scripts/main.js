@@ -101,7 +101,7 @@ class Species {
             }
         }
 
-        makeDecision(particle, visibleNeighbours) {
+        makeDecision(particle, visibleNeighbours, dt) {
             switch (particle.type) {
                 case particleType.FOOD:
                     particle.size = particle.size + 0.5;
@@ -117,17 +117,12 @@ class Species {
                     this.kill(particle);
                     break;
                 case particleType.CELL:
-                    let newBehaviour = chooseRandomWeighted(particle.behaviorWeights, behaviours);
-                    if (particle.currentBehaviour) {
-                        // Is the behaviour still valid?
-                        if (particle.currentBehaviour.canExecute(particle, visibleNeighbours)) {
-                            if (particle.currentBehaviour.keepExecuting(particle, visibleNeighbours)) {
-                                newBehaviour = particle.currentBehaviour;
-                            }
-                        }
+
+                    if (!particle.currentBehaviour || particle.currentBehaviour.onContinue(this, particle, visibleNeighbours, dt) === BehaviorResult.Failure) {
+                        let newBehaviour = chooseRandomWeighted(particle.behaviorWeights, behaviours);
+                        particle.currentBehaviour = newBehaviour;
+                        newBehaviour.onStart(this, particle, visibleNeighbours, dt); // TODO result?
                     }
-                    particle.currentBehaviour = newBehaviour;
-                    newBehaviour.calculate(this, particle, visibleNeighbours);
                     break;
             }
         }
@@ -171,10 +166,6 @@ class Species {
                     particle.size = 10;
                     particle.color = color.magenta;
             }
-        }
-
-        touches(particle1, particle2, distanceSqr, range = 0) {
-            return distanceSqr <= sqr(particle1.size /2 + particle2.size/2 + range)
         }
 
         doAction(particle, visibleNeighbours, dt) {
