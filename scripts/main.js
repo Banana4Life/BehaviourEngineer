@@ -118,10 +118,10 @@ class Species {
                     break;
                 case particleType.CELL:
 
-                    if (!particle.currentBehaviour || particle.currentBehaviour.onContinue(this, particle, visibleNeighbours, dt) === BehaviorResult.Failure) {
+                    if (!particle.currentBehaviour || particle.currentBehaviour.onContinue({sim: this, particle: particle, visibleNeighbours: visibleNeighbours, dt: dt})) {
                         let newBehaviour = chooseRandomWeighted(particle.behaviorWeights, behaviours);
                         particle.currentBehaviour = newBehaviour;
-                        newBehaviour.onStart(this, particle, visibleNeighbours, dt); // TODO result?
+                        newBehaviour.onStart({sim: this, particle: particle, visibleNeighbours: visibleNeighbours, dt: dt}); // TODO result?
                     }
                     break;
             }

@@ -376,29 +376,43 @@ class BehaviorInverter extends BehaviorFilter {
 
 class SimpleTask extends BehaviorTask {
     onStart(context) {
-        super.onStart(context);
+        this.filterContext(context);
         if (this.checkPrecondition(context)) {
-            return this.execute(context);
+            return this.executeStart(context);
         }
         return BehaviorResult.Failure;
     }
 
     onContinue(context) {
-        super.onContinue(context);
+        this.filterContext(context);
         if (this.checkValid(context)) {
             return this.execute(context);
         }
         return BehaviorResult.Failure;
     }
 
+    /**
+     * @param context {{dt: number, visibleNeighbours: Array[], particle: Particle, sim: Simulation}}
+     */
+    filterContext(context) {
+
+    }
+
     checkPrecondition(context) {
         return this.checkValid(context);
+    }
+
+    executeStart(context) {
+        this.execute(context);
     }
 
     checkValid(context) {
         return true;
     }
 
+    /**
+     * @param context {{dt: number, visibleNeighbours: Array[], particle: Particle, sim: Simulation}}
+     */
     execute(context) {
         return BehaviorResult.Success;
     }
@@ -412,6 +426,9 @@ class InstantTask extends SimpleTask {
         return BehaviorResult.Failure;
     }
 
+    /**
+     * @param context {{dt: number, visibleNeighbours: Array[], particle: Particle, sim: Simulation}}
+     */
     executeOnce(context) {
         return true;
     }
@@ -423,26 +440,32 @@ class TimedTask extends SimpleTask {
         this.duration = duration;
     }
 
-    execute() {
+    execute(context) {
         if (!this.isRunning()) {
             this.timer = this.duration;
-            this.executeBeforeTimer();
+            this.executeBeforeTimer(context);
         }
-        this.timer -= dt;
+        this.timer -= context.dt;
         if (this.timer <= 0) {
             return BehaviorResult.Success;
         }
-        if (this.executeDuringTimer()) {
+        if (this.executeDuringTimer(context)) {
             return BehaviorResult.Running;
         }
         return BehaviorResult.Failure;
     }
 
-    executeBeforeTimer() {
+    /**
+     * @param context {{dt: number, visibleNeighbours: Array[], particle: Particle, sim: Simulation}}
+     */
+    executeBeforeTimer(context) {
 
     }
 
-    executeDuringTimer() {
+    /**
+     * @param context {{dt: number, visibleNeighbours: Array[], particle: Particle, sim: Simulation}}
+     */
+    executeDuringTimer(context) {
         return true;
     }
 }
