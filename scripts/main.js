@@ -361,8 +361,6 @@ class Species {
                     }
                 }
             }
-
-            console.log(lengthX, lengthY, stepX, stepY);
         }
 
         setupWorld(() => {
