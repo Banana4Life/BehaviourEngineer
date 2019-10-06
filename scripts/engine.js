@@ -744,7 +744,9 @@ class Simulation {
         this.canvas.height = this.canvas.clientHeight;
         let sideLength = Math.min(this.canvas.width, this.canvas.height);
 
-        this.gl.viewport((this.canvas.width - sideLength) /2, (this.canvas.height - sideLength) /2, sideLength, sideLength);
+        this.canvasWidthOffset = (this.canvas.width - sideLength) /2;
+        this.canvasHeightOffset = (this.canvas.height - sideLength) /2;
+        this.gl.viewport(this.canvasWidthOffset, this.canvasHeightOffset, sideLength, sideLength);
     }
 
     updateProjection() {
@@ -768,8 +770,9 @@ class Simulation {
     }
 
     browserPositionToWorld(browserX, browserY) {
-        const x = browserX / (this.canvas.width / 2) - 1;
-        const y = (this.canvas.height - browserY) / (this.canvas.height / 2) - 1;
+        let viewPortSize = Math.min(this.canvas.width, this.canvas.height);
+        const x = browserX / (viewPortSize/ 2) - 1 - this.canvasWidthOffset / (viewPortSize / 2) ;
+        const y = (this.canvas.height - browserY) / (viewPortSize / 2) - 1 - this.canvasHeightOffset / (viewPortSize / 2) ;
         return mat4.multiplyV4(this.reverseProjection, [x, y, 0, 1]);
     }
 

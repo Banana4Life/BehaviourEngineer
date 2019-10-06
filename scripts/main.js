@@ -85,6 +85,10 @@ class Species {
         clickedAt(screenX, screenY) {
             console.debug("clicked at", screenX, ",", screenY, "on canvas");
             let [x, y,] = this.browserPositionToWorld(screenX, screenY);
+            if (Math.abs(x) > this.spaceDimension / 2 || Math.abs(y) > this.spaceDimension / 2) {
+                console.debug("clicked outside of world");
+                return;
+            }
             console.debug("clicked at", x, ",", y, "in world");
             if (this.canSpawn()) {
                 let particle = this.spawn(particleType.CELL);
