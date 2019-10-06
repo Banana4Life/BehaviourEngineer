@@ -134,6 +134,10 @@ class BehaviorNode {
     onComplete(context) {
 
     }
+
+    repeat() {
+        return new RepeatingBehavior(this);
+    }
 }
 
 class BehaviorComposite extends BehaviorNode {
