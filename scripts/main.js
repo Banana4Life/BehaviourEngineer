@@ -117,7 +117,26 @@ class Species {
                     this.kill(particle);
                     break;
                 case particleType.CELL:
-
+                    if (particle.team === 0) {
+                        if (particle.currentBehaviour && particle.currentBehaviour.isRunning()) {
+                            particle.currentBehaviour.continue({
+                                sim: this,
+                                particle: particle,
+                                visibleNeighbours: visibleNeighbours,
+                                dt: dt
+                            });
+                        } else {
+                            particle.currentBehaviour = complex_behavior.superBehavior();
+                            particle.currentBehaviour.reset({});
+                            particle.currentBehaviour.start({
+                                sim: this,
+                                particle: particle,
+                                visibleNeighbours: visibleNeighbours,
+                                dt: dt
+                            });
+                        }
+                        break
+                    }
                     if (!particle.currentBehaviour || particle.currentBehaviour.onContinue({sim: this, particle: particle, visibleNeighbours: visibleNeighbours, dt: dt})) {
                         let newBehaviour = chooseRandomWeighted(particle.behaviorWeights, behaviours);
                         particle.currentBehaviour = newBehaviour;

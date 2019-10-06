@@ -189,7 +189,18 @@ const behaviour = {
     HUNT_WEAK: new HuntWeak(),
     SPLIT: new Split(),
     FIGHT: new Fight(),
-    EAT: new Eat()
+    EAT: new Eat(),
+};
+
+const complex_behavior = {
+    superBehavior: function () {
+        return new ParallelBranch([
+            new Eat(),
+            new Split(),
+            new Fight(),
+            new MovementSeekFood()
+        ]);
+    }
 };
 
 const behaviours = [
@@ -202,7 +213,7 @@ const behaviours = [
     behaviour.EAT
 ];
 
-const behavioursDefaultWeights = [0,0,1,0,1,0,1];
+const behavioursDefaultWeights = [0,0,1,0,1,0,20];
 const behavioursDefaultActive = [1,0,0,0,0,0,1];
 
 
