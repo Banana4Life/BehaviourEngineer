@@ -690,6 +690,8 @@ class Simulation {
         this.bottomRightCorner = [this.spaceDimension / 2, -this.spaceDimension / 2, 0, 1];
 
         this.updateProjection();
+
+        this.simulationSpeedMulti = 1;
     }
 
     setPoolSize(size) {
@@ -756,6 +758,7 @@ class Simulation {
     }
 
     update(dt) {
+        dt *= this.simulationSpeedMulti;
         if (this.canvas.width !== this.canvas.clientWidth || this.canvas.height !== this.canvas.clientHeight) {
             this.updateCanvas();
         }

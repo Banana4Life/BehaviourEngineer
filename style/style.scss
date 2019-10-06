@@ -57,6 +57,8 @@ canvas {
   padding: 6px;
   margin-bottom: 4px;
 
+  user-select: none;
+
   h3 {
     margin: 0;
   }
@@ -79,4 +81,63 @@ div.smoothie-chart-tooltip {
   color: white;
   font-size: 10px;
   pointer-events: none;
+}
+
+#panel-gene-selection {
+  ul {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  li {
+    margin: 5px 0;
+    padding: 18px;
+
+    border: 1px solid gray;
+
+  }
+}
+
+
+
+#panel-simulation-buttons {
+  height: 40px;
+  div {
+    height: 40px;
+    width: 45%;
+    border: 1px solid gray;
+    float: left;
+
+    line-height: 40px;
+    text-align: center;
+
+    &:last-of-type{
+      float: right;
+    }
+  }
+}
+
+#panel-gene-selection li, #panel-simulation-buttons div {
+  cursor: pointer;
+  background-color: #111111;
+
+  &:hover {
+    background-color: #222222;
+  }
+
+  &.active {
+    background-color: #024802;
+    &:hover {
+      background-color: #135913;
+    }
+  }
+
+  &.active.negative {
+    background-color: #3e0202;
+    &:hover {
+      background-color: #4f1313;
+    }
+  }
+
 }

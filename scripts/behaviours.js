@@ -1,3 +1,6 @@
+// Ideas
+// sprinting?
+
 class BasicMovement {
 
     pathTo(particle, goal) {

@@ -41,7 +41,8 @@ canvas {
 .panel {
   font-weight: bold;
   padding: 6px;
-  margin-bottom: 4px; }
+  margin-bottom: 4px;
+  user-select: none; }
   .panel h3 {
     margin: 0; }
   .panel span {
@@ -60,5 +61,41 @@ div.smoothie-chart-tooltip {
   color: white;
   font-size: 10px;
   pointer-events: none; }
+
+#panel-gene-selection ul {
+  list-style-type: none;
+  margin: 0;
+  padding: 0; }
+
+#panel-gene-selection li {
+  margin: 5px 0;
+  padding: 18px;
+  border: 1px solid gray; }
+
+#panel-simulation-buttons {
+  height: 40px; }
+  #panel-simulation-buttons div {
+    height: 40px;
+    width: 45%;
+    border: 1px solid gray;
+    float: left;
+    line-height: 40px;
+    text-align: center; }
+    #panel-simulation-buttons div:last-of-type {
+      float: right; }
+
+#panel-gene-selection li, #panel-simulation-buttons div {
+  cursor: pointer;
+  background-color: #111111; }
+  #panel-gene-selection li:hover, #panel-simulation-buttons div:hover {
+    background-color: #222222; }
+  #panel-gene-selection li.active, #panel-simulation-buttons div.active {
+    background-color: #024802; }
+    #panel-gene-selection li.active:hover, #panel-simulation-buttons div.active:hover {
+      background-color: #135913; }
+  #panel-gene-selection li.active.negative, #panel-simulation-buttons div.active.negative {
+    background-color: #3e0202; }
+    #panel-gene-selection li.active.negative:hover, #panel-simulation-buttons div.active.negative:hover {
+      background-color: #4f1313; }
 
 /*# sourceMappingURL=style.css.map */

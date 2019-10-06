@@ -78,6 +78,14 @@ class Species {
             this.particleCounter = 0;
         }
 
+        play() {
+            this.simulationSpeedMulti = 1;
+        }
+
+        pause() {
+            this.simulationSpeedMulti = 0;
+        }
+
         createParticle() {
             return new GameParticle(this.particleCounter++);
         }
@@ -299,6 +307,30 @@ class Species {
         canvas.addEventListener('click', e => {
             let [x, y] = clickToElement(e, canvas);
             sim.clickedAt(x, y);
+        });
+        document.querySelectorAll("#panel-gene-selection li").forEach(e => e.addEventListener("click", e => {
+           let geneType = e.target.dataset["gene"];
+           console.log("You clicked", geneType);
+           // TODO actually do smth in game
+           e.target.classList.toggle("active");
+        }));
+
+        let pauseButton = document.querySelector("#pause");
+        let playButton = document.querySelector("#play");
+
+        playButton.addEventListener("click", e => {
+            if (!playButton.classList.contains("active")) {
+                pauseButton.classList.toggle("active");
+                playButton.classList.toggle("active");
+                sim.play();
+            }
+        });
+        pauseButton.addEventListener("click", e => {
+            if (!pauseButton.classList.contains("active")) {
+                pauseButton.classList.toggle("active");
+                playButton.classList.toggle("active");
+                sim.pause();
+            }
         });
 
         const halfWidth = (canvas.width / 2);
