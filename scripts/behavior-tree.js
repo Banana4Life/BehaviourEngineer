@@ -257,6 +257,101 @@ class BehaviorTask extends BehaviorNode {
 
 }
 
+class BehaviorFilter extends BehaviorNode {
+    constructor(child) {
+        super();
+        this.child = child;
+    }
+
+    onReset(context) {
+        super.onReset(context);
+        this.child.reset(context);
+    }
+
+    onInterrupt(context) {
+        super.onInterrupt(context);
+        this.child.interrupt(context);
+    }
+
+    onStart(context) {
+        super.onStart(context);
+        let newContext = this.onPreStart(this.child, context);
+        let result = this.child.start(newContext);
+        return this.onPostStart(this.child, newContext, result);
+    }
+
+    onContinue(context) {
+        super.onStart(context);
+        let newContext = this.onPreContinue(this.child, context);
+        let result = this.child.start(newContext);
+        return this.onPostContinue(this.child, newContext, result);
+    }
+
+    /**
+     * @param child {{BehaviorNode}}
+     * @param context {*}
+     * @return {*}
+     */
+    onPreStart(child, context) {
+        return context;
+    }
+
+    /**
+     * @param child {BehaviorNode}
+     * @param context {*}
+     * @param result {BehaviorResult}
+     * @returns {BehaviorResult}
+     */
+    onPostStart(child, context, result) {
+        return result;
+    }
+
+    /**
+     * @param child {{BehaviorNode}}
+     * @param context {*}
+     * @return {*}
+     */
+    onPreContinue(child, context) {
+        return true;
+    }
+
+    /**
+     * @param child {BehaviorNode}
+     * @param context {*}
+     * @param result {BehaviorResult}
+     * @returns {BehaviorResult}
+     */
+    onPostContinue(child, context, result) {
+        return result;
+    }
+}
+
+class BehaviorInverter extends BehaviorFilter {
+    onPostStart(context, child, result) {
+        return this.invert(super.onPostStart(context, child, result));
+    }
+
+
+    onPostContinue(context, child, result) {
+        return this.invert(super.onPostContinue(context, child, result));
+    }
+
+    /**
+     * @param result
+     * @returns {BehaviorResult}
+     */
+    invert(result) {
+        switch (result) {
+            case BehaviorResult.Success:
+                return BehaviorResult.Failure;
+            case BehaviorResult.Running:
+                return BehaviorResult.Running;
+            case BehaviorResult.Failure:
+                return BehaviorResult.Success;
+        }
+    }
+}
+
 class SimpleTask extends BehaviorTask {
     onStart(context) {
         super.onStart(context);
