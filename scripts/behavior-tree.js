@@ -240,6 +240,17 @@ class SelectorBranch extends BehaviorBranch {
     }
 }
 
+class RandomSelectorBranch extends SelectorBranch {
+    constructor(children) {
+        super(children);
+    }
+
+    onReset(context) {
+        super.onReset(context);
+
+    }
+}
+
 class SequenceBranch extends BehaviorBranch {
     constructor(children) {
         super(children);
@@ -280,6 +291,17 @@ class SequenceBranch extends BehaviorBranch {
 
     onContinue(context) {
         return this.runWhilePossible(context);
+    }
+}
+
+class RandomSequenceBranch extends SequenceBranch {
+    constructor(children) {
+        super(children);
+    }
+
+    onReset(context) {
+        super.onReset(context);
+        shuffle(context);
     }
 }
 
@@ -343,6 +365,19 @@ class ParallelBranch extends BehaviorBranch {
 
 class BehaviorTask extends BehaviorNode {
 
+}
+
+class BehaviorCondition extends BehaviorTask {
+    onStart(context) {
+        if (this.checkCondition(context)) {
+            return BehaviorResult.Success;
+        }
+        return BehaviorResult.Failure;
+    }
+
+    checkCondition(context) {
+        throw new Error("checkCondition not implemented")
+    }
 }
 
 class BehaviorWrapper extends BehaviorNode {
