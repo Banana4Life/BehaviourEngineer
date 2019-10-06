@@ -2,7 +2,7 @@ class Fight extends InstantTask {
     executeOnce(context) {
         let particle = context.particle;
         for (let [enemy,] of context.visibleNeighbours.filter(([p, d]) => utils.isWeakEnemy(particle, d, p) && touches(particle, p, d))) {
-            context.sim.initWithType(enemy, particleType.CORPSE);
+            context.sim.die(enemy);
             particle.energy -= enemy.energy / 3;
             // console.log(`FIGHT ${particle.id}(${particle.team}) killed ${neighbour.id}(${neighbour.team})`)
             return true
@@ -121,7 +121,7 @@ class Eat extends InstantTask {
 
         switch (food.type) {
             case particleType.FOOD:
-                context.sim.initWithType(food, particleType.DEAD_FOOD); // eat food
+                context.sim.die(food);
                 break;
             case particleType.CORPSE:
                 context.sim.kill(food); // eat corpse

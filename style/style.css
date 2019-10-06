@@ -18,6 +18,9 @@ html, body, #main, #game-panel, canvas#simulation {
   width: 80%; }
   #game-panel .wrapper {
     height: calc(100% - 2em); }
+  #game-panel canvas {
+    image-rendering: crisp-edges;
+    border: 1px solid gray; }
 
 #menu-panel {
   float: right;
@@ -33,10 +36,6 @@ html, body, #main, #game-panel, canvas#simulation {
 
 div.wrapper {
   margin: 1em; }
-
-canvas {
-  image-rendering: crisp-edges;
-  border: 1px solid gray; }
 
 .panel {
   font-weight: bold;

@@ -117,7 +117,7 @@ class Species {
                     }
                     break;
                 case particleType.DEAD_FOOD:
-                    this.initWithType(particle, particleType.FOOD);
+                    this.regrow(particle);
                     break;
                 case particleType.CORPSE:
                     this.kill(particle);
@@ -150,6 +150,21 @@ class Species {
             }
         }
 
+        die(particle) {
+            if (particle.type === particleType.CELL) {
+                this.tracker.addDeath(particle);
+                this.initWithType(particle, particleType.CORPSE);
+            } else if (particle.type === particleType.FOOD) {
+                this.initWithType(particle, particleType.DEAD_FOOD); // eat food
+            }
+        }
+
+        regrow(particle) {
+            if (particle.type === particleType.DEAD_FOOD) {
+                this.initWithType(particle, particleType.FOOD)
+            }
+        }
+
         init(particle) {
             particle.decisionTimeout = 0;
             particle.sightRange = 0;
@@ -179,7 +194,6 @@ class Species {
                     particle.color = color.hsv2rgb(random(25 , 45), random(.6,1), 0.2);
                     break;
                 case particleType.CORPSE:
-                    this.tracker.addDeath(particle);
                     particle.decisionDuration = 15 + random(5, 20);
                     particle.decisionTimeout = particle.decisionDuration;
                     particle.color = color.hsv2rgb(random(-20 , +20), random(.8,1), 0.7);
@@ -200,7 +214,7 @@ class Species {
                     this.doMovement(particle, visibleNeighbours, dt);
                     particle.energy -= dt * particle.speed; // movement costs energy
                     if (particle.energy <= 0) {
-                        this.initWithType(particle, particleType.CORPSE);
+                        this.die(particle);
                     }
                     break;
                 case particleType.FOOD:

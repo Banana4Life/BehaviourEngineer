@@ -726,12 +726,7 @@ class Simulation {
             particle = this.createParticle();
             this.allParticles.push(particle);
         }
-
-        // if (this.aliveParticles.filter(p => p.id === particle.id).length > 0) {
-        //     debugger
-        // }
         this.initWithType(particle, type);
-
         return particle;
     }
 
@@ -741,7 +736,6 @@ class Simulation {
 
     kill(particle) {
         if (!particle.alive) {
-            debugger
             throw new Error("Dead Particles cannot die! (I think)")
         }
         particle.alive = false;
@@ -854,17 +848,11 @@ class Simulation {
 
     simulateParticles(dt) {
         let qt = new ParticleQuadTree(this.topLeftCorner, this.bottomRightCorner);
-        let setOfParticles = new Set();
 
         for (let particle of this.allParticles) {
-            if (setOfParticles.has(particle)) {
-                debugger
-            }
             qt.add(particle);
-            setOfParticles.add(particle);
         }
 
-        this.tempParticles = [];
         for (let particle of this.allParticles) {
             if (!particle.alive) {
                 continue;
@@ -879,22 +867,6 @@ class Simulation {
 
             visibleNeighborsWithDistance.sort((a, b) => a[1] - b[1]);
 
-            // for (let [otherParticle, distSqr] of visibleNeighborsWithDistance) {
-            //     if (distSqr <= particle.attackRange * particle.attackRange && otherParticle.strength < particle.strength) {
-            //         this.kill(otherParticle);
-            //     }
-            // }
-
-            // for (let [otherParticle,] of visibleNeighborsWithDistance) {
-            //     if (otherParticle.alive && otherParticle.male !== particle.male && this.canSpawn()) {
-            //         let child = this.spawn();
-            //         Particle.crossover(particle, otherParticle, child);
-            //         child.x = particle.x + (otherParticle.x - particle.x);
-            //         child.y = particle.y + (otherParticle.y - particle.y);
-            //         break;
-            //     }
-            // }
-
             particle.decisionTimeout -= dt;
             if (particle.decisionTimeout <= 0) {
                 this.makeDecision(particle, visibleNeighborsWithDistance, dt);
@@ -902,11 +874,7 @@ class Simulation {
             }
             this.doAction(particle, visibleNeighborsWithDistance, dt);
 
-            if (particle.alive) {
-                this.tempParticles.push(particle);
-            }
         }
-        this.allParticles = this.tempParticles;
 
     }
 

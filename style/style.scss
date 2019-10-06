@@ -23,6 +23,12 @@ html, body, #main, #game-panel, canvas#simulation {
   .wrapper {
     height: calc(100% - 2em);
   }
+
+  canvas {
+    image-rendering: crisp-edges;
+    border: 1px solid gray;
+  }
+
 }
 
 #menu-panel {
@@ -45,11 +51,6 @@ html, body, #main, #game-panel, canvas#simulation {
 
 div.wrapper {
   margin: 1em;
-}
-
-canvas {
-  image-rendering: crisp-edges;
-  border: 1px solid gray;
 }
 
 .panel {
