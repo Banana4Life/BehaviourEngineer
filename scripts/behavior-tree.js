@@ -1,3 +1,21 @@
+class Behavior {
+    static repeating(node) {
+        return new RepeatingBehavior(node);
+    }
+
+    static parallel() {
+        return new ParallelBranch([...arguments]);
+    }
+
+    static seq() {
+        return new SequenceBranch([...arguments]);
+    }
+
+    static selector() {
+        return new SelectorBranch([...arguments]);
+    }
+}
+
 
 class BehaviorNode {
     state;
@@ -352,7 +370,6 @@ class RepeatingBehavior extends BehaviorWrapper {
     }
 
     onStart(context) {
-        super.onStart(context);
         this.child.start();
         if (this.shouldRepeat(context)) {
             return BehaviorResult.Running;
@@ -361,7 +378,6 @@ class RepeatingBehavior extends BehaviorWrapper {
     }
 
     onContinue(context) {
-        super.onContinue(context);
         if (this.child.isRunning()) {
             this.child.continue(context);
             return BehaviorResult.Running;
