@@ -195,10 +195,8 @@ const behaviour = {
 const complex_behavior = {
     superBehavior: function () {
         return new ParallelBranch([
-            new Eat(),
-            new Split(),
-            new Fight(),
-            new MovementSeekFood()
+            new ParallelBranch(new Eat(), new Split(), new Fight()).repeat(),
+            new SelectorBranch(new MovementSeekFood(), new Freeze(2)).repeat()
         ]);
     }
 };
