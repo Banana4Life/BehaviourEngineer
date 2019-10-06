@@ -69,6 +69,20 @@ class BehaviorNode {
         }
     }
 
+    restart(context) {
+        if (this.isNew() || this.isComplete()) {
+            this.reset(context);
+        }
+        return this.start(context);
+    }
+
+    forceRestart(context) {
+        if (this.isRunning()) {
+            this.interrupt(context);
+        }
+        return this.restart(context);
+    }
+
     start(context) {
         if (this.isReady()) {
             this.state = BehaviorState.Starting;
@@ -158,25 +172,26 @@ class SelectorBranch extends BehaviorBranch {
 
     onReset(context) {
         super.onReset(context);
-        this.selected = -1;
+        this.selected = 0;
     }
 
     onStart(context) {
-        for (let i = 0; i < this.children.length; ++i) {
-            let child = this.children[i];
+        return this.tryChildren(context);
+    }
+
+    onContinue(context) {
+        return this.tryChildren(context);
+    }
+
+    tryChildren(context) {
+        for (; this.selected < this.children.length; ++this.selected) {
+            let child = this.children[this.selected];
             let result = child.start(context);
             if (result !== BehaviorResult.Failure) {
-                this.selected = i;
                 return result;
             }
         }
         return BehaviorResult.Failure;
-    }
-
-
-    onContinue(context) {
-        let child = this.children[this.selected];
-        return child.continue(context);
     }
 }
 
@@ -252,14 +267,16 @@ class ParallelBranch extends BehaviorBranch {
 
     runAll(f) {
         for (let child of this.children) {
-            let result = f(child);
-            switch (result) {
-                case BehaviorResult.Success:
-                    this.successful++;
-                    break;
-                case BehaviorResult.Failure:
-                    this.failed++;
-                    break;
+            if (!child.isComplete()) {
+                let result = f(child);
+                switch (result) {
+                    case BehaviorResult.Success:
+                        this.successful++;
+                        break;
+                    case BehaviorResult.Failure:
+                        this.failed++;
+                        break;
+                }
             }
         }
         let completed = this.successful + this.failed === this.children.length;
