@@ -38,125 +38,96 @@ class Behaviour {
     }
 }
 
-class Fight extends Behaviour {
-    onStart0(sim, particle, visibleNeighbours, dt) {
+class Fight extends InstantTask {
+    executeOnce(sim, particle, visibleNeighbours, dt) {
         for (let [enemy,] of visibleNeighbours.filter(([p, d]) => utils.isWeakEnemy(particle, d, p) && touches(particle, p, d))) {
             sim.initWithType(enemy, particleType.CORPSE);
             particle.energy -= enemy.energy / 3;
             // console.log(`FIGHT ${particle.id}(${particle.team}) killed ${neighbour.id}(${neighbour.team})`)
-            return BehaviorResult.Success;
+            return true
         }
-        return BehaviorResult.Failure;
+        return false
     }
 }
 
-class Split extends Behaviour {
-    onStart(sim, particle, visibleNeighbours, dt) {
+class Split extends InstantTask {
+    executeOnce(sim, particle, visibleNeighbours, dt) {
         sim.split(particle);
-        return BehaviorResult.Success;
+        return true;
     }
 
-    canStart(particle, visibleNeighbours) {
+    checkValid(particle, visibleNeighbours) {
         return particle.energy > particle.maxEnergy / 2;
     }
 }
 
-class Freeze extends Behaviour {
-
-    constructor(duration) {
-        super();
-        this.duration = duration;
-    }
-
-    onStart0(sim, particle, visibleNeighbours, dt) {
-        this.onContinue0(sim, particle, visibleNeighbours, 0);
-        this.timer = this.duration;
-        return BehaviorResult.Running;
-    }
-
-    onContinue0(sim, particle, visibleNeighbours, dt) {
-        this.timer -= dt;
-        if (this.timer <= 0) {
-            return BehaviorResult.Success;
-        }
+class Freeze extends TimedTask {
+    executeDuringTimer(sim, particle, visibleNeighbours, dt) {
         particle.vx = 0;
         particle.vy = 0;
-        return BehaviorResult.Running;
-    }
-
-    canContinue(particle, visibleNeighbours) {
         return true;
     }
 }
 
-class RandomWalk extends Behaviour {
+class RandomWalk extends TimedTask {
 
-    constructor(duration) {
-        super();
-        this.duration = duration;
-    }
-
-    onStart0(sim, particle, visibleNeighbours, dt) {
+    executeBeforeTimer(sim, particle, visibleNeighbours, dt) {
         let angle = random(0, 2 * Math.PI);
         this.vx = Math.cos(angle);
         this.vy = Math.sin(angle);
-
-        this.onContinue0(sim, particle, visibleNeighbours, 0);
-        this.timer = this.duration;
-
-        return BehaviorResult.Running;
     }
 
-    onContinue0(sim, particle, visibleNeighbours, dt) {
-        this.timer -= dt;
-        if (this.timer <= 0) {
-            return BehaviorResult.Success;
-        }
+    executeDuringTimer(sim, particle, visibleNeighbours, dt) {
         particle.vx = this.vx * particle.speed;
         particle.vy = this.vy * particle.speed;
 
         if (isNaN(particle.vx)) {
             debugger
         }
-        return BehaviorResult.Running;
-    }
 
-    canContinue(particle, visibleNeighbours) {
         return true;
     }
 }
 
-class HuntWeak extends Behaviour {
+class HuntWeak extends SimpleTask {
     onStart0(sim, particle, visibleNeighbours, dt) {
-        let weaklings = visibleNeighbours.filter(([p,d]) => utils.isWeakEnemy(particle, d, p));
-        for (let [weakling,] of weaklings) {
+        for (let [weakling,] of this.getWeaklings(particle, visibleNeighbours)) {
             if (Math.random() > 0.3) {
                 continue; // sometimes go after other
             }
             utils.pathTo(particle, weakling);
             particle.huntGoal = weakling.id;
-            particle.decisionDuration = 0.2;
             return BehaviorResult.Success;
         }
         return BehaviorResult.Failure;
     }
 
-    canStart(particle, visibleNeighbours) {
-        return visibleNeighbours.filter(([p,d]) => utils.isWeakEnemy(particle, d, p)).length > 0;
+    getWeaklings(particle, visibleNeighbours) {
+        return visibleNeighbours.filter(([p,d]) => utils.isWeakEnemy(particle, d, p));
     }
 
-    canContinue(particle, visibleNeighbours) {
-        return visibleNeighbours.filter(([p,d]) => p.id === particle.huntGoal
-            && utils.isWeakEnemy(particle, d, p)
-        ).length === 1
+    checkPrecondition(sim, particle, visibleNeighbours, dt) {
+        return this.getWeaklings(particle, visibleNeighbours).length > 0;
     }
 
+    checkValid(sim, particle, visibleNeighbours, dt) {
+        return this.getWeaklings(particle, visibleNeighbours.filter(([p,]) => p.id === particle.huntGoal)).length === 1
+    }
 }
 
-class Eat extends Behaviour {
-    onStart0(sim, particle, visibleNeighbours, dt) {
+class Eat extends InstantTask {
 
-        for (let [food,] of visibleNeighbours.filter(([p, d]) => utils.isFood(p) && touches(particle, p, d))) {
+    checkValid(particle, visibleNeighbours) {
+        return this.getFoods(particle, visibleNeighbours).length > 0;
+    }
+
+    getFoods(particle, visibleNeighbours) {
+        return visibleNeighbours.filter(([p,d]) => utils.isFood(p) && touches(particle, p, d));
+    }
+
+    executeOnce(sim, particle, visibleNeighbours, dt) {
+
+        for (let [food,] of this.getFoods(particle, visibleNeighbours)) {
 
             particle.energy += food.foodValue;
             particle.size += 1;
@@ -175,15 +146,12 @@ class Eat extends Behaviour {
         }
 
         particle.decisionDuration = 0;
-        return BehaviorResult.Success;
+        return true
     }
 
-    canStart(particle, visibleNeighbours) {
-        return visibleNeighbours.filter(([p,d]) => utils.isFood(p) && touches(particle, p, d)).length > 0;
-    }
 }
 
-class MovementSeekFood extends Behaviour {
+class MovementSeekFood extends SimpleTask {
 
     onStart0(sim, particle, visibleNeighbours, dt) {
         let currentGoal = visibleNeighbours

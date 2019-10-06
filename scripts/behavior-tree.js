@@ -417,6 +417,36 @@ class InstantTask extends SimpleTask {
     }
 }
 
+class TimedTask extends SimpleTask {
+    constructor(duration) {
+        super();
+        this.duration = duration;
+    }
+
+    execute() {
+        if (!this.isRunning()) {
+            this.timer = this.duration;
+            this.executeBeforeTimer();
+        }
+        this.timer -= dt;
+        if (this.timer <= 0) {
+            return BehaviorResult.Success;
+        }
+        if (this.executeDuringTimer()) {
+            return BehaviorResult.Running;
+        }
+        return BehaviorResult.Failure;
+    }
+
+    executeBeforeTimer() {
+
+    }
+
+    executeDuringTimer() {
+        return true;
+    }
+}
+
 const BehaviorResult = {
     Success: 1,
     Running: 2,
