@@ -16,8 +16,16 @@ class BehaviorNode {
         return this.getState() === BehaviorState.Ready;
     }
 
+    isStarting() {
+        return this.getState() === BehaviorState.Starting;
+    }
+
     isRunning() {
         return this.getState() === BehaviorState.Running;
+    }
+
+    isInProgress() {
+        return this.isStarting() || this.isRunning();
     }
 
     isSuccessful() {
@@ -32,16 +40,16 @@ class BehaviorNode {
         return this.isSuccessful() || this.isFailed();
     }
 
-    reset() {
+    reset(context) {
         if (this.isComplete() || this.isNew()) {
-            this.onReset();
+            this.onReset(context);
             this.state = BehaviorState.Ready;
         } else {
             throw new Error("Cannot reset while not new or completed!")
         }
     }
 
-    onReset() {
+    onReset(context) {
 
     }
 
@@ -59,10 +67,10 @@ class BehaviorNode {
         }
     }
 
-    start() {
+    start(context) {
         if (this.isReady()) {
-            this.state = BehaviorState.Running;
-            let result = this.onStart();
+            this.state = BehaviorState.Starting;
+            let result = this.onStart(context);
             this.updateState(result);
             return result;
         } else {
@@ -70,12 +78,12 @@ class BehaviorNode {
         }
     }
 
-    onStart() {
+    onStart(context) {
     }
 
-    continue() {
+    continue(context) {
         if (this.isRunning()) {
-            let result = this.onContinue();
+            let result = this.onContinue(context);
             this.updateState(result);
             return result;
         } else {
@@ -83,12 +91,12 @@ class BehaviorNode {
         }
     }
 
-    onContinue() {
+    onContinue(context) {
     }
 
-    interrupt() {
+    interrupt(context) {
         if (this.isRunning()) {
-            this.onInterrupt();
+            this.onInterrupt(context);
             this.state = BehaviorState.Failed;
         } else if (this.isComplete()) {
             // already completed
@@ -97,7 +105,7 @@ class BehaviorNode {
         }
     }
 
-    onInterrupt() {
+    onInterrupt(context) {
 
     }
 }
@@ -109,17 +117,17 @@ class BehaviorComposite extends BehaviorNode {
     }
 
 
-    onInterrupt() {
-        super.onInterrupt();
+    onInterrupt(context) {
+        super.onInterrupt(context);
         for (let child of this.children) {
-            child.interrupt();
+            child.interrupt(context);
         }
     }
 
-    onReset() {
-        super.onReset();
+    onReset(context) {
+        super.onReset(context);
         for (let child of this.children) {
-            child.reset();
+            child.reset(context);
         }
     }
 }
@@ -144,15 +152,15 @@ class SelectorBranch extends BehaviorBranch {
         super(children);
     }
 
-    onReset() {
-        super.reset();
+    onReset(context) {
+        super.onReset(context);
         this.selected = -1;
     }
 
-    onStart() {
+    onStart(context) {
         for (let i = 0; i < this.children.length; ++i) {
             let child = this.children[i];
-            let result = child.start();
+            let result = child.start(context);
             if (result !== BehaviorResult.Failure) {
                 this.selected = i;
                 return result;
@@ -162,8 +170,9 @@ class SelectorBranch extends BehaviorBranch {
     }
 
 
-    onContinue() {
-        return this.children[this.selected].continue();
+    onContinue(context) {
+        let child = this.children[this.selected];
+        return child.continue(context);
     }
 }
 
@@ -173,21 +182,21 @@ class SequenceBranch extends BehaviorBranch {
     }
 
 
-    onReset() {
-        super.onReset();
+    onReset(context) {
+        super.onReset(context);
         this.active = -1;
     }
 
-    runWhilePossible() {
+    runWhilePossible(context) {
         if (this.active >= this.children.length) {
             return BehaviorResult.Success;
         }
         let active = this.children[this.active];
         let result;
         if (active.isReady()) {
-            result = active.start();
+            result = active.start(context);
         } else if (active.isRunning()) {
-            result = active.continue();
+            result = active.continue(context);
         }
         switch (result) {
             case BehaviorResult.Failure:
@@ -196,17 +205,17 @@ class SequenceBranch extends BehaviorBranch {
                 return BehaviorResult.Running;
             case BehaviorResult.Success:
                 this.active++;
-                return this.runWhilePossible();
+                return this.runWhilePossible(context);
         }
     }
 
-    onStart() {
+    onStart(context) {
         this.active = 0;
-        return this.runWhilePossible()
+        return this.runWhilePossible(context)
     }
 
-    continue() {
-        return this.runWhilePossible();
+    onContinue(context) {
+        return this.runWhilePossible(context);
     }
 }
 
@@ -215,12 +224,12 @@ class ParallelBranch extends BehaviorBranch {
         super(children);
     }
 
-    onStart() {
-        return this.runAll(child => child.start());
+    onStart(context) {
+        return this.runAll(child => child.start(context));
     }
 
-    onContinue() {
-        return this.runAll(child => child.continue());
+    onContinue(context) {
+        return this.runAll(child => child.continue(context));
     }
 
     runAll(f) {
@@ -249,44 +258,44 @@ class BehaviorTask extends BehaviorNode {
 }
 
 class SimpleTask extends BehaviorTask {
-    onStart() {
-        super.onStart();
-        if (this.checkPrecondition()) {
-            return this.execute();
+    onStart(context) {
+        super.onStart(context);
+        if (this.checkPrecondition(context)) {
+            return this.execute(context);
         }
         return BehaviorResult.Failure;
     }
 
-    onContinue() {
-        super.onContinue();
-        if (this.checkValid()) {
-            return this.execute();
+    onContinue(context) {
+        super.onContinue(context);
+        if (this.checkValid(context)) {
+            return this.execute(context);
         }
         return BehaviorResult.Failure;
     }
 
-    checkPrecondition() {
-        return this.checkValid();
+    checkPrecondition(context) {
+        return this.checkValid(context);
     }
 
-    checkValid() {
+    checkValid(context) {
         return true;
     }
 
-    execute() {
+    execute(context) {
         return BehaviorResult.Success;
     }
 }
 
 class InstantTask extends SimpleTask {
-    execute() {
-        if (this.executeOnce()) {
+    execute(context) {
+        if (this.executeOnce(context)) {
             return BehaviorResult.Success;
         }
         return BehaviorResult.Failure;
     }
 
-    executeOnce() {
+    executeOnce(context) {
         return true;
     }
 }
@@ -300,7 +309,8 @@ const BehaviorResult = {
 const BehaviorState = {
     New: 1,
     Ready: 2,
-    Running: 3,
-    Successful: 4,
-    Failed: 5,
+    Starting: 3,
+    Running: 4,
+    Successful: 5,
+    Failed: 6,
 };
