@@ -512,7 +512,7 @@ class Species {
                 children: []
             },
             INTERRUPT: {
-                icon: "fas fa-exclamation-triangle", nodeType: "node-decorator-2 node-hoverable", spacer: "fa-step-backward",
+                icon: "fas fa-exclamation-triangle", nodeType: "node-2-decorator node-hoverable", spacer: "fa-step-backward",
                 name: "Interrupt", desc: "Interrupts the first node if the first fails",
                 ctr: (children) => new BehaviorInterrupter(children[0], children[1]),
                 children: []
@@ -551,7 +551,7 @@ class Species {
         console.log(treeDef);
 
         function rebuildTree() {
-            treePanelBackplane.innerHTML = buildTree(treeDef, treeDef);
+            treePanelBackplane.innerHTML = buildTree(treeDef[0], treeDef);
             let hoverAddNodes =  document.querySelectorAll("#tree-panel .node.node-hoverable");
             hoverAddNodes.forEach(el => el.addEventListener("mouseover", e => {
                 e.stopPropagation();
@@ -695,11 +695,14 @@ class Species {
             let nodeString = `<div class="node-children">`;
             let spacer0 = "";
             for (let nodeDef of nodeDefs) {
-                nodeString += `<span class="node-spacer">
+                let noSpacer = parentDef.nodeType.indexOf("node-decorator") >= 0;
+                if (!noSpacer) {
+                    nodeString += `<span class="node-spacer">
                                    <span class="fas ${spacer0}">
                                       <span class="node-spacer-indicator fas fa-arrow-down"></span>
                                    </span>
                                </span>`;
+                }
                 nodeString += `<span class="node ${nodeDef.nodeType}" data-node-id="${nodeDef.id}">
                                     <div>
                                        <div class="node-parent"><div><span class="${nodeDef.icon}"></span></div></div>
@@ -708,10 +711,14 @@ class Species {
                                </span>`;
                 spacer0 = spacer;
             }
-            if (parentDef.nodeType !== "node-leaf") {
-                nodeString += `<span class="node-spacer">
+            let noPseudo = parentDef.nodeType === "node-leaf" ||
+                (parentDef.nodeType.indexOf("node-decorator") >= 0 && nodeDefs.length === 1);
+            if (!noPseudo) {
+                if (nodeDefs.length > 0) {
+                    nodeString += `<span class="node-spacer">
                                    <span class="fas ${spacer0}"></span>
                                </span>`;
+                }
                 nodeString += `<span class="node node-pseudo node-leaf">
                               <div>
                                 <div class="node-parent">

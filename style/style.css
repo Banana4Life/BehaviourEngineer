@@ -188,7 +188,7 @@ div.smoothie-chart-tooltip {
       #tree-panel .node .node-spacer .node-spacer-indicator {
         position: relative;
         font-size: 1em;
-        top: -70px;
+        top: -20px;
         display: none; }
     #tree-panel .node .node-spacer:nth-last-of-type(2) {
       opacity: 0; }
@@ -203,9 +203,10 @@ div.smoothie-chart-tooltip {
       height: 50px;
       margin: 5px; }
     #tree-panel .node.node-hoverable.hovered > div > .node-children > .node-spacer .node-spacer-indicator {
-      display: inline-block; }
-    #tree-panel .node .node-spacer:hover {
-      background-color: red; }
+      display: inline-block;
+      color: green; }
+    #tree-panel .node.node-hoverable.hovered > div > .node-children .node-spacer:hover .node-spacer-indicator {
+      color: yellow; }
     #tree-panel .node.node-hoverable > div > .node-children > .node-pseudo, #tree-panel .node.node-hoverable > div > .node-children > .node-spacer:only-of-type {
       opacity: 0;
       height: 0; }
@@ -222,11 +223,6 @@ div.smoothie-chart-tooltip {
       background-color: green; }
     #tree-panel .node.node-hoverable > div {
       padding: 0 10px; }
-    #tree-panel .node.node-hoverable.node-decorator > div > .node-children > .node-pseudo:not(:only-of-type), #tree-panel .node.node-hoverable.node-decorator > div > .node-children > .node-spacer {
-      opacity: 0;
-      height: 0;
-      margin: 0;
-      pointer-events: none; }
 
 #new-node {
   pointer-events: none;

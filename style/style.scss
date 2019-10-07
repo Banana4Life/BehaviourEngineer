@@ -293,7 +293,7 @@ div.smoothie-chart-tooltip {
       .node-spacer-indicator {
         position: relative;
         font-size: 1em;
-        top: -70px;
+        top: -20px;
         display: none;
       }
     }
@@ -320,13 +320,15 @@ div.smoothie-chart-tooltip {
 
       & > .node-spacer .node-spacer-indicator {
         display: inline-block;
+        color: green;
+      }
+      & .node-spacer:hover .node-spacer-indicator {
+        color: yellow;
       }
 
     }
 
-    & .node-spacer:hover {
-      background-color: red;
-    }
+
 
     &.node-hoverable > div > .node-children {
       // hoverable pseudo nodes and ONLY spacers
@@ -361,14 +363,6 @@ div.smoothie-chart-tooltip {
       padding: 0 10px;
     }
 
-    &.node-hoverable.node-decorator > div > .node-children {
-      & > .node-pseudo:not(:only-of-type), & > .node-spacer {
-        opacity: 0;
-        height: 0;
-        margin: 0;
-        pointer-events: none;
-      }
-    }
   }
 }
 
