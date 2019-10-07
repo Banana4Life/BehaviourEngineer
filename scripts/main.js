@@ -40,6 +40,13 @@ class Species {
             }
         }
 
+        reset() {
+            this.speciesState.forEach(state => {
+                state.liveCount = 0;
+                state.deaths = 0;
+            })
+        }
+
         addDeath(particle) {
             let state = this.speciesState.get(particle.team);
             state.deaths++;
@@ -85,8 +92,10 @@ class Species {
         reset() {
             super.reset();
             this.particleCounter = 0;
+            this.tracker.reset();
 
             this.generateFood();
+            this.spawnInitialEnemies();
         }
 
         generateFood() {
@@ -121,6 +130,18 @@ class Species {
                     }
                 }
             }
+        }
+
+        spawnInitialEnemies() {
+            this.species.forEach(species => {
+                if (species !== this.playerSpecies) {
+                    let first = this.spawn(particleType.CELL);
+                    this.placeRandomly(first);
+                    first.team = species.id;
+                    first.color = species.color;
+                    this.tracker.addLive(first);
+                }
+            });
         }
 
         play() {
@@ -873,16 +894,6 @@ class Species {
 
         function setupWorld(sim, onFinish) {
             sim.reset();
-
-            sim.species.forEach(species => {
-                if (species !== sim.playerSpecies) {
-                    let first = sim.spawn(particleType.CELL);
-                    sim.placeRandomly(first);
-                    first.team = species.id;
-                    first.color = species.color;
-                    sim.tracker.addLive(first);
-                }
-            });
 
             sim.treeDef = treeDef;
             sim.updateBehaviorTreeFactory(treeDef);
