@@ -87,7 +87,9 @@ div.smoothie-chart-tooltip {
 
 #panel-gene-selection div#tree {
   padding: 9px 14px;
-  border: 1px solid gray; }
+  font-size: 1.3em;
+  text-align: center;
+  border: 3px solid gray; }
 
 #panel-gene-selection li {
   flex: 0 0 calc(33% - 3px);
@@ -99,9 +101,13 @@ div.smoothie-chart-tooltip {
 
 #panel-gene-info {
   font-weight: normal;
-  font-family: serif;
+  font-family: sans-serif;
   overflow: auto;
   max-height: 200px; }
+
+#panel-gene-info2 {
+  font-family: sans-serif;
+  overflow: auto; }
 
 #panel-simulation-buttons > div {
   margin-top: 4px; }

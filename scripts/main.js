@@ -471,7 +471,7 @@ class Species {
             },
             SPLIT: {
                 icon: "fas fa-unlink", nodeType: "node-leaf",
-                name: "Split", desc: "Split into two Cells with a change of mutation",
+                name: "Split", desc: "Split into two Cells",
                 ctr: () => new Split(0.5)
             },
             FIGHT: {
@@ -562,7 +562,7 @@ class Species {
                                        clone(nodes.NOT,[clone(nodes.SEE_FOOD)])])
             ])])
         ])];
-        treeDef =  [clone(ROOT, [])];
+        // treeDef =  [clone(ROOT, [])];
         console.log(treeDef);
         let isPickup = false;
         let pickupNode;
