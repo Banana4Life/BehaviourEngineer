@@ -177,6 +177,10 @@ div.smoothie-chart-tooltip {
 
 }
 
+#tree-panel-backplane > .node-children > .node-spacer {
+  display: none;
+}
+
 #panel-gene-selection li, #panel-gene-selection div, #panel-simulation-buttons > div > div {
 
   cursor: pointer;

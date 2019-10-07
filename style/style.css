@@ -127,6 +127,9 @@ div.smoothie-chart-tooltip {
   line-height: 40px;
   text-align: center; }
 
+#tree-panel-backplane > .node-children > .node-spacer {
+  display: none; }
+
 #panel-gene-selection li, #panel-gene-selection div, #panel-simulation-buttons > div > div {
   cursor: pointer;
   background-color: #111111; }
