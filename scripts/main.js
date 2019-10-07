@@ -298,12 +298,6 @@ class Species {
             let [x, y] = clickToElement(e, canvas);
             sim.clickedAt(x, y);
         });
-        document.querySelectorAll("#panel-gene-selection li").forEach(e => e.addEventListener("click", e => {
-           let geneType = e.target.dataset["gene"];
-           console.log("You clicked", geneType);
-           // TODO actually do smth in game
-           e.target.classList.toggle("active");
-        }));
 
         let pauseButton = document.querySelector("#pause");
         let playButton = document.querySelector("#play");
@@ -314,6 +308,13 @@ class Species {
         let simWrapper = document.querySelector("#sim-wrapper");
         let treeWrapper = document.querySelector("#tree-wrapper");
         let treePanelBackplane = document.querySelector("#tree-panel-backplane");
+
+        let trackerGraph = document.querySelector("#panel-cell-tracker");
+
+        let geneList = document.querySelector("#panel-gene-selection ul");
+
+        let geneInfo = document.querySelector("#panel-gene-info");
+        let newNode = document.querySelector("#new-node");
 
         playButton.addEventListener("click", e => {
             if (!playButton.classList.contains("active")) {
@@ -326,6 +327,7 @@ class Species {
                 treeWrapper.classList.add("hidden");
                 simWrapper.classList.remove("hidden");
                 treeButton.classList.remove("active");
+                trackerGraph.classList.remove("hidden");
 
                 sim.play();
             }
@@ -348,7 +350,7 @@ class Species {
                 treeWrapper.classList.add("hidden");
                 simWrapper.classList.remove("hidden");
                 treeButton.classList.remove("active");
-
+                trackerGraph.classList.remove("hidden");
                 sim.tick(10);
                 setTimeout(() => {
                     tickButton.classList.remove("active");
@@ -366,6 +368,73 @@ class Species {
                 }
             }
         });
+
+        const nodes = {
+            FREEZE: {
+                icon: "fa-snowflake-o", nodeType: "node-leaf",
+                name: "Freeze", desc: "Does nothing for half a second",
+                ctr: () => new Freeze(0.5)
+            },
+            RANDOM_WALK: {
+                icon: "fa-random", nodeType: "node-leaf",
+                name: "Random Walk", desc: "Chooses a random direction to walk into for 1.5 seconds",
+                ctr: () => new Freeze(1.5)
+            },
+            SEEK_FOOD: {
+                icon: "fa-binoculars", nodeType: "node-leaf",
+                name: "Walk to Food", desc: "Chooses a nearby food source and walks to it",
+                ctr: () => new MoveToFood()
+            },
+            HUNT_WEAK: {
+                icon: "fa-bug", nodeType: "node-leaf",
+                name: "Hunt Prey", desc: "",
+                ctr: () => new HuntWeak()
+            },
+            SPLIT: {
+                icon: "fa-unlink", nodeType: "node-leaf",
+                name: "Split", desc: "Split into two Cells with a change of mutation",
+                ctr: () => new Split()
+            },
+            FIGHT: {
+                icon: "fa-hand-rock-o", nodeType: "node-leaf",
+                name: "Fight", desc: "Fight and kill a weaker enemy",
+                ctr: () => new Fight()
+            },
+            EAT: {
+                icon: "fa-apple", nodeType: "node-leaf",
+                name: "Eat", desc: "Eat targeted food source",
+                ctr: () => new Eat()
+            },
+            NOT: {
+                icon: "fa-exclamation", nodeType: "node-decorator node-hoverable",
+                name: "Not", desc: "Negates the child node",
+                ctr: (children) => new BehaviorInverter(children[0])
+            },
+            SEQ: {
+                icon: "fa-ellipsis-h", nodeType: "node-seq node-hoverable", spacer: "fa-arrow-right",
+                name: "Sequence", desc: "Executes all child nodes until one fails",
+                ctr: (children) => new SequenceBranch(children)
+            },
+            PARALLEL: {
+                icon: "fa-navicon", nodeType: "node-parallel node-hoverable", spacer: "fa-arrow-right",
+                name: "Parallel", desc: "Executes all child nodes in parallel",
+                ctr: (children) => new ParallelBranch(children)
+            },
+
+        };
+
+        let ROOT = {
+                icon: "fa-asterisk", nodeType: "node-root node-hoverable",
+                name: "Root", desc: "Root",
+                ctr: (children) => new ParallelBranch(children).repeat()
+            };
+
+            let nodeId = 0;
+        function clone(node, children = []) {
+            return {id: nodeId++, icon: node.icon, nodeType: node.nodeType, ctr: node.ctr, children: children}
+        }
+
+
 
         let treeDef = [{icon: "fa-asterisk", nodeType: "node-root", children: [
                 {icon: "fa-snowflake-o", nodeType: "node-leaf"},
@@ -396,6 +465,8 @@ class Species {
                     ]},
 
             ]}];
+        treeDef = [clone(ROOT, [clone(nodes.FREEZE)])];
+        console.log(treeDef);
 
         treeButton.addEventListener("click", e => {
             pauseButton.click(); // TODO remove me only for develop
@@ -403,6 +474,7 @@ class Species {
                 treeButton.classList.toggle("active");
                 treeWrapper.classList.toggle("hidden");
                 simWrapper.classList.toggle("hidden");
+                trackerGraph.classList.toggle("hidden");
                 if (treeButton.classList.contains("active")) {
 
                     treePanelBackplane.innerHTML = buildTree(treeDef);
@@ -458,6 +530,58 @@ class Species {
             }
         });
 
+        let geneHtml = "";
+        for (let nodeKey of Object.keys(nodes)) {
+            let node = nodes[nodeKey];
+            geneHtml += `<li data-node="${nodeKey}">
+                            <span class="fa ${node.icon}"></span>
+                         </li>`;
+        }
+
+        geneList.innerHTML = geneHtml;
+        let newNodeGrabbed = false;
+
+        document.querySelectorAll("#panel-gene-selection li").forEach(el => el.addEventListener("mousedown", e => {
+            let geneType = el.dataset["node"];
+            let node = nodes[geneType];
+            newNodeGrabbed = true;
+            newNode.classList.remove("hidden");
+            newNode.style.left = (e.x-30) + "px";
+            newNode.style.top = (e.y-30) + "px";
+            newNode.innerHTML = `<div data-node="${geneType}">
+                                    <span class="fa ${node.icon}"></span>
+                                </div>`;
+        }));
+        document.addEventListener("mousemove", e => {
+            if (newNodeGrabbed) {
+                newNode.style.left = (e.x-30) + "px";
+                newNode.style.top = (e.y-30) + "px";
+            }
+        });
+        document.addEventListener("mouseup", e => {
+            if (newNodeGrabbed) {
+                newNodeGrabbed = false;
+                newNode.classList.add("hidden");
+
+                let closestPseudo = e.target.closest(".node-pseudo");
+                if (closestPseudo) {
+                    console.log(closestPseudo.dataset[node-id])
+                }
+                // TODO drop into place
+            }
+        });
+
+        document.querySelectorAll("#panel-gene-selection li").forEach(el => el.addEventListener("mousemove", e => {
+            let geneType = el.dataset["node"];
+            let node = nodes[geneType];
+            geneInfo.innerHTML = `<b>${node.name}</b><br>${node.desc}`
+        }));
+        document.querySelectorAll("#panel-gene-selection li").forEach(el => el.addEventListener("mouseleave", e => {
+            geneInfo.innerHTML = "";
+        }));
+
+
+
         const halfWidth = (canvas.width / 2);
         const halfHeight = (canvas.height / 2);
 
@@ -472,7 +596,7 @@ class Species {
             }
             let nodeString = `<div class="node-children">`;
             for (let nodeDef of nodeDefs) {
-                nodeString += `<span class="node ${nodeDef.nodeType}">
+                nodeString += `<span class="node ${nodeDef.nodeType}" data-node-id="${nodeDef.id}">
                                     <div>
                                        <span class="fa ${nodeDef.icon}"></span>
                                        ${buildTree(nodeDef.children, nodeDef.spacer)} 

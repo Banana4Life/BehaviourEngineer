@@ -8,6 +8,7 @@
 </head>
 <body>
 <div id="main">
+    <div id="new-node" class="hidden"></div>
     <div id="game-panel">
         <div id="sim-wrapper" class="wrapper">
             <canvas id="simulation"></canvas>
@@ -25,46 +26,38 @@
     <div id="menu-panel">
         <div class="wrapper">
             <div>
-                <h2>Menu</h2>
                 <div class="panel">
-                    <canvas id="cell-tracker"></canvas>
-                </div>
-                <!--
-                <div class="panel">
-                    <h3>Live Cells</h3>
-                    <div id="panel-info-live-count">
-
-                    </div>
-                </div>
-                -->
-                <div class="panel">
-                    <h3>Deaths</h3>
-                    <div id="panel-info-death-count">
+                    <div id="panel-cell-tracker">
+                        <canvas id="cell-tracker"></canvas>
                     </div>
                 </div>
                 <div class="panel">
-                    <h3>Genes</h3>
                     <div id="panel-gene-selection">
+                        <div id="tree" class="inactive"><span class="fa fa-code-fork"></span> Behaviour Tree</div>
                         <ul>
-                            <div id="tree" class="inactive"><span class="fa fa-code-fork"></span> Behaviour Tree</div>
-
-                            <li data-gene="freeze">Freeze</li>
-                            <li data-gene="random_walk">Random Walk</li>
-                            <li data-gene="seek_food">Seek Food</li>
-                            <li data-gene="hunt_food">Hunt Food</li>
-
-                            <li data-gene="speed_slow">Slow</li>
-                            <li data-gene="speed_fast">Fast</li>
+                            <!-- generated -->
                         </ul>
+                        <div class="clear-float"></div>
+                    </div>
+
+                </div>
+                <div class="clear-float"></div>
+                <div class="panel">
+                    <div id="panel-gene-info">
                     </div>
                 </div>
-                <div class="panel">
-                    <h3>Simulation</h3>
+
+                <div class="panel panel-bottom">
                     <div id="panel-simulation-buttons">
-                        <div id="play" class="fa fa-play active"></div>
-                        <div id="pause" class="fa fa-pause negative"></div>
-                        <div id="warp" class="fa fa-fast-forward"></div>
-                        <div id="tick" class="fa fa-step-forward inactive"></div>
+                        <div>
+                            <div id="play" class="fa fa-play active"></div>
+                            <div id="pause" class="fa fa-pause negative"></div>
+                        </div>
+                        <div>
+                            <div id="warp" class="fa fa-fast-forward"></div>
+                            <div id="tick" class="fa fa-step-forward inactive"></div>
+                        </div>
+                        <span class="clear-float"></span>
                     </div>
 
                 </div>

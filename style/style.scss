@@ -40,6 +40,7 @@ html, body, #main, #game-panel, canvas#simulation, #tree-panel {
 #menu-panel {
   float: right;
   width: 20%;
+  height: 100%;
 
   h2 {
     padding: 6px;
@@ -49,8 +50,11 @@ html, body, #main, #game-panel, canvas#simulation, #tree-panel {
   .wrapper {
     overflow-x: hidden;
     overflow-y: auto;
+    height: calc(100% - 2em); // padding
     & > div {
       border: 1px solid gray;
+      height: calc(100% - 2px); // border
+      position: relative;
     }
   }
 }
@@ -61,8 +65,16 @@ div.wrapper {
 
 .panel {
   font-weight: bold;
-  padding: 6px;
-  margin-bottom: 4px;
+
+  padding: 0;
+  margin: 0;
+
+  & > div {
+    padding: 6px 6px 0px 6px;
+    &:last-of-type {
+      padding: 6px;
+    }
+  }
 
   user-select: none;
 
@@ -71,8 +83,13 @@ div.wrapper {
   }
   span {
     font-weight: normal;
-    font-style: italic;
   }
+}
+
+.panel-bottom {
+  bottom: 0;
+  position: absolute;
+  width: 100%;
 }
 
 canvas#cell-tracker {
@@ -90,44 +107,60 @@ div.smoothie-chart-tooltip {
   pointer-events: none;
 }
 
+.panel > div.hidden {
+  display: none;
+}
+
 #panel-gene-selection {
   ul {
     list-style-type: none;
     margin: 0;
     padding: 0;
+    text-align: center;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
   }
 
-  li, div {
-    margin: 5px 0;
-    padding: 18px;
-
+  div#tree {
+    padding: 9px 14px;
     border: 1px solid gray;
   }
+
+  li {
+    flex: 0 0 calc(33% - 3px);
+    margin-top: 2px;
+    height: 50px;
+    line-height: 50px;
+    font-size: 2em;
+    border: 1px solid gray;
+  }
+}
+
+#panel-gene-info {
+  font-weight: normal;
+  font-family: serif;
+
+  overflow: auto;
+  max-height: 200px;
 }
 
 #panel-simulation-buttons {
-  height: 82px;
-  div {
-
+  & > div {
+    margin-top: 4px;
+  }
+  #play, #pause, #warp, #tick {
     border: 1px solid gray;
-    width: 45%;
+    width: calc(50% - 4px);
     height: 40px;
-
-    margin-bottom: 2px;
-    float: left;
 
     line-height: 40px;
     text-align: center;
-
-    &:nth-of-type(2n){
-      float: right;
-    }
   }
+
 }
 
-#panel-gene-selection li, #panel-gene-selection div, #panel-simulation-buttons div {
-
-
+#panel-gene-selection li, #panel-gene-selection div, #panel-simulation-buttons > div > div {
 
   cursor: pointer;
   background-color: #111111;
@@ -180,9 +213,6 @@ div.smoothie-chart-tooltip {
   }
 
   .node {
-    .clear-float {
-      clear: both;
-    }
 
     &.node-pseudo {
       opacity: 0;
@@ -285,4 +315,28 @@ div.smoothie-chart-tooltip {
       }
     }
   }
+}
+
+#new-node {
+  pointer-events: none;
+  position: absolute;
+  &.hidden {
+    display: none;
+  }
+  z-index: 100;
+
+  background-color: #111111;
+  width: 35px;
+  height: 35px;
+  line-height: 35px;
+  font-size: 1.5em;
+  text-align: center;
+  border: 1px solid gray;
+  border-radius: 14px;
+  opacity: 0.8;
+}
+
+.clear-float {
+  clear: both;
+  height: 0;
 }

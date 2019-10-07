@@ -27,29 +27,41 @@ html, body, #main, #game-panel, canvas#simulation, #tree-panel {
 
 #menu-panel {
   float: right;
-  width: 20%; }
+  width: 20%;
+  height: 100%; }
   #menu-panel h2 {
     padding: 6px;
     margin: 0; }
   #menu-panel .wrapper {
     overflow-x: hidden;
-    overflow-y: auto; }
+    overflow-y: auto;
+    height: calc(100% - 2em); }
     #menu-panel .wrapper > div {
-      border: 1px solid gray; }
+      border: 1px solid gray;
+      height: calc(100% - 2px);
+      position: relative; }
 
 div.wrapper {
   margin: 1em; }
 
 .panel {
   font-weight: bold;
-  padding: 6px;
-  margin-bottom: 4px;
+  padding: 0;
+  margin: 0;
   user-select: none; }
+  .panel > div {
+    padding: 6px 6px 0px 6px; }
+    .panel > div:last-of-type {
+      padding: 6px; }
   .panel h3 {
     margin: 0; }
   .panel span {
-    font-weight: normal;
-    font-style: italic; }
+    font-weight: normal; }
+
+.panel-bottom {
+  bottom: 0;
+  position: absolute;
+  width: 100%; }
 
 canvas#cell-tracker {
   width: 100%;
@@ -64,43 +76,60 @@ div.smoothie-chart-tooltip {
   font-size: 10px;
   pointer-events: none; }
 
+.panel > div.hidden {
+  display: none; }
+
 #panel-gene-selection ul {
   list-style-type: none;
   margin: 0;
-  padding: 0; }
+  padding: 0;
+  text-align: center;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between; }
 
-#panel-gene-selection li, #panel-gene-selection div {
-  margin: 5px 0;
-  padding: 18px;
+#panel-gene-selection div#tree {
+  padding: 9px 14px;
   border: 1px solid gray; }
 
-#panel-simulation-buttons {
-  height: 82px; }
-  #panel-simulation-buttons div {
-    border: 1px solid gray;
-    width: 45%;
-    height: 40px;
-    margin-bottom: 2px;
-    float: left;
-    line-height: 40px;
-    text-align: center; }
-    #panel-simulation-buttons div:nth-of-type(2n) {
-      float: right; }
+#panel-gene-selection li {
+  flex: 0 0 calc(33% - 3px);
+  margin-top: 2px;
+  height: 50px;
+  line-height: 50px;
+  font-size: 2em;
+  border: 1px solid gray; }
 
-#panel-gene-selection li, #panel-gene-selection div, #panel-simulation-buttons div {
+#panel-gene-info {
+  font-weight: normal;
+  font-family: serif;
+  overflow: auto;
+  max-height: 200px; }
+
+#panel-simulation-buttons > div {
+  margin-top: 4px; }
+
+#panel-simulation-buttons #play, #panel-simulation-buttons #pause, #panel-simulation-buttons #warp, #panel-simulation-buttons #tick {
+  border: 1px solid gray;
+  width: calc(50% - 4px);
+  height: 40px;
+  line-height: 40px;
+  text-align: center; }
+
+#panel-gene-selection li, #panel-gene-selection div, #panel-simulation-buttons > div > div {
   cursor: pointer;
   background-color: #111111; }
-  #panel-gene-selection li:hover, #panel-gene-selection div:hover, #panel-simulation-buttons div:hover {
+  #panel-gene-selection li:hover, #panel-gene-selection div:hover, #panel-simulation-buttons > div > div:hover {
     background-color: #222222; }
-  #panel-gene-selection li.active, #panel-gene-selection div.active, #panel-simulation-buttons div.active {
+  #panel-gene-selection li.active, #panel-gene-selection div.active, #panel-simulation-buttons > div > div.active {
     background-color: #024802; }
-    #panel-gene-selection li.active:hover, #panel-gene-selection div.active:hover, #panel-simulation-buttons div.active:hover {
+    #panel-gene-selection li.active:hover, #panel-gene-selection div.active:hover, #panel-simulation-buttons > div > div.active:hover {
       background-color: #135913; }
-  #panel-gene-selection li.active.negative, #panel-gene-selection div.active.negative, #panel-simulation-buttons div.active.negative {
+  #panel-gene-selection li.active.negative, #panel-gene-selection div.active.negative, #panel-simulation-buttons > div > div.active.negative {
     background-color: #3e0202; }
-    #panel-gene-selection li.active.negative:hover, #panel-gene-selection div.active.negative:hover, #panel-simulation-buttons div.active.negative:hover {
+    #panel-gene-selection li.active.negative:hover, #panel-gene-selection div.active.negative:hover, #panel-simulation-buttons > div > div.active.negative:hover {
       background-color: #4f1313; }
-  #panel-gene-selection li.inactive, #panel-gene-selection div.inactive, #panel-simulation-buttons div.inactive {
+  #panel-gene-selection li.inactive, #panel-gene-selection div.inactive, #panel-simulation-buttons > div > div.inactive {
     background-color: #333333; }
 
 #tree-panel {
@@ -120,8 +149,6 @@ div.smoothie-chart-tooltip {
     display: inline-block;
     margin: 5px;
     text-align: center; }
-    #tree-panel .node .clear-float {
-      clear: both; }
     #tree-panel .node.node-pseudo {
       opacity: 0;
       width: 0;
@@ -173,5 +200,25 @@ div.smoothie-chart-tooltip {
       width: auto;
       transition: visibility 0s, opacity 0.5s linear;
       margin: 4px; }
+
+#new-node {
+  pointer-events: none;
+  position: absolute;
+  z-index: 100;
+  background-color: #111111;
+  width: 35px;
+  height: 35px;
+  line-height: 35px;
+  font-size: 1.5em;
+  text-align: center;
+  border: 1px solid gray;
+  border-radius: 14px;
+  opacity: 0.8; }
+  #new-node.hidden {
+    display: none; }
+
+.clear-float {
+  clear: both;
+  height: 0; }
 
 /*# sourceMappingURL=style.css.map */
