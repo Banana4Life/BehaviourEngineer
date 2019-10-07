@@ -8,7 +8,7 @@ html, body {
 body {
   font-family: Consolas monospace; }
 
-html, body, #main, #game-panel, canvas#simulation {
+html, body, #main, #game-panel, canvas#simulation, #tree-panel {
   width: 100%;
   height: 100%;
   display: block; }
@@ -18,9 +18,12 @@ html, body, #main, #game-panel, canvas#simulation {
   width: 80%; }
   #game-panel .wrapper {
     height: calc(100% - 2em); }
+    #game-panel .wrapper > canvas, #game-panel .wrapper > div {
+      border: 1px solid gray; }
+  #game-panel .wrapper.hidden {
+    display: none; }
   #game-panel canvas {
-    image-rendering: crisp-edges;
-    border: 1px solid gray; }
+    image-rendering: crisp-edges; }
 
 #menu-panel {
   float: right;
@@ -66,7 +69,7 @@ div.smoothie-chart-tooltip {
   margin: 0;
   padding: 0; }
 
-#panel-gene-selection li {
+#panel-gene-selection li, #panel-gene-selection div {
   margin: 5px 0;
   padding: 18px;
   border: 1px solid gray; }
@@ -74,9 +77,9 @@ div.smoothie-chart-tooltip {
 #panel-simulation-buttons {
   height: 82px; }
   #panel-simulation-buttons div {
-    height: 40px;
-    width: 45%;
     border: 1px solid gray;
+    width: 45%;
+    height: 40px;
     margin-bottom: 2px;
     float: left;
     line-height: 40px;
@@ -84,20 +87,63 @@ div.smoothie-chart-tooltip {
     #panel-simulation-buttons div:nth-of-type(2n) {
       float: right; }
 
-#panel-gene-selection li, #panel-simulation-buttons div {
+#panel-gene-selection li, #panel-gene-selection div, #panel-simulation-buttons div {
   cursor: pointer;
   background-color: #111111; }
-  #panel-gene-selection li:hover, #panel-simulation-buttons div:hover {
+  #panel-gene-selection li:hover, #panel-gene-selection div:hover, #panel-simulation-buttons div:hover {
     background-color: #222222; }
-  #panel-gene-selection li.active, #panel-simulation-buttons div.active {
+  #panel-gene-selection li.active, #panel-gene-selection div.active, #panel-simulation-buttons div.active {
     background-color: #024802; }
-    #panel-gene-selection li.active:hover, #panel-simulation-buttons div.active:hover {
+    #panel-gene-selection li.active:hover, #panel-gene-selection div.active:hover, #panel-simulation-buttons div.active:hover {
       background-color: #135913; }
-  #panel-gene-selection li.active.negative, #panel-simulation-buttons div.active.negative {
+  #panel-gene-selection li.active.negative, #panel-gene-selection div.active.negative, #panel-simulation-buttons div.active.negative {
     background-color: #3e0202; }
-    #panel-gene-selection li.active.negative:hover, #panel-simulation-buttons div.active.negative:hover {
+    #panel-gene-selection li.active.negative:hover, #panel-gene-selection div.active.negative:hover, #panel-simulation-buttons div.active.negative:hover {
       background-color: #4f1313; }
-  #panel-gene-selection li.inactive, #panel-simulation-buttons div.inactive {
+  #panel-gene-selection li.inactive, #panel-gene-selection div.inactive, #panel-simulation-buttons div.inactive {
     background-color: #333333; }
+
+#tree-panel #tree-panel-backplane {
+  width: 100%;
+  height: 100%; }
+
+#tree-panel .node-spacer {
+  opacity: 0;
+  width: 0; }
+
+#tree-panel .node {
+  display: inline-block;
+  margin: 5px;
+  text-align: center; }
+  #tree-panel .node .clear-float {
+    clear: both; }
+  #tree-panel .node.node-pseudo {
+    opacity: 0;
+    width: 0; }
+  #tree-panel .node span.fa {
+    line-height: 40px;
+    font-size: 2em; }
+  #tree-panel .node .node-children > .node, #tree-panel .node .node-children > .node-spacer {
+    float: left; }
+  #tree-panel .node > div {
+    border: 1px solid gray; }
+    #tree-panel .node > div > span {
+      width: 40px;
+      height: 40px; }
+  #tree-panel .node.node-leaf > div {
+    border-bottom-color: blue; }
+  #tree-panel .node.node-seq > div {
+    border-bottom-color: green; }
+  #tree-panel .node > div > .node-children > .node-spacer {
+    font-size: 10px;
+    position: relative;
+    top: 4px; }
+  #tree-panel .node > div > .node-children > .node-spacer:not(:nth-last-of-type(2)) {
+    opacity: 1;
+    width: auto; }
+  #tree-panel .node.node-seq.hovered > div > .node-children > .node-spacer, #tree-panel .node.node-seq.hovered > div > .node-children > .node-pseudo {
+    opacity: 1;
+    width: auto;
+    transition: visibility 0s, opacity 0.5s linear; }
 
 /*# sourceMappingURL=style.css.map */

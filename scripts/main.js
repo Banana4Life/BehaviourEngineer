@@ -309,6 +309,11 @@ class Species {
         let playButton = document.querySelector("#play");
         let tickButton = document.querySelector("#tick");
         let warpButton = document.querySelector("#warp");
+        let treeButton = document.querySelector("#tree");
+
+        let simWrapper = document.querySelector("#sim-wrapper");
+        let treeWrapper = document.querySelector("#tree-wrapper");
+        let treePanelBackplane = document.querySelector("#tree-panel-backplane");
 
         playButton.addEventListener("click", e => {
             if (!playButton.classList.contains("active")) {
@@ -316,11 +321,18 @@ class Species {
                 playButton.classList.toggle("active");
                 tickButton.classList.toggle("inactive");
                 warpButton.classList.toggle("inactive");
+                treeButton.classList.toggle("inactive");
+
+                treeWrapper.classList.add("hidden");
+                simWrapper.classList.remove("hidden");
+                treeButton.classList.remove("active");
+
                 sim.play();
             }
         });
         pauseButton.addEventListener("click", e => {
             if (!pauseButton.classList.contains("active")) {
+                treeButton.classList.toggle("inactive");
                 pauseButton.classList.toggle("active");
                 playButton.classList.toggle("active");
                 tickButton.classList.toggle("inactive");
@@ -333,7 +345,10 @@ class Species {
         tickButton.addEventListener("click", e => {
             if (!tickButton.classList.contains("inactive")) {
                 tickButton.classList.add("active");
-                // TODO deactivate
+                treeWrapper.classList.add("hidden");
+                simWrapper.classList.remove("hidden");
+                treeButton.classList.remove("active");
+
                 sim.tick(10);
                 setTimeout(() => {
                     tickButton.classList.remove("active");
@@ -351,6 +366,51 @@ class Species {
                 }
             }
         });
+        treeButton.addEventListener("click", e => {
+            pauseButton.click(); // TODO remove me only for develop
+            if (!treeButton.classList.contains("inactive")) {
+                treeButton.classList.toggle("active");
+                treeWrapper.classList.toggle("hidden");
+                simWrapper.classList.toggle("hidden");
+                if (treeButton.classList.contains("active")) {
+                    let treeDef = [{icon: "fa-asterisk", nodeType: "node-root", children: [
+                            {icon: "fa-snowflake-o", nodeType: "node-leaf"},
+                            {icon: "fa-ellipsis-h", nodeType: "node-seq", spacer: "fa-arrow-right", children: [
+                                    {icon: "fa-random", nodeType: "node-leaf"},
+                                    {icon: "fa-ellipsis-h", nodeType: "node-seq", spacer: "fa-arrow-right", children: [
+                                            {icon: "fa-question", nodeType: "node-rand", spacer: "fa-question", children: [
+                                                    {icon: "fa-random", nodeType: "node-leaf"},
+                                                    {icon: "fa-cutlery", nodeType: "node-leaf"},
+                                                    {icon: "fa-cutlery", nodeType: "node-leaf"},
+                                                    {icon: "fa-cutlery", nodeType: "node-leaf"},
+                                                ]},
+                                            {icon: "fa-cutlery", nodeType: "node-leaf"},
+                                        ]},
+                                ]},
+                            {icon: "fa-cutlery", nodeType: "node-leaf"},
+                            {icon: "fa-ellipsis-h", nodeType: "node-seq", spacer: "fa-arrow-right", children: [
+                                    {icon: "fa-random", nodeType: "node-leaf"},
+                                    {icon: "fa-snowflake-o", nodeType: "node-leaf"},
+                                ]},
+
+                        ]}];
+                    treePanelBackplane.innerHTML = buildTree(treeDef);
+                    let hoverAddNodes =  document.querySelectorAll("#tree-panel .node.node-seq");
+                    hoverAddNodes.forEach(el => el.addEventListener("mouseover", e => {
+                        e.stopPropagation();
+                        el.classList.add("hovered")
+                    }));
+                    hoverAddNodes.forEach(el => el.addEventListener("mouseout", e => {
+                        e.stopPropagation();
+                        el.classList.remove("hovered");
+                    }));
+
+                    // Show Tree
+                } else {
+                    // Hide Tree
+                }
+            }
+        });
 
         const halfWidth = (canvas.width / 2);
         const halfHeight = (canvas.height / 2);
@@ -359,6 +419,33 @@ class Species {
             particle.x = (gaussianRand() * 2 - 1) * halfWidth;
             particle.y = (gaussianRand() * 2 - 1) * halfHeight;
         }
+
+        function buildTree(nodeDefs, spacer) {
+            if (!nodeDefs) {
+                return "";
+            }
+            let nodeString = `<div class="node-children">`;
+            for (let nodeDef of nodeDefs) {
+                nodeString += `<span class="node ${nodeDef.nodeType}">
+                                    <div>
+                                       <span class="fa ${nodeDef.icon}"></span>
+                                       ${buildTree(nodeDef.children, nodeDef.spacer)} 
+                                    </div>
+                               </span>`;
+                nodeString += `<span class="node-spacer">
+                                   <span class="fa ${spacer}"></span>
+                               </span>`;
+            }
+            nodeString += `<span class="node node-pseudo">
+                              <div>
+                                 <span class="fa fa-plus"></span>
+                              </div>
+                           </span>`;
+            nodeString += "<div class='clear-float'></div>";
+            nodeString += "</div>";
+            return nodeString;
+        }
+
 
         function setupWorld(onFinish) {
             // for (let i = 0; i < bunchSize && sim.aliveParticles.length < sim.particlePoolSize; ++i) {

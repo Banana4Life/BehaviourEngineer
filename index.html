@@ -4,13 +4,22 @@
     <meta charset="UTF-8">
     <title>LD45 Genemanipulator</title>
     <link rel="stylesheet" href="style/style.css">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
 </head>
 <body>
 <div id="main">
     <div id="game-panel">
-        <div class="wrapper">
+        <div id="sim-wrapper" class="wrapper">
             <canvas id="simulation"></canvas>
             <!--<div class="smoothie-chart-tooltip"></div>-->
+        </div>
+        <div id="tree-wrapper" class="wrapper hidden">
+            <div id="tree-panel">
+                <h3 class="fa fa-tree">Behaviour Tree</h3>
+                <div id="tree-panel-backplane">
+                    <div class="node"><span class="fa fa-asterisk"></span></div>
+                </div>
+            </div>
         </div>
     </div>
     <div id="menu-panel">
@@ -37,6 +46,8 @@
                     <h3>Genes</h3>
                     <div id="panel-gene-selection">
                         <ul>
+                            <div id="tree" class="inactive"><span class="fa fa-code-fork"></span> Behaviour Tree</div>
+
                             <li data-gene="freeze">Freeze</li>
                             <li data-gene="random_walk">Random Walk</li>
                             <li data-gene="seek_food">Seek Food</li>
@@ -50,11 +61,10 @@
                 <div class="panel">
                     <h3>Simulation</h3>
                     <div id="panel-simulation-buttons">
-                        <!-- TODO icons!!!!111-->
-                        <div id="play" class="active">PLAY</div>
-                        <div id="pause" class="negative">PAUSE</div>
-                        <div id="warp" >WARP</div>
-                        <div id="tick" class="inactive">TICK</div>
+                        <div id="play" class="fa fa-play active"></div>
+                        <div id="pause" class="fa fa-pause negative"></div>
+                        <div id="warp" class="fa fa-fast-forward"></div>
+                        <div id="tick" class="fa fa-step-forward inactive"></div>
                     </div>
 
                 </div>

@@ -10,7 +10,7 @@ body {
   font-family: Consolas monospace;
 }
 
-html, body, #main, #game-panel, canvas#simulation {
+html, body, #main, #game-panel, canvas#simulation, #tree-panel {
   width: 100%;
   height: 100%;
   display: block;
@@ -22,11 +22,17 @@ html, body, #main, #game-panel, canvas#simulation {
 
   .wrapper {
     height: calc(100% - 2em);
+    & > canvas, & > div {
+      border: 1px solid gray;
+    }
+  }
+
+  .wrapper.hidden {
+    display: none;
   }
 
   canvas {
     image-rendering: crisp-edges;
-    border: 1px solid gray;
   }
 
 }
@@ -91,23 +97,22 @@ div.smoothie-chart-tooltip {
     padding: 0;
   }
 
-  li {
+  li, div {
     margin: 5px 0;
     padding: 18px;
 
     border: 1px solid gray;
-
   }
 }
-
-
 
 #panel-simulation-buttons {
   height: 82px;
   div {
-    height: 40px;
-    width: 45%;
+
     border: 1px solid gray;
+    width: 45%;
+    height: 40px;
+
     margin-bottom: 2px;
     float: left;
 
@@ -120,7 +125,10 @@ div.smoothie-chart-tooltip {
   }
 }
 
-#panel-gene-selection li, #panel-simulation-buttons div {
+#panel-gene-selection li, #panel-gene-selection div, #panel-simulation-buttons div {
+
+
+
   cursor: pointer;
   background-color: #111111;
 
@@ -146,4 +154,85 @@ div.smoothie-chart-tooltip {
     background-color: #333333;
   }
 
+}
+
+#tree-panel {
+
+  #tree-panel-backplane {
+    width: 100%;
+    height: 100%;
+    //position: relative;
+
+    .node {
+      //position: absolute;
+    }
+  }
+
+  .node-spacer {
+    opacity: 0;
+    width: 0;
+  }
+
+  .node {
+    .clear-float {
+      clear: both;
+    }
+
+    &.node-pseudo {
+      opacity: 0;
+      width: 0;
+    }
+
+    display: inline-block;
+    margin: 5px;
+    text-align: center;
+
+
+    span.fa {
+      line-height: 40px;
+      font-size: 2em;
+    }
+
+    .node-children > .node, .node-children > .node-spacer {
+      float: left;
+    }
+
+    & > div {
+      & > span {
+        width: 40px;
+        height: 40px;
+      }
+      border: 1px solid gray;
+    }
+
+    &.node-root > div {
+    }
+    &.node-leaf > div {
+      border-bottom-color: blue;
+    }
+    &.node-seq > div {
+      border-bottom-color: green;
+    }
+
+    & > div > .node-children > .node-spacer {
+      font-size: 10px;
+      position: relative;
+      top: 4px;
+    }
+
+    & > div > .node-children > .node-spacer:not(:nth-last-of-type(2)) {
+      opacity: 1;
+      width: auto;
+    }
+
+
+    &.node-seq.hovered > div > .node-children {
+      & > .node-spacer, & > .node-pseudo {
+        opacity: 1;
+        width: auto;
+        transition: visibility 0s, opacity 0.5s linear;
+      }
+    }
+
+  }
 }
