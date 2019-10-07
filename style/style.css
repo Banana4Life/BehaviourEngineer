@@ -103,47 +103,65 @@ div.smoothie-chart-tooltip {
   #panel-gene-selection li.inactive, #panel-gene-selection div.inactive, #panel-simulation-buttons div.inactive {
     background-color: #333333; }
 
-#tree-panel #tree-panel-backplane {
-  width: 100%;
-  height: 100%; }
-
-#tree-panel .node-spacer {
-  opacity: 0;
-  width: 0; }
-
-#tree-panel .node {
-  display: inline-block;
-  margin: 5px;
-  text-align: center; }
-  #tree-panel .node .clear-float {
-    clear: both; }
-  #tree-panel .node.node-pseudo {
+#tree-panel {
+  position: relative;
+  overflow: hidden; }
+  #tree-panel #tree-panel-backplane {
+    width: 300%;
+    height: 300%;
+    overflow: hidden;
+    position: absolute; }
+  #tree-panel .node-spacer {
     opacity: 0;
     width: 0; }
-  #tree-panel .node span.fa {
-    line-height: 40px;
-    font-size: 2em; }
-  #tree-panel .node .node-children > .node, #tree-panel .node .node-children > .node-spacer {
-    float: left; }
-  #tree-panel .node > div {
-    border: 1px solid gray; }
-    #tree-panel .node > div > span {
-      width: 40px;
-      height: 40px; }
-  #tree-panel .node.node-leaf > div {
-    border-bottom-color: blue; }
-  #tree-panel .node.node-seq > div {
-    border-bottom-color: green; }
-  #tree-panel .node > div > .node-children > .node-spacer {
-    font-size: 10px;
-    position: relative;
-    top: 4px; }
-  #tree-panel .node > div > .node-children > .node-spacer:not(:nth-last-of-type(2)) {
-    opacity: 1;
-    width: auto; }
-  #tree-panel .node.node-seq.hovered > div > .node-children > .node-spacer, #tree-panel .node.node-seq.hovered > div > .node-children > .node-pseudo {
-    opacity: 1;
-    width: auto;
-    transition: visibility 0s, opacity 0.5s linear; }
+  #tree-panel .node {
+    display: inline-block;
+    margin: 5px;
+    text-align: center; }
+    #tree-panel .node .clear-float {
+      clear: both; }
+    #tree-panel .node.node-pseudo {
+      opacity: 0;
+      width: 0;
+      margin: 0; }
+    #tree-panel .node span.fa {
+      line-height: 40px;
+      font-size: 2em; }
+    #tree-panel .node .node-children > .node, #tree-panel .node .node-children > .node-spacer {
+      float: left; }
+    #tree-panel .node > div {
+      border: 1px solid gray; }
+      #tree-panel .node > div > span {
+        width: 40px;
+        height: 40px;
+        background-color: #111111;
+        border: 1px solid gray;
+        margin: 4px; }
+    #tree-panel .node.node-leaf > div {
+      border-bottom-color: blue; }
+      #tree-panel .node.node-leaf > div > span {
+        border: 0; }
+    #tree-panel .node.node-seq > div {
+      border-bottom-color: green; }
+    #tree-panel .node > div > .node-children > .node-spacer {
+      font-size: 10px;
+      position: relative;
+      top: 6px; }
+    #tree-panel .node > div > .node-children > .node-spacer:not(:nth-last-of-type(2)) {
+      opacity: 1;
+      width: auto;
+      margin: 4px; }
+    #tree-panel .node.node.node-pseudo:hover {
+      background-color: #555555; }
+    #tree-panel .node.node-decorator > div > .node-children > .node-pseudo:first-of-type {
+      opacity: 1;
+      width: auto;
+      transition: visibility 0s, opacity 0.5s linear;
+      margin: 4px; }
+    #tree-panel .node.node-seq.hovered > div > .node-children > .node-spacer, #tree-panel .node.node-seq.hovered > div > .node-children > .node-pseudo {
+      opacity: 1;
+      width: auto;
+      transition: visibility 0s, opacity 0.5s linear;
+      margin: 4px; }
 
 /*# sourceMappingURL=style.css.map */

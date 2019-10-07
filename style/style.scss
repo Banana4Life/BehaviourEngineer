@@ -158,14 +158,16 @@ div.smoothie-chart-tooltip {
 
 #tree-panel {
 
-  #tree-panel-backplane {
-    width: 100%;
-    height: 100%;
-    //position: relative;
+  position: relative;
+  overflow: hidden;
 
-    .node {
-      //position: absolute;
-    }
+  #tree-panel-backplane {
+    width: 300%;
+    height: 300%;
+
+    overflow: hidden;
+
+    position: absolute;
   }
 
   .node-spacer {
@@ -181,6 +183,7 @@ div.smoothie-chart-tooltip {
     &.node-pseudo {
       opacity: 0;
       width: 0;
+      margin: 0;
     }
 
     display: inline-block;
@@ -201,14 +204,23 @@ div.smoothie-chart-tooltip {
       & > span {
         width: 40px;
         height: 40px;
+        background-color: #111111;
+        border: 1px solid gray;
+        margin: 4px;
       }
+
       border: 1px solid gray;
     }
 
     &.node-root > div {
     }
-    &.node-leaf > div {
-      border-bottom-color: blue;
+    &.node-leaf {
+      & > div {
+        & > span {
+          border: 0;
+        }
+        border-bottom-color: blue;
+      }
     }
     &.node-seq > div {
       border-bottom-color: green;
@@ -217,20 +229,37 @@ div.smoothie-chart-tooltip {
     & > div > .node-children > .node-spacer {
       font-size: 10px;
       position: relative;
-      top: 4px;
+      top: 6px;
     }
 
     & > div > .node-children > .node-spacer:not(:nth-last-of-type(2)) {
       opacity: 1;
       width: auto;
+      margin: 4px;
     }
 
+    &.node.node-pseudo:hover {
+      // TODO while dragging
+      background-color: #555555;
+    }
 
-    &.node-seq.hovered > div > .node-children {
-      & > .node-spacer, & > .node-pseudo {
-        opacity: 1;
-        width: auto;
-        transition: visibility 0s, opacity 0.5s linear;
+  &.node-decorator {
+    & > div > .node-children > .node-pseudo:first-of-type {
+      opacity: 1;
+      width: auto;
+      transition: visibility 0s, opacity 0.5s linear;
+      margin: 4px;
+    }
+  }
+
+    &.node-seq.hovered {
+      & > div > .node-children {
+        & > .node-spacer, & > .node-pseudo {
+          opacity: 1;
+          width: auto;
+          transition: visibility 0s, opacity 0.5s linear;
+          margin: 4px;
+        }
       }
     }
 

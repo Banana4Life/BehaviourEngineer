@@ -375,27 +375,32 @@ class Species {
                 if (treeButton.classList.contains("active")) {
                     let treeDef = [{icon: "fa-asterisk", nodeType: "node-root", children: [
                             {icon: "fa-snowflake-o", nodeType: "node-leaf"},
-                            {icon: "fa-ellipsis-h", nodeType: "node-seq", spacer: "fa-arrow-right", children: [
+                            {icon: "fa-ellipsis-h", nodeType: "node-seq node-hoverable", spacer: "fa-arrow-right", children: [
                                     {icon: "fa-random", nodeType: "node-leaf"},
-                                    {icon: "fa-ellipsis-h", nodeType: "node-seq", spacer: "fa-arrow-right", children: [
+                                    {icon: "fa-ellipsis-h", nodeType: "node-seq node-hoverable", spacer: "fa-arrow-right", children: [
                                             {icon: "fa-question", nodeType: "node-rand", spacer: "fa-question", children: [
                                                     {icon: "fa-random", nodeType: "node-leaf"},
                                                     {icon: "fa-cutlery", nodeType: "node-leaf"},
                                                     {icon: "fa-cutlery", nodeType: "node-leaf"},
-                                                    {icon: "fa-cutlery", nodeType: "node-leaf"},
+                                                    {icon: "fa-exclamation", nodeType: "node-decorator node-hoverable", children: [
+                                                            {icon: "fa-cutlery", nodeType: "node-leaf"},
+                                                        ]},
+                                                    {icon: "fa-exclamation", nodeType: "node-decorator node-hoverable", children: [
+
+                                                        ]},
                                                 ]},
                                             {icon: "fa-cutlery", nodeType: "node-leaf"},
                                         ]},
                                 ]},
                             {icon: "fa-cutlery", nodeType: "node-leaf"},
-                            {icon: "fa-ellipsis-h", nodeType: "node-seq", spacer: "fa-arrow-right", children: [
+                            {icon: "fa-ellipsis-h", nodeType: "node-seq node-hoverable", spacer: "fa-arrow-right", children: [
                                     {icon: "fa-random", nodeType: "node-leaf"},
                                     {icon: "fa-snowflake-o", nodeType: "node-leaf"},
                                 ]},
 
                         ]}];
                     treePanelBackplane.innerHTML = buildTree(treeDef);
-                    let hoverAddNodes =  document.querySelectorAll("#tree-panel .node.node-seq");
+                    let hoverAddNodes =  document.querySelectorAll("#tree-panel .node.node-hoverable");
                     hoverAddNodes.forEach(el => el.addEventListener("mouseover", e => {
                         e.stopPropagation();
                         el.classList.add("hovered")
@@ -404,6 +409,10 @@ class Species {
                         e.stopPropagation();
                         el.classList.remove("hovered");
                     }));
+                    let rootNode = treePanelBackplane.querySelector(".node.node-root");
+                    let overFlow = Math.max(0, rootNode.clientWidth - treeWrapper.clientWidth);
+                    let offsetStyle = (-overFlow / 2) + "px";
+                    treePanelBackplane.style.left = offsetStyle;
 
                     // Show Tree
                 } else {
@@ -436,7 +445,7 @@ class Species {
                                    <span class="fa ${spacer}"></span>
                                </span>`;
             }
-            nodeString += `<span class="node node-pseudo">
+            nodeString += `<span class="node node-pseudo node-leaf">
                               <div>
                                  <span class="fa fa-plus"></span>
                               </div>
