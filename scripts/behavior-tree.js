@@ -215,6 +215,9 @@ class BehaviorComposite extends BehaviorNode {
 
 class BehaviorBranch extends BehaviorComposite {
     constructor(children) {
+        if (!Array.isArray(children)) {
+            throw new Error("Children must be an array: " + children);
+        }
         if (children.length === 0) {
             throw new Error("Does not make sense without children!");
         }

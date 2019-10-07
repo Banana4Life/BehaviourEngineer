@@ -168,9 +168,6 @@ class Species {
                 if (!children || children.length === 0) {
                     return () => [];
                 }
-                if (children.length === 1) {
-                    return buildSubtree(children[0]);
-                }
                 let subtreeFactories = [];
                 for (let child of children) {
                     subtreeFactories.push(buildSubtree(child));
