@@ -307,11 +307,15 @@ class Species {
 
         let pauseButton = document.querySelector("#pause");
         let playButton = document.querySelector("#play");
+        let tickButton = document.querySelector("#tick");
+        let warpButton = document.querySelector("#warp");
 
         playButton.addEventListener("click", e => {
             if (!playButton.classList.contains("active")) {
                 pauseButton.classList.toggle("active");
                 playButton.classList.toggle("active");
+                tickButton.classList.toggle("inactive");
+                warpButton.classList.toggle("inactive");
                 sim.play();
             }
         });
@@ -319,7 +323,32 @@ class Species {
             if (!pauseButton.classList.contains("active")) {
                 pauseButton.classList.toggle("active");
                 playButton.classList.toggle("active");
+                tickButton.classList.toggle("inactive");
+                warpButton.classList.toggle("inactive");
+                warpButton.classList.remove("active"); // warp stops when pausing
                 sim.pause();
+            }
+        });
+
+        tickButton.addEventListener("click", e => {
+            if (!tickButton.classList.contains("inactive")) {
+                tickButton.classList.add("active");
+                // TODO deactivate
+                sim.tick(10);
+                setTimeout(() => {
+                    tickButton.classList.remove("active");
+                }, 100);
+
+            }
+        });
+        warpButton.addEventListener("click", e => {
+            if (!warpButton.classList.contains("inactive")) {
+                warpButton.classList.toggle("active");
+                if (warpButton.classList.contains("active")) {
+                    sim.simulationSpeedMulti = 5;
+                } else {
+                    sim.simulationSpeedMulti = 1;
+                }
             }
         });
 

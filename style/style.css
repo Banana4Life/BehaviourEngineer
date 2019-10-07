@@ -72,15 +72,16 @@ div.smoothie-chart-tooltip {
   border: 1px solid gray; }
 
 #panel-simulation-buttons {
-  height: 40px; }
+  height: 82px; }
   #panel-simulation-buttons div {
     height: 40px;
     width: 45%;
     border: 1px solid gray;
+    margin-bottom: 2px;
     float: left;
     line-height: 40px;
     text-align: center; }
-    #panel-simulation-buttons div:last-of-type {
+    #panel-simulation-buttons div:nth-of-type(2n) {
       float: right; }
 
 #panel-gene-selection li, #panel-simulation-buttons div {
@@ -96,5 +97,7 @@ div.smoothie-chart-tooltip {
     background-color: #3e0202; }
     #panel-gene-selection li.active.negative:hover, #panel-simulation-buttons div.active.negative:hover {
       background-color: #4f1313; }
+  #panel-gene-selection li.inactive, #panel-simulation-buttons div.inactive {
+    background-color: #333333; }
 
 /*# sourceMappingURL=style.css.map */
