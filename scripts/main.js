@@ -168,6 +168,10 @@ class Species {
                 if (!children || children.length === 0) {
                     return () => [];
                 }
+                if (!Array.isArray(children)) {
+                    children = [children];
+                }
+
                 let subtreeFactories = [];
                 for (let child of children) {
                     subtreeFactories.push(buildSubtree(child));
@@ -449,7 +453,7 @@ class Species {
             MOVE_TO_FOOD: {
                 icon: "fa-binoculars", nodeType: "node-leaf",
                 name: "Walk to Food", desc: "Chooses a nearby food source and walks to it",
-                ctr: () => Behavior.seq(new SeeFood(), new MoveToFood())
+                ctr: () => new MoveToFood()
             },
             HUNT_WEAK: {
                 icon: "fa-bug", nodeType: "node-leaf",
@@ -459,17 +463,17 @@ class Species {
             SPLIT: {
                 icon: "fa-unlink", nodeType: "node-leaf",
                 name: "Split", desc: "Split into two Cells with a change of mutation",
-                ctr: () => new Split().repeat()
+                ctr: () => new Split()
             },
             FIGHT: {
                 icon: "fa-hand-rock-o", nodeType: "node-leaf",
                 name: "Fight", desc: "Fight and kill a weaker enemy",
-                ctr: () => new Fight().repeat()
+                ctr: () => new Fight()
             },
             EAT: {
                 icon: "fa-apple", nodeType: "node-leaf",
                 name: "Eat", desc: "Eat targeted food source",
-                ctr: () => new Eat().repeat()
+                ctr: () => new Eat()
             },
             NOT: {
                 icon: "fa-exclamation", nodeType: "node-decorator node-hoverable",
@@ -495,7 +499,24 @@ class Species {
                 ctr: (children) => new PerceptionRadial(20).repeat(),
                 children: []
             },
-
+            SEE_FOOD: {
+                icon: "fa-pagelines", nodeType: "node-leaf",
+                name: "Food Perception", desc: "Perceives food particles in the area",
+                ctr: (children) => new SeeFood(),
+                children: []
+            },
+            SELECTOR: {
+                icon: "fa-check", nodeType: "node-selector node-hoverable", spacer: "fa-step-forward",
+                name: "Selector", desc: "Executes all child nodes until one succeeds",
+                ctr: (children) => new SelectorBranch(children),
+                children: []
+            },
+            INTERRUPT: {
+                icon: "fa-exclamation-triangle", nodeType: "node-decorator-2 node-hoverable", spacer: "fa-step-backward",
+                name: "Interrupt", desc: "Interrupts the first node if the first fails",
+                ctr: (children) => new BehaviorInterrupter(children[0], children[1]),
+                children: []
+            },
 
         };
 
@@ -544,11 +565,17 @@ class Species {
             ]}];
         treeDef = [clone(ROOT, [
             clone(nodes.PERCEPTION),
-            clone(nodes.SEQ, [
-                clone(nodes.MOVE_TO_FOOD),
-                clone(nodes.EAT),
-                clone(nodes.SPLIT)
+            clone(nodes.SELECTOR, [
+                clone(nodes.SEQ, [
+                    clone(nodes.SEE_FOOD),
+                    clone(nodes.MOVE_TO_FOOD),
+                    clone(nodes.EAT),
+                    clone(nodes.SPLIT)
+                ]),
+                clone(nodes.INTERRUPT, [clone(nodes.RANDOM_WALK),
+                                       clone(nodes.NOT,clone(nodes.SEE_FOOD))])
             ])
+
         ])];
         console.log(treeDef);
 
@@ -653,6 +680,7 @@ class Species {
                 newNodeGrabbed = false;
                 newNode.classList.add("hidden");
 
+                // TODO if on spacer insert before/after another element
                 let closestNode = e.target.closest(".node");
                 if (closestNode.classList.contains("node-pseudo")) {
                     let closestHoverable = closestNode.closest(".node-hoverable")
