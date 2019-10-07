@@ -366,6 +366,37 @@ class Species {
                 }
             }
         });
+
+        let treeDef = [{icon: "fa-asterisk", nodeType: "node-root", children: [
+                {icon: "fa-snowflake-o", nodeType: "node-leaf"},
+                {icon: "fa-ellipsis-h", nodeType: "node-seq node-hoverable", spacer: "fa-arrow-right", children: [
+                        {icon: "fa-random", nodeType: "node-leaf"},
+                        {icon: "fa-ellipsis-h", nodeType: "node-seq node-hoverable", spacer: "fa-arrow-right", children: [
+                                {icon: "fa-question", nodeType: "node-rand", spacer: "fa-question", children: [
+                                        {icon: "fa-times", nodeType: "node-exc node-hoverable", spacer: "fa-times", children: [
+                                                {icon: "fa-random", nodeType: "node-leaf"},
+                                                {icon: "fa-cutlery", nodeType: "node-leaf"},
+                                                {icon: "fa-cutlery", nodeType: "node-leaf"},
+                                            ]},
+                                        {icon: "fa-cutlery", nodeType: "node-leaf"},
+                                        {icon: "fa-exclamation", nodeType: "node-decorator node-hoverable", children: [
+                                                {icon: "fa-cutlery", nodeType: "node-leaf"},
+                                            ]},
+                                        {icon: "fa-exclamation", nodeType: "node-decorator node-hoverable", children: [
+
+                                            ]},
+                                    ]},
+                                {icon: "fa-cutlery", nodeType: "node-leaf"},
+                            ]},
+                    ]},
+                {icon: "fa-cutlery", nodeType: "node-leaf"},
+                {icon: "fa-ellipsis-h", nodeType: "node-seq node-hoverable", spacer: "fa-arrow-right", children: [
+                        {icon: "fa-random", nodeType: "node-leaf"},
+                        {icon: "fa-snowflake-o", nodeType: "node-leaf"},
+                    ]},
+
+            ]}];
+
         treeButton.addEventListener("click", e => {
             pauseButton.click(); // TODO remove me only for develop
             if (!treeButton.classList.contains("inactive")) {
@@ -373,32 +404,7 @@ class Species {
                 treeWrapper.classList.toggle("hidden");
                 simWrapper.classList.toggle("hidden");
                 if (treeButton.classList.contains("active")) {
-                    let treeDef = [{icon: "fa-asterisk", nodeType: "node-root", children: [
-                            {icon: "fa-snowflake-o", nodeType: "node-leaf"},
-                            {icon: "fa-ellipsis-h", nodeType: "node-seq node-hoverable", spacer: "fa-arrow-right", children: [
-                                    {icon: "fa-random", nodeType: "node-leaf"},
-                                    {icon: "fa-ellipsis-h", nodeType: "node-seq node-hoverable", spacer: "fa-arrow-right", children: [
-                                            {icon: "fa-question", nodeType: "node-rand", spacer: "fa-question", children: [
-                                                    {icon: "fa-random", nodeType: "node-leaf"},
-                                                    {icon: "fa-cutlery", nodeType: "node-leaf"},
-                                                    {icon: "fa-cutlery", nodeType: "node-leaf"},
-                                                    {icon: "fa-exclamation", nodeType: "node-decorator node-hoverable", children: [
-                                                            {icon: "fa-cutlery", nodeType: "node-leaf"},
-                                                        ]},
-                                                    {icon: "fa-exclamation", nodeType: "node-decorator node-hoverable", children: [
 
-                                                        ]},
-                                                ]},
-                                            {icon: "fa-cutlery", nodeType: "node-leaf"},
-                                        ]},
-                                ]},
-                            {icon: "fa-cutlery", nodeType: "node-leaf"},
-                            {icon: "fa-ellipsis-h", nodeType: "node-seq node-hoverable", spacer: "fa-arrow-right", children: [
-                                    {icon: "fa-random", nodeType: "node-leaf"},
-                                    {icon: "fa-snowflake-o", nodeType: "node-leaf"},
-                                ]},
-
-                        ]}];
                     treePanelBackplane.innerHTML = buildTree(treeDef);
                     let hoverAddNodes =  document.querySelectorAll("#tree-panel .node.node-hoverable");
                     hoverAddNodes.forEach(el => el.addEventListener("mouseover", e => {
@@ -410,14 +416,45 @@ class Species {
                         el.classList.remove("hovered");
                     }));
                     let rootNode = treePanelBackplane.querySelector(".node.node-root");
-                    let overFlow = Math.max(0, rootNode.clientWidth - treeWrapper.clientWidth);
-                    let offsetStyle = (-overFlow / 2) + "px";
-                    treePanelBackplane.style.left = offsetStyle;
+
+
+                    let centerMe = treePanelBackplane.querySelector("#tree-panel-backplane > .node-children");
+                    let offsetLeft = (treePanelBackplane.clientWidth - centerMe.clientWidth) /2;
+                    centerMe.style.left = offsetLeft +"px";
+                    let offsetTop = (treePanelBackplane.clientHeight - centerMe.clientHeight) / 2;
+                    centerMe.style.top = offsetTop +"px";
+
+                    let overFlowX = Math.max(0, rootNode.clientWidth - treeWrapper.clientWidth);
+                    let overFlowY = rootNode.clientHeight - treeWrapper.clientHeight;
+
+                    treePanelBackplane.style.left = -offsetLeft - overFlowX / 2 +"px";
+                    treePanelBackplane.style.top = -offsetTop- overFlowY / 2 +"px";
+
 
                     // Show Tree
                 } else {
                     // Hide Tree
                 }
+            }
+        });
+
+        let isDown = false;
+        treePanelBackplane.addEventListener("mousedown", e => {
+            isDown = true;
+        });
+        treePanelBackplane.addEventListener("mouseup", e => {
+            isDown = false;
+        });
+        treePanelBackplane.addEventListener("mouseleave", e => {
+            isDown = false;
+        });
+        treePanelBackplane.addEventListener("mousemove", e => {
+            e.preventDefault();
+            if (isDown) {
+                let newLeft = parseFloat(treePanelBackplane.style.left) + e.movementX;
+                let newTop = parseFloat(treePanelBackplane.style.top) + e.movementY;
+                treePanelBackplane.style.left = Math.min(0, newLeft) + "px";
+                treePanelBackplane.style.top = Math.min(0, newTop) + "px";
             }
         });
 

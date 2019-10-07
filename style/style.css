@@ -111,6 +111,8 @@ div.smoothie-chart-tooltip {
     height: 300%;
     overflow: hidden;
     position: absolute; }
+    #tree-panel #tree-panel-backplane > .node-children {
+      position: absolute; }
   #tree-panel .node-spacer {
     opacity: 0;
     width: 0; }
@@ -152,13 +154,21 @@ div.smoothie-chart-tooltip {
       width: auto;
       margin: 4px; }
     #tree-panel .node.node.node-pseudo:hover {
-      background-color: #555555; }
+      background-color: green; }
+    #tree-panel .node.node-decorator.node-hoverable > div > .node-children > .node-pseudo:not(:first-of-type), #tree-panel .node.node-decorator.node-hoverable > div > .node-children > .node-spacer:not(:first-of-type) {
+      opacity: 0;
+      width: 0;
+      margin: 0; }
+    #tree-panel .node.node-decorator > div > .node-children > .node:hover {
+      background-color: yellow; }
+    #tree-panel .node.node-decorator > div > .node-children > .node.node-pseudo:hover {
+      background-color: green; }
     #tree-panel .node.node-decorator > div > .node-children > .node-pseudo:first-of-type {
       opacity: 1;
       width: auto;
       transition: visibility 0s, opacity 0.5s linear;
       margin: 4px; }
-    #tree-panel .node.node-seq.hovered > div > .node-children > .node-spacer, #tree-panel .node.node-seq.hovered > div > .node-children > .node-pseudo {
+    #tree-panel .node.node-hoverable.hovered > div > .node-children > .node-spacer, #tree-panel .node.node-hoverable.hovered > div > .node-children > .node-pseudo {
       opacity: 1;
       width: auto;
       transition: visibility 0s, opacity 0.5s linear;
