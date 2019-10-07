@@ -710,6 +710,11 @@ class Simulation {
         this.simulationTicksToRun = -1;
     }
 
+    reset() {
+        this.allParticles.length = 0;
+        this.deadParticles.length = 0;
+    }
+
     setPoolSize(size) {
         this.particlePoolSize = size;
     }
@@ -1191,7 +1196,9 @@ function renderLoop(root, pt, f) {
         if (pt !== 0) {
             dt = (t - pt) / 1000;
         }
-        f(dt);
+        if (f(dt) === false) {
+            return;
+        }
         renderLoop(root, t, f);
     });
 }
