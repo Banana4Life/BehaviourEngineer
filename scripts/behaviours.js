@@ -189,7 +189,7 @@ const utils = {
     },
 
     pathTo: function(particle, goal) {
-        let [dx, dy] = vec2d.normalizeOrZero(goal.x - particle.x, goal.y - particle.y);
+        let [dx, dy] = vec2d.normalize(goal.x - particle.x, goal.y - particle.y);
         particle.vx = dx * particle.speed;
         particle.vy = dy * particle.speed;
 

@@ -132,30 +132,24 @@ const vec2d = {
         if (Array.isArray(x)) {
             [x, y] = x;
         }
+        if (x === 0 && y === 0) {
+            return 0;
+        }
+        if (x === 0) {
+            return y;
+        }
+        if (y === 0) {
+            return x;
+        }
         return Math.sqrt(vec2d.squaredLength(x, y));
     },
     normalize: function (x, y) {
         if (Array.isArray(x)) {
             [x, y] = x;
         }
-        if (x === 0 && y === 0) {
-            return [0, 0];
-        } else if (x === 0) {
-            return [0, 1];
-        } else if (y === 0) {
-            return [1, 0];
-        } else {
-            const len = vec2d.length(x, y);
-            return [x / len, y / len];
-        }
-    },
-    normalizeOrZero: function (x, y) {
-        if (Array.isArray(x)) {
-            [x, y] = x;
-        }
         const len = vec2d.length(x, y);
         if (len === 0) {
-            return [0, 0]
+            return [0, 0];
         }
         return [x / len, y / len];
     },
@@ -180,20 +174,29 @@ const vec = {
         if (Array.isArray(x)) {
             [x, y, z] = x;
         }
-        return Math.sqrt(vec.squaredLength(x, y, z));
+        if (x === 0 && y === 0 && z === 0) {
+            return 0;
+        } else {
+            return Math.sqrt(vec.squaredLength(x, y, z));
+        }
     },
     normalize: function (x, y, z) {
         if (Array.isArray(x)) {
             [x, y, z] = x;
         }
         const len = vec.length(x, y, z);
+        if (len === 0) {
+            return [0, 0, 0];
+        }
         return [x / len, y / len, z / len];
     },
     normalizeInPlace: function (v) {
         const len = vec.length(v[0], v[1], v[2]);
-        v[0] /= len;
-        v[1] /= len;
-        v[2] /= len;
+        if (len !== 0) {
+            v[0] /= len;
+            v[1] /= len;
+            v[2] /= len;
+        }
     },
 
     scale(s, x, y, z) {
@@ -831,7 +834,7 @@ class Simulation {
             }
         }
 
-        let [vx, vy] = vec2d.normalizeOrZero(
+        let [vx, vy] = vec2d.normalize(
             particle.vx / particle.speed * 3 + dxSum,
             particle.vy / particle.speed * 3 + dySum);
 
