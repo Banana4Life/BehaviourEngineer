@@ -161,7 +161,7 @@ class BehaviorNode {
 
     // DSL helpers
     repeat() {
-        return new RepeatingBehavior(this);
+        return new BehaviorRepeater(this);
     }
 
     inverted() {
@@ -461,6 +461,9 @@ class BehaviorWrapper extends BehaviorNode {
     }
 
     onStart(context) {
+        if (!this.child) {
+            return BehaviorResult.Failure;
+        }
         return this.child.start(context);
     }
 
@@ -477,7 +480,7 @@ class BehaviorWrapper extends BehaviorNode {
     }
 }
 
-class RepeatingBehavior extends BehaviorWrapper {
+class BehaviorRepeater extends BehaviorWrapper {
     constructor(child) {
         super(child);
     }
@@ -493,6 +496,9 @@ class RepeatingBehavior extends BehaviorWrapper {
     }
 
     onStart(context) {
+        if (!this.child) {
+            return BehaviorResult.Failure;
+        }
         this.child.start(context);
         if (this.shouldRepeat(context)) {
             return BehaviorResult.Running;
@@ -521,6 +527,9 @@ class BehaviorFilter extends BehaviorWrapper {
     }
 
     onStart(context) {
+        if (!this.child) {
+            return BehaviorResult.Failure;
+        }
         let newContext = this.onPreStart(this.child, context);
         let result = this.child.start(newContext);
         return this.onPostStart(this.child, newContext, result);
@@ -605,6 +614,13 @@ class BehaviorInterrupter extends BehaviorWrapper {
         super(child);
         this.condition = condition;
         this.result = result;
+    }
+
+    onStart(context) {
+        if (!this.condition) {
+            return BehaviorResult.Failure;
+        }
+        return super.onStart(context);
     }
 
     onContinue(context) {

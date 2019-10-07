@@ -596,7 +596,7 @@ class Species {
             REPEAT: {
                 icon: "fas fa-redo", nodeType: "node-decorator node-hoverable",
                 name: "Repeat", desc: "Repeat a node for ever",
-                ctr: (children) => new RepeatingBehavior(children[0]),
+                ctr: (children) => new BehaviorRepeater(children[0]),
                 children: []
             }
 
