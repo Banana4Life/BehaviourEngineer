@@ -798,6 +798,7 @@ class Simulation {
         if (this.zoom !== window.devicePixelRatio) {
             this.updateProjection();
         }
+
         this.simulateParticles(dt);
     }
 
@@ -891,11 +892,16 @@ class Simulation {
 
             visibleNeighborsWithDistance.sort((a, b) => a[1] - b[1]);
 
-            particle.decisionTimeout -= dt;
-            if (particle.decisionTimeout <= 0) {
+            if (particle.type === particleType.CELL) {
                 this.makeDecision(particle, visibleNeighborsWithDistance, dt);
-                particle.decisionTimeout = particle.decisionDuration;
+            } else {
+                particle.decisionTimeout -= dt;
+                if (particle.decisionTimeout <= 0) {
+                    this.makeDecision(particle, visibleNeighborsWithDistance, dt);
+                    particle.decisionTimeout = particle.decisionDuration;
+                }
             }
+
             this.doAction(particle, visibleNeighborsWithDistance, dt);
 
         }
