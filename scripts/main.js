@@ -546,9 +546,9 @@ class Species {
                 clone(nodes.INTERRUPT, [clone(nodes.RANDOM_WALK),
                                        clone(nodes.NOT,[clone(nodes.SEE_FOOD)])])
             ])
-
         ])];
-        console.log(treeDef);
+        treeDef =  [clone(ROOT, [])];
+            console.log(treeDef);
         let isPickup = false;
         let pickupNode;
 
