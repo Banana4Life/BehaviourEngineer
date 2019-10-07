@@ -172,13 +172,12 @@ div.smoothie-chart-tooltip {
         border: 0; }
     #tree-panel .node.node-seq > div {
       border-bottom-color: green; }
-    #tree-panel .node > div > .node-children > .node-spacer {
-      font-size: 10px;
+    #tree-panel .node .node-spacer > span {
+      font-size: 1em;
       position: relative;
-      top: 8px; }
+      top: 13px; }
     #tree-panel .node > div > .node-children > .node-spacer:not(:nth-last-of-type(2)) {
-      width: auto;
-      margin: 2px;
+      width: 15px;
       opacity: 1; }
     #tree-panel .node.node-pseudo {
       opacity: 0;
@@ -186,12 +185,18 @@ div.smoothie-chart-tooltip {
       margin: 0;
       height: 0; }
     #tree-panel .node .node-spacer {
-      opacity: 0;
-      width: 0;
-      margin: 0; }
+      width: 15px;
+      height: 50px;
+      margin: 5px 0; }
+      #tree-panel .node .node-spacer .node-spacer-indicator {
+        position: relative;
+        font-size: 1em;
+        top: -70px;
+        display: none; }
+    #tree-panel .node .node-spacer:nth-last-of-type(2) {
+      opacity: 0; }
     #tree-panel .node.node-hoverable.hovered > div > .node-children > .node-spacer {
       opacity: 1;
-      width: auto;
       transition: visibility 0s, opacity 0.5s linear;
       height: 50px; }
     #tree-panel .node.node-hoverable.hovered > div > .node-children > .node-pseudo {
@@ -200,9 +205,12 @@ div.smoothie-chart-tooltip {
       transition: visibility 0s, opacity 0.5s linear;
       height: 50px;
       margin: 5px; }
+    #tree-panel .node.node-hoverable.hovered > div > .node-children > .node-spacer .node-spacer-indicator {
+      display: inline-block; }
+    #tree-panel .node .node-spacer:hover {
+      background-color: red; }
     #tree-panel .node.node-hoverable > div > .node-children > .node-pseudo, #tree-panel .node.node-hoverable > div > .node-children > .node-spacer:only-of-type {
       opacity: 0;
-      width: 0;
       height: 0; }
     #tree-panel .node.node-hoverable > div > .node-children > .node-pseudo:only-of-type {
       opacity: 1;
@@ -211,13 +219,14 @@ div.smoothie-chart-tooltip {
       height: 50px; }
     #tree-panel .node:hover.hovered > div > .node-parent > div {
       background-color: #90860b; }
+    #tree-panel .node.hovered .node:hover > div > .node-parent > div {
+      background-color: #90860b; }
     #tree-panel .node.node-hoverable:hover > div > .node-children > .node-pseudo .node-parent > div {
       background-color: green; }
     #tree-panel .node.node-hoverable > div {
       padding: 0 10px; }
     #tree-panel .node.node-hoverable.node-decorator > div > .node-children > .node-pseudo:not(:only-of-type), #tree-panel .node.node-hoverable.node-decorator > div > .node-children > .node-spacer {
       opacity: 0;
-      width: 0;
       height: 0;
       margin: 0;
       pointer-events: none; }

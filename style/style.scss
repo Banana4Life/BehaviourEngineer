@@ -270,15 +270,14 @@ div.smoothie-chart-tooltip {
       border-bottom-color: green;
     }
 
-    & > div > .node-children > .node-spacer {
-      font-size: 10px;
+    .node-spacer > span{
+      font-size: 1em;
       position: relative;
-      top: 8px;
+      top: 13px;
     }
 
     & > div > .node-children > .node-spacer:not(:nth-last-of-type(2)) {
-      width: auto;
-      margin: 2px;
+      width: 15px;
       opacity: 1;
     }
 
@@ -290,15 +289,28 @@ div.smoothie-chart-tooltip {
     }
 
     .node-spacer {
+      width: 15px;
+      height: 50px;
+      margin: 5px 0;
+
+      & > span {
+      }
+
+      .node-spacer-indicator {
+        position: relative;
+        font-size: 1em;
+        top: -70px;
+        display: none;
+      }
+    }
+
+    .node-spacer:nth-last-of-type(2){
       opacity: 0;
-      width: 0;
-      margin: 0;
     }
 
     &.node-hoverable.hovered > div > .node-children {
       & > .node-spacer {
         opacity: 1;
-        width: auto;
         transition: visibility 0s, opacity 0.5s linear;
         height: 50px;
       }
@@ -311,13 +323,21 @@ div.smoothie-chart-tooltip {
         margin: 5px
       }
 
+
+      & > .node-spacer .node-spacer-indicator {
+        display: inline-block;
+      }
+
+    }
+
+    & .node-spacer:hover {
+      background-color: red;
     }
 
     &.node-hoverable > div > .node-children {
       // hoverable pseudo nodes and ONLY spacers
       & > .node-pseudo, & > .node-spacer:only-of-type {
         opacity: 0;
-        width: 0;
         height: 0;
       }
 
@@ -329,8 +349,11 @@ div.smoothie-chart-tooltip {
       }
     }
 
-
     &:hover.hovered > div > .node-parent > div {
+      background-color: #90860b;
+    }
+
+    &.hovered .node:hover > div > .node-parent > div {
       background-color: #90860b;
     }
 
@@ -347,7 +370,6 @@ div.smoothie-chart-tooltip {
     &.node-hoverable.node-decorator > div > .node-children {
       & > .node-pseudo:not(:only-of-type), & > .node-spacer {
         opacity: 0;
-        width: 0;
         height: 0;
         margin: 0;
         pointer-events: none;

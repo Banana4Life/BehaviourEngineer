@@ -580,7 +580,7 @@ class Species {
         console.log(treeDef);
 
         function rebuildTree() {
-            treePanelBackplane.innerHTML = buildTree(treeDef);
+            treePanelBackplane.innerHTML = buildTree(treeDef, treeDef);
             let hoverAddNodes =  document.querySelectorAll("#tree-panel .node.node-hoverable");
             hoverAddNodes.forEach(el => el.addEventListener("mouseover", e => {
                 e.stopPropagation();
@@ -717,23 +717,31 @@ class Species {
             rebuildTree();
         }
 
-        function buildTree(nodeDefs, spacer) {
+        function buildTree(parentDef, nodeDefs, spacer) {
             if (!nodeDefs || (nodeDefs.length === 0 && nodeDefs.type === "node-leaf")) {
                 return "";
             }
             let nodeString = `<div class="node-children">`;
+            let spacer0 = "";
             for (let nodeDef of nodeDefs) {
+                nodeString += `<span class="node-spacer">
+                                   <span class="fa ${spacer0}">
+                                      <span class="node-spacer-indicator fa fa-arrow-down"></span>
+                                   </span>
+                               </span>`;
                 nodeString += `<span class="node ${nodeDef.nodeType}" data-node-id="${nodeDef.id}">
                                     <div>
                                        <div class="node-parent"><div><span class="fa ${nodeDef.icon}"></span></div></div>
-                                       ${buildTree(nodeDef.children, nodeDef.spacer)} 
+                                       ${buildTree(nodeDef, nodeDef.children, nodeDef.spacer)} 
                                     </div>
                                </span>`;
-                nodeString += `<span class="node-spacer">
-                                   <span class="fa ${spacer}"></span>
-                               </span>`;
+                spacer0 = spacer;
             }
-            nodeString += `<span class="node node-pseudo node-leaf">
+            if (parentDef.nodeType !== "node-leaf") {
+                nodeString += `<span class="node-spacer">
+                                   <span class="fa ${spacer0}"></span>
+                               </span>`;
+                nodeString += `<span class="node node-pseudo node-leaf">
                               <div>
                                 <div class="node-parent">
                                     <div>
@@ -743,6 +751,7 @@ class Species {
                                 </div>
                               </div>
                            </span>`;
+            }
             nodeString += "<div class='clear-float'></div>";
             nodeString += "</div>";
             return nodeString;
