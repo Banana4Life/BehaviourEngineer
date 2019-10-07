@@ -563,6 +563,20 @@ class Species {
             }));
             let rootNode = treePanelBackplane.querySelector(".node.node-root");
 
+            let allNodesToClick =  document.querySelectorAll("#tree-panel .node .node-parent > div");
+
+            let pickupNode;
+            allNodesToClick.forEach(el => el.addEventListener("mousedown", e => {
+                let closestNode = el.closest(".node")
+                let closestHoverable = closestNode.parentElement.closest(".node-hoverable")
+                let id = closestNode.dataset["nodeId"]
+                let hovId = closestHoverable.dataset["nodeId"]
+                let node = treeDefMap[id];
+
+                removeFromTree(hovId, id);
+
+                el.style.backgroundColor = "red";
+            }));
 
             let centerMe = treePanelBackplane.querySelector("#tree-panel-backplane > .node-children");
             let offsetLeft = (treePanelBackplane.clientWidth - centerMe.clientWidth) /2;
@@ -699,8 +713,15 @@ class Species {
         function replaceInTree(atNode, replaceAt, newNode) {
             console.log("replace", replaceAt, " in ", atNode, " ", newNode);
             let childrenList = treeDefMap[atNode].children;
-            let idx = childrenList.indexOf(treeDefMap[replaceAt])
+            let idx = childrenList.indexOf(treeDefMap[replaceAt]);
             childrenList[idx] = clone(newNode);
+            rebuildTree();
+        }
+        function removeFromTree(atNode, remove) {
+            console.log("remove", remove, " in ", atNode);
+            let childrenList = treeDefMap[atNode].children;
+            let idx = childrenList.indexOf(treeDefMap[remove]);
+            childrenList.splice(idx, 1);
             rebuildTree();
         }
 
