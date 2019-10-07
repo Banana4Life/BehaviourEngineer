@@ -169,7 +169,7 @@ class Species {
                     return () => [];
                 }
                 if (children.length === 1) {
-                    return buildSubtree();
+                    return buildSubtree(children[0]);
                 }
                 let subtreeFactories = [];
                 for (let child of children) {
