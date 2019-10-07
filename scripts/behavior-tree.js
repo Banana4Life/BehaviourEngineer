@@ -609,7 +609,6 @@ class BehaviorInterrupter extends BehaviorWrapper {
     onContinue(context) {
         if (this.condition.forceRestart(context) === BehaviorResult.Failure) {
             this.child.interrupt(context);
-            console.log("interupt")
             return this.result;
         }
         return super.onContinue(context);
@@ -622,16 +621,16 @@ class BehaviorInterrupter extends BehaviorWrapper {
 
 class SimpleTask extends BehaviorTask {
     onStart(context) {
-        console.log("simple task: starting", this.getState(), this.constructor.name);
+        // console.log("simple task: starting", this.getState(), this.constructor.name);
         this.filterContext(context);
         if (this.checkPrecondition(context)) {
             let result = this.executeStart(context);
             if (result === BehaviorResult.Running) {
-                console.log("now running simple task", this.constructor.name);
+                // console.log("now running simple task", this.constructor.name);
             }
             return result;
         }
-        console.log("simple task: pre condition failed", this.getState(), this.constructor.name);
+        // console.log("simple task: pre condition failed", this.getState(), this.constructor.name);
         return BehaviorResult.Failure;
     }
 
@@ -700,26 +699,26 @@ class TimedTask extends SimpleTask {
     }
 
     executeStart(context) {
-        console.log("timed task: not running, init", this.getState());
+        // console.log("timed task: not running, init", this.getState());
         this.timer = this.duration;
         this.executeBeforeTimer(context);
         return super.executeStart(context);
     }
 
     execute(context) {
-        console.log("timed task: tick", this.getState());
+        // console.log("timed task: tick", this.getState());
         this.timer -= context.dt;
-        console.log("timer:", this.timer);
+        // console.log("timer:", this.timer);
         if (this.timer <= 0) {
-            console.log("timed task: completed", this.getState());
+            // console.log("timed task: completed", this.getState());
             return BehaviorResult.Success;
         }
-        console.log("timed task: during time", this.getState());
+        // console.log("timed task: during time", this.getState());
         if (this.executeDuringTimer(context)) {
-            console.log("timed task: stays running", this.getState());
+            // console.log("timed task: stays running", this.getState());
             return BehaviorResult.Running;
         }
-        console.log("timed task: failed", this.getState());
+        // console.log("timed task: failed", this.getState());
         return BehaviorResult.Failure;
 
     }

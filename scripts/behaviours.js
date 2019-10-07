@@ -42,11 +42,11 @@ class RandomWalk extends TimedTask {
 
     executeBeforeTimer(context) {
         [this.dirX, this.dirY] = vec2d.randomDirection();
-        console.log("random walk init", this.getState());
+        // console.log("random walk init", this.getState());
     }
 
     executeDuringTimer(context) {
-        console.log("random walk", this.getState());
+        // console.log("random walk", this.getState());
         let particle = context.particle;
         particle.setVelocity(this.dirX * particle.speed, this.dirY * particle.speed);
         return true;
