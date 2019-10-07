@@ -463,7 +463,7 @@ class Species {
             SPLIT: {
                 icon: "fas fa-unlink", nodeType: "node-leaf",
                 name: "Split", desc: "Split into two Cells with a change of mutation",
-                ctr: () => new Split()
+                ctr: () => new Split(0.5)
             },
             FIGHT: {
                 icon: "far fa-hand-rock", nodeType: "node-leaf",

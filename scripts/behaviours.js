@@ -133,7 +133,6 @@ class PerceptionRadial extends InstantTask {
         this.perceptionRange = perceptionRange;
     }
     filterContext(context) {
-        console.log("radial!")
         context.visibleNeighbours = context.visibleNeighbours.filter(([p,d]) => touches(context.particle, p, d, this.perceptionRange))
     }
 }
@@ -209,7 +208,7 @@ const behaviour = {
     RANDOM_WALK: new RandomWalk(1.5),
     SEEK_FOOD: new MoveToFood(),
     HUNT_WEAK: new HuntWeak(),
-    SPLIT: new Split(),
+    SPLIT: new Split(0.5),
     FIGHT: new Fight(),
     EAT: new Eat(),
 };
