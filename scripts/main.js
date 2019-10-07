@@ -17,6 +17,9 @@ class Species {
 (function () {
 
     class Tracker {
+        chart;
+        speciesState;
+
         constructor(canvas, species) {
             this.chart = new SmoothieChart({interpolation: 'bezier', minValue: 0, labels: {disabled: false}, tooltip: true, responsive: true});
             this.chart.streamTo(canvas);
@@ -109,7 +112,9 @@ class Species {
                 return;
             }
             console.debug("clicked at", x, ",", y, "in world");
-            if (this.canSpawn()) {
+            let noPlayerAlive = this.tracker.speciesState.get(this.playerSpecies.id).liveCount <= 0;
+            if (this.canSpawn() && noPlayerAlive) {
+
                 let particle = this.spawn(particleType.CELL);
                 particle.team = this.playerSpecies.id;
                 particle.color = this.playerSpecies.color;
