@@ -45,7 +45,6 @@ div.wrapper {
   margin: 1em; }
 
 .panel {
-  font-weight: bold;
   padding: 0;
   margin: 0;
   user-select: none; }
@@ -55,8 +54,6 @@ div.wrapper {
       padding: 6px; }
   .panel h3 {
     margin: 0; }
-  .panel span {
-    font-weight: normal; }
 
 .panel-bottom {
   bottom: 0;
@@ -96,7 +93,7 @@ div.smoothie-chart-tooltip {
   flex: 0 0 calc(33% - 3px);
   margin-top: 2px;
   height: 50px;
-  line-height: 50px;
+  line-height: 50px !important;
   font-size: 2em;
   border: 1px solid gray; }
 

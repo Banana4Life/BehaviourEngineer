@@ -441,78 +441,78 @@ class Species {
 
         const nodes = {
             FREEZE: {
-                icon: "fa-snowflake-o", nodeType: "node-leaf",
+                icon: "fas fa-snowflake", nodeType: "node-leaf",
                 name: "Freeze", desc: "Does nothing for half a second",
                 ctr: () => new Freeze(0.5)
             },
             RANDOM_WALK: {
-                icon: "fa-random", nodeType: "node-leaf",
+                icon: "fas fa-random", nodeType: "node-leaf",
                 name: "Random Walk", desc: "Chooses a random direction to walk into for 1.5 seconds",
                 ctr: () => new RandomWalk(1.5)
             },
             MOVE_TO_FOOD: {
-                icon: "fa-binoculars", nodeType: "node-leaf",
+                icon: "fas fa-binoculars", nodeType: "node-leaf",
                 name: "Walk to Food", desc: "Chooses a nearby food source and walks to it",
                 ctr: () => new MoveToFood()
             },
             HUNT_WEAK: {
-                icon: "fa-bug", nodeType: "node-leaf",
+                icon: "fas fa-bug", nodeType: "node-leaf",
                 name: "Hunt Prey", desc: "",
                 ctr: () => new HuntWeak()
             },
             SPLIT: {
-                icon: "fa-unlink", nodeType: "node-leaf",
+                icon: "fas fa-unlink", nodeType: "node-leaf",
                 name: "Split", desc: "Split into two Cells with a change of mutation",
                 ctr: () => new Split()
             },
             FIGHT: {
-                icon: "fa-hand-rock-o", nodeType: "node-leaf",
+                icon: "far fa-hand-rock", nodeType: "node-leaf",
                 name: "Fight", desc: "Fight and kill a weaker enemy",
                 ctr: () => new Fight()
             },
             EAT: {
-                icon: "fa-apple", nodeType: "node-leaf",
+                icon: "fas fa-apple-alt", nodeType: "node-leaf",
                 name: "Eat", desc: "Eat targeted food source",
                 ctr: () => new Eat()
             },
             NOT: {
-                icon: "fa-exclamation", nodeType: "node-decorator node-hoverable",
+                icon: "fas fa-exclamation", nodeType: "node-decorator node-hoverable",
                 name: "Not", desc: "Negates the child node",
                 ctr: (children) => new BehaviorInverter(children[0]),
                 children: []
             },
             SEQ: {
-                icon: "fa-ellipsis-h", nodeType: "node-seq node-hoverable", spacer: "fa-arrow-right",
+                icon: "fas fa-ellipsis-h", nodeType: "node-seq node-hoverable", spacer: "fa-arrow-right",
                 name: "Sequence", desc: "Executes all child nodes until one fails",
                 ctr: (children) => new SequenceBranch(children),
                 children: []
             },
             PARALLEL: {
-                icon: "fa-navicon", nodeType: "node-parallel node-hoverable", spacer: "fa-arrow-right",
+                icon: "fas fa-bars", nodeType: "node-parallel node-hoverable", spacer: "fa-arrow-right",
                 name: "Parallel", desc: "Executes all child nodes in parallel",
                 ctr: (children) => new ParallelBranch(children),
                 children: []
             },
             PERCEPTION: {
-                icon: "fa-eye", nodeType: "node-leaf",
+                icon: "fas fa-eye", nodeType: "node-leaf",
                 name: "Radial Perception", desc: "Perceives other particles in the area",
                 ctr: (children) => new PerceptionRadial(20).repeat(),
                 children: []
             },
             SEE_FOOD: {
-                icon: "fa-pagelines", nodeType: "node-leaf",
+                icon: "fab fa-pagelines", nodeType: "node-leaf",
                 name: "Food Perception", desc: "Perceives food particles in the area",
                 ctr: (children) => new SeeFood(),
                 children: []
             },
             SELECTOR: {
-                icon: "fa-check", nodeType: "node-selector node-hoverable", spacer: "fa-step-forward",
+                icon: "fas fa-check", nodeType: "node-selector node-hoverable", spacer: "fa-step-forward",
                 name: "Selector", desc: "Executes all child nodes until one succeeds",
                 ctr: (children) => new SelectorBranch(children),
                 children: []
             },
             INTERRUPT: {
-                icon: "fa-exclamation-triangle", nodeType: "node-decorator-2 node-hoverable", spacer: "fa-step-backward",
+                icon: "fas fa-exclamation-triangle", nodeType: "node-decorator-2 node-hoverable", spacer: "fa-step-backward",
                 name: "Interrupt", desc: "Interrupts the first node if the first fails",
                 ctr: (children) => new BehaviorInterrupter(children[0], children[1]),
                 children: []
@@ -521,7 +521,7 @@ class Species {
         };
 
         let ROOT = {
-                icon: "fa-asterisk", nodeType: "node-root node-hoverable",
+                icon: "fas fa-asterisk", nodeType: "node-root node-hoverable",
                 name: "Root", desc: "Root",
                 ctr: (children) => new ParallelBranch(children).repeat()
             };
@@ -534,36 +534,7 @@ class Species {
         }
 
         let treeDefMap = {};
-        let treeDef = [{icon: "fa-asterisk", nodeType: "node-root", children: [
-                {icon: "fa-snowflake-o", nodeType: "node-leaf"},
-                {icon: "fa-ellipsis-h", nodeType: "node-seq node-hoverable", spacer: "fa-arrow-right", children: [
-                        {icon: "fa-random", nodeType: "node-leaf"},
-                        {icon: "fa-ellipsis-h", nodeType: "node-seq node-hoverable", spacer: "fa-arrow-right", children: [
-                                {icon: "fa-question", nodeType: "node-rand", spacer: "fa-question", children: [
-                                        {icon: "fa-times", nodeType: "node-exc node-hoverable", spacer: "fa-times", children: [
-                                                {icon: "fa-random", nodeType: "node-leaf"},
-                                                {icon: "fa-cutlery", nodeType: "node-leaf"},
-                                                {icon: "fa-cutlery", nodeType: "node-leaf"},
-                                            ]},
-                                        {icon: "fa-cutlery", nodeType: "node-leaf"},
-                                        {icon: "fa-exclamation", nodeType: "node-decorator node-hoverable", children: [
-                                                {icon: "fa-cutlery", nodeType: "node-leaf"},
-                                            ]},
-                                        {icon: "fa-exclamation", nodeType: "node-decorator node-hoverable", children: [
-
-                                            ]},
-                                    ]},
-                                {icon: "fa-cutlery", nodeType: "node-leaf"},
-                            ]},
-                    ]},
-                {icon: "fa-cutlery", nodeType: "node-leaf"},
-                {icon: "fa-ellipsis-h", nodeType: "node-seq node-hoverable", spacer: "fa-arrow-right", children: [
-                        {icon: "fa-random", nodeType: "node-leaf"},
-                        {icon: "fa-snowflake-o", nodeType: "node-leaf"},
-                    ]},
-
-            ]}];
-        treeDef = [clone(ROOT, [
+        let treeDef = [clone(ROOT, [
             clone(nodes.PERCEPTION),
             clone(nodes.SELECTOR, [
                 clone(nodes.SEQ, [
@@ -649,7 +620,7 @@ class Species {
         for (let nodeKey of Object.keys(nodes)) {
             let node = nodes[nodeKey];
             geneHtml += `<li data-node="${nodeKey}">
-                            <span class="fa ${node.icon}"></span>
+                            <span class="${node.icon}"></span>
                          </li>`;
         }
 
@@ -666,7 +637,7 @@ class Species {
             newNode.style.left = (e.x-30) + "px";
             newNode.style.top = (e.y-30) + "px";
             newNode.innerHTML = `<div data-node="${geneType}">
-                                    <span class="fa ${node.icon}"></span>
+                                    <span class="${node.icon}"></span>
                                 </div>`;
         }));
         document.addEventListener("mousemove", e => {
@@ -725,13 +696,13 @@ class Species {
             let spacer0 = "";
             for (let nodeDef of nodeDefs) {
                 nodeString += `<span class="node-spacer">
-                                   <span class="fa ${spacer0}">
-                                      <span class="node-spacer-indicator fa fa-arrow-down"></span>
+                                   <span class="fas ${spacer0}">
+                                      <span class="node-spacer-indicator fas fa-arrow-down"></span>
                                    </span>
                                </span>`;
                 nodeString += `<span class="node ${nodeDef.nodeType}" data-node-id="${nodeDef.id}">
                                     <div>
-                                       <div class="node-parent"><div><span class="fa ${nodeDef.icon}"></span></div></div>
+                                       <div class="node-parent"><div><span class="${nodeDef.icon}"></span></div></div>
                                        ${buildTree(nodeDef, nodeDef.children, nodeDef.spacer)} 
                                     </div>
                                </span>`;
@@ -739,14 +710,14 @@ class Species {
             }
             if (parentDef.nodeType !== "node-leaf") {
                 nodeString += `<span class="node-spacer">
-                                   <span class="fa ${spacer0}"></span>
+                                   <span class="fas ${spacer0}"></span>
                                </span>`;
                 nodeString += `<span class="node node-pseudo node-leaf">
                               <div>
                                 <div class="node-parent">
                                     <div>
                                     
-                                       <span class="fa fa-plus"></span>
+                                       <span class="fas fa-plus"></span>
                                     </div>
                                 </div>
                               </div>

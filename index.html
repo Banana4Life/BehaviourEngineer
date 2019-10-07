@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <title>LD45 Genemanipulator</title>
     <link rel="stylesheet" href="style/style.css">
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link rel="stylesheet" href="vendored/fontawesome/css/all.min.css">
 </head>
 <body>
 <div id="main">
@@ -17,7 +17,7 @@
         <div id="tree-wrapper" class="wrapper hidden">
             <div id="tree-panel">
                 <div id="tree-panel-backplane">
-                    <div class="node"><span class="fa fa-asterisk"></span></div>
+                    <div class="node"><span class="fas fa-asterisk"></span></div>
                 </div>
             </div>
         </div>
@@ -33,7 +33,7 @@
                 </div>
                 <div class="panel">
                     <div id="panel-gene-selection">
-                        <div id="tree" class="inactive"><span class="fa fa-code-fork"></span> Behaviour Tree</div>
+                        <div id="tree" class="inactive"><span class="fas fa-code-fork"></span> Behaviour Tree</div>
                         <ul>
                             <!-- generated -->
                         </ul>
@@ -50,12 +50,12 @@
                 <div class="panel panel-bottom">
                     <div id="panel-simulation-buttons">
                         <div>
-                            <div id="play" class="fa fa-play active"></div>
-                            <div id="pause" class="fa fa-pause negative"></div>
+                            <div id="play" class="fas fa-play active"></div>
+                            <div id="pause" class="fas fa-pause negative"></div>
                         </div>
                         <div>
-                            <div id="warp" class="fa fa-fast-forward"></div>
-                            <div id="tick" class="fa fa-step-forward inactive"></div>
+                            <div id="warp" class="fas fa-fast-forward"></div>
+                            <div id="tick" class="fas fa-step-forward inactive"></div>
                         </div>
                         <span class="clear-float"></span>
                     </div>
@@ -68,8 +68,8 @@
 </div>
 
 <!--You made this?-->
-<script src="scripts/vendored/smoothie.js"></script>
-<script src="scripts/vendored/open-simplex-noise.js"></script>
+<script src="vendored/smoothie.js"></script>
+<script src="vendored/open-simplex-noise.js"></script>
 <!--I made this!-->
 <script src="scripts/util.js"></script>
 <script src="scripts/behavior-tree.js"></script>
