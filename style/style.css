@@ -110,11 +110,13 @@ div.smoothie-chart-tooltip {
   overflow: auto; }
 
 #panel-simulation-buttons > div {
+  display: flex;
+  justify-content: space-between;
   margin-top: 4px; }
 
 #panel-simulation-buttons #play, #panel-simulation-buttons #pause, #panel-simulation-buttons #warp, #panel-simulation-buttons #tick {
+  flex: 0 0 48%;
   border: 1px solid gray;
-  width: calc(50% - 4px);
   height: 40px;
   line-height: 40px;
   text-align: center; }

@@ -629,7 +629,7 @@ class Species {
                                        clone(nodes.NOT,[clone(nodes.SEE_FOOD)])])
             ])])
         ])];
-        treeDef =  [clone(ROOT, [])];
+        // treeDef =  [clone(ROOT, [])];
         console.log(treeDef);
         let isPickup = false;
         let pickupNode;
