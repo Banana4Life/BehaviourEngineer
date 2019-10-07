@@ -133,6 +133,7 @@ class PerceptionRadial extends InstantTask {
         this.perceptionRange = perceptionRange;
     }
     filterContext(context) {
+        console.log("radial!")
         context.visibleNeighbours = context.visibleNeighbours.filter(([p,d]) => touches(context.particle, p, d, this.perceptionRange))
     }
 }

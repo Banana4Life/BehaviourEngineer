@@ -496,7 +496,7 @@ class Species {
             PERCEPTION: {
                 icon: "fas fa-eye", nodeType: "node-leaf",
                 name: "Radial Perception", desc: "Perceives other particles in the area",
-                ctr: (children) => new PerceptionRadial(20).repeat(),
+                ctr: (children) => new PerceptionRadial(20),
                 children: []
             },
             SEE_FOOD: {
@@ -517,6 +517,12 @@ class Species {
                 ctr: (children) => new BehaviorInterrupter(children[0], children[1]),
                 children: []
             },
+            REPEAT: {
+                icon: "fas fa-redo", nodeType: "node-decorator node-hoverable",
+                name: "Repeat", desc: "Repeat a node for ever",
+                ctr: (children) => new RepeatingBehavior(children[0]),
+                children: []
+            }
 
         };
 
@@ -535,8 +541,8 @@ class Species {
 
         let treeDefMap = {};
         let treeDef = [clone(ROOT, [
-            clone(nodes.PERCEPTION),
-            clone(nodes.SELECTOR, [
+            clone(nodes.REPEAT, [clone(nodes.PERCEPTION)]),
+            clone(nodes.REPEAT, [clone(nodes.SELECTOR, [
                 clone(nodes.SEQ, [
                     clone(nodes.SEE_FOOD),
                     clone(nodes.MOVE_TO_FOOD),
@@ -545,10 +551,10 @@ class Species {
                 ]),
                 clone(nodes.INTERRUPT, [clone(nodes.RANDOM_WALK),
                                        clone(nodes.NOT,[clone(nodes.SEE_FOOD)])])
-            ])
+            ])])
         ])];
         treeDef =  [clone(ROOT, [])];
-            console.log(treeDef);
+        console.log(treeDef);
         let isPickup = false;
         let pickupNode;
 

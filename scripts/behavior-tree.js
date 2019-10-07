@@ -607,7 +607,9 @@ class BehaviorInterrupter extends BehaviorWrapper {
     }
 
     onContinue(context) {
-        if (this.condition.forceRestart(context)) {
+        if (this.condition.forceRestart(context) === BehaviorResult.Failure) {
+            this.child.interrupt(context);
+            console.log("interupt")
             return this.result;
         }
         return super.onContinue(context);
@@ -620,11 +622,13 @@ class BehaviorInterrupter extends BehaviorWrapper {
 
 class SimpleTask extends BehaviorTask {
     onStart(context) {
-        console.log("simple task: starting", this.getState());
+        console.log("simple task: starting", this.getState(), this.constructor.name);
         this.filterContext(context);
         if (this.checkPrecondition(context)) {
             let result = this.executeStart(context);
-            console.log("simple task: after start,", result);
+            if (result === BehaviorResult.Running) {
+                console.log("now running simple task", this.constructor.name);
+            }
             return result;
         }
         console.log("simple task: pre condition failed", this.getState(), this.constructor.name);
