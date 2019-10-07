@@ -717,6 +717,7 @@ class TimedTask extends SimpleTask {
         }
         console.log("timed task: failed", this.getState());
         return BehaviorResult.Failure;
+
     }
 
     /**

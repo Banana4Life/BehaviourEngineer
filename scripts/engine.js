@@ -892,6 +892,9 @@ class Simulation {
 
             visibleNeighborsWithDistance.sort((a, b) => a[1] - b[1]);
 
+            if (dt === 0) {
+                return;
+            }
             if (particle.type === particleType.CELL) {
                 this.makeDecision(particle, visibleNeighborsWithDistance, dt);
             } else {
