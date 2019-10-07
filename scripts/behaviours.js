@@ -155,6 +155,9 @@ class MoveToFood extends SimpleTask {
 
     executeStart(context) {
         let foods = context.visibleFoods;
+        if (!foods) {
+            return BehaviorResult.Failure;
+        }
         for (let [food,] of foods) {
             // maybe consider other options?
             utils.pathTo(context.particle, food);

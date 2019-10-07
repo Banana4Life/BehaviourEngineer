@@ -446,10 +446,10 @@ class Species {
                 name: "Random Walk", desc: "Chooses a random direction to walk into for 1.5 seconds",
                 ctr: () => new RandomWalk(1.5)
             },
-            SEEK_FOOD: {
+            MOVE_TO_FOOD: {
                 icon: "fa-binoculars", nodeType: "node-leaf",
                 name: "Walk to Food", desc: "Chooses a nearby food source and walks to it",
-                ctr: () => new MoveToFood()
+                ctr: () => Behavior.seq(new SeeFood(), new MoveToFood())
             },
             HUNT_WEAK: {
                 icon: "fa-bug", nodeType: "node-leaf",
@@ -459,17 +459,17 @@ class Species {
             SPLIT: {
                 icon: "fa-unlink", nodeType: "node-leaf",
                 name: "Split", desc: "Split into two Cells with a change of mutation",
-                ctr: () => new Split()
+                ctr: () => new Split().repeat()
             },
             FIGHT: {
                 icon: "fa-hand-rock-o", nodeType: "node-leaf",
                 name: "Fight", desc: "Fight and kill a weaker enemy",
-                ctr: () => new Fight()
+                ctr: () => new Fight().repeat()
             },
             EAT: {
                 icon: "fa-apple", nodeType: "node-leaf",
                 name: "Eat", desc: "Eat targeted food source",
-                ctr: () => new Eat()
+                ctr: () => new Eat().repeat()
             },
             NOT: {
                 icon: "fa-exclamation", nodeType: "node-decorator node-hoverable",
@@ -489,6 +489,13 @@ class Species {
                 ctr: (children) => new ParallelBranch(children),
                 children: []
             },
+            PERCEPTION: {
+                icon: "fa-eye", nodeType: "node-leaf",
+                name: "Radial Perception", desc: "Perceives other particles in the area",
+                ctr: (children) => new PerceptionRadial(20).repeat(),
+                children: []
+            },
+
 
         };
 
@@ -535,7 +542,14 @@ class Species {
                     ]},
 
             ]}];
-        treeDef = [clone(ROOT, [clone(nodes.FREEZE)])];
+        treeDef = [clone(ROOT, [
+            clone(nodes.PERCEPTION),
+            clone(nodes.SEQ, [
+                clone(nodes.MOVE_TO_FOOD),
+                clone(nodes.EAT),
+                clone(nodes.SPLIT)
+            ])
+        ])];
         console.log(treeDef);
 
         function rebuildTree() {
