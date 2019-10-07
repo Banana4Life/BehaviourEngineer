@@ -745,6 +745,12 @@ class Simulation {
         return particle;
     }
 
+    placeRandomly(particle) {
+        const randInSpace = () => gaussianRand() * this.spaceDimension;
+        particle.x = this.topLeftCorner[0] + randInSpace();
+        particle.y = this.bottomRightCorner[1] + randInSpace();
+    }
+
     createParticle() {
         return new Particle();
     }
@@ -1047,6 +1053,7 @@ class ParticleQuadTree {
                 return true;
             });
             if (!success) {
+                //debugger;
                 throw new Error(`Unable to put a particle in any of the quads! This is a bug... ${particle.x}:${particle.y}`)
             }
         } else {

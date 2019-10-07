@@ -689,14 +689,6 @@ class Species {
             rebuildTree();
         }
 
-        const halfWidth = (canvas.width / 2);
-        const halfHeight = (canvas.height / 2);
-
-        function randomizeAndPlace(particle) {
-            particle.x = (gaussianRand() * 2 - 1) * halfWidth;
-            particle.y = (gaussianRand() * 2 - 1) * halfHeight;
-        }
-
         function buildTree(nodeDefs, spacer) {
             if (!nodeDefs || (nodeDefs.length === 0 && nodeDefs.type === "node-leaf")) {
                 return "";
@@ -730,23 +722,15 @@ class Species {
 
 
         function setupWorld(sim, onFinish) {
-            // for (let i = 0; i < bunchSize && sim.aliveParticles.length < sim.particlePoolSize; ++i) {
-            //     randomizeAndPlace(sim.spawn());
-            // }
-            // if (sim.aliveParticles.length < sim.particlePoolSize) {
-            //     setTimeout(() => setupWorld(counter, sim, bunchSize, delay, onFinish), delay);
-            // } else {
-            //     onFinish();
-            // }
             generateFood(sim);
 
             sim.species.forEach(species => {
                 if (species !== sim.playerSpecies) {
                     let first = sim.spawn(particleType.CELL);
+                    sim.placeRandomly(first);
                     first.team = species.id;
                     first.color = species.color;
                     sim.tracker.addLive(first);
-                    randomizeAndPlace(first);
                 }
             });
 
