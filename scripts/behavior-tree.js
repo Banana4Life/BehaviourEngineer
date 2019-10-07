@@ -220,9 +220,6 @@ class BehaviorBranch extends BehaviorComposite {
         if (!Array.isArray(children)) {
             throw new Error("Children must be an array: " + children);
         }
-        if (children.length === 0) {
-            throw new Error("Does not make sense without children!");
-        }
         super(children);
     }
 }
@@ -238,6 +235,9 @@ class SelectorBranch extends BehaviorBranch {
     }
 
     onStart(context) {
+        if (this.children.length === 0) {
+            return BehaviorResult.Failure;
+        }
         return this.tryChildren(context);
     }
 
@@ -307,6 +307,9 @@ class SequenceBranch extends BehaviorBranch {
     }
 
     onStart(context) {
+        if (this.children.length === 0) {
+            return BehaviorResult.Success;
+        }
         this.active = 0;
         return this.runWhilePossible(context)
     }
@@ -320,10 +323,6 @@ class SequenceBranch extends BehaviorBranch {
 class ParallelPrioritySelector extends BehaviorBranch {
     constructor(children) {
         super(children);
-    }
-
-    onReset(context) {
-        super.onReset(context);
     }
 
     runWhilePossible(context) {
@@ -350,7 +349,9 @@ class ParallelPrioritySelector extends BehaviorBranch {
     }
 
     onStart(context) {
-        this.active = 0;
+        if (this.children.length === 0) {
+            return BehaviorResult.Failure;
+        }
         return this.runWhilePossible(context)
     }
 
