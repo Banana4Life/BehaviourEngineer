@@ -207,18 +207,7 @@ div.smoothie-chart-tooltip {
     }
   }
 
-  .node-spacer {
-    opacity: 0;
-    width: 0;
-  }
-
   .node {
-
-    &.node-pseudo {
-      opacity: 0;
-      width: 0;
-      margin: 0;
-    }
 
     display: inline-block;
     margin: 5px;
@@ -240,7 +229,7 @@ div.smoothie-chart-tooltip {
         height: 40px;
         background-color: #111111;
         border: 1px solid gray;
-        margin: 4px;
+        margin: 5px;
       }
 
       border: 1px solid gray;
@@ -263,13 +252,12 @@ div.smoothie-chart-tooltip {
     & > div > .node-children > .node-spacer {
       font-size: 10px;
       position: relative;
-      top: 6px;
+      top: 8px;
     }
 
     & > div > .node-children > .node-spacer:not(:nth-last-of-type(2)) {
-      opacity: 1;
       width: auto;
-      margin: 4px;
+      margin: 2px;
     }
 
     &.node.node-pseudo:hover {
@@ -277,41 +265,63 @@ div.smoothie-chart-tooltip {
       background-color: green;
     }
 
-    &.node-decorator {
-      &.node-hoverable > div > .node-children {
-        & > .node-pseudo:not(:first-of-type), & > .node-spacer:not(:first-of-type) {
-          opacity: 0;
-          width: 0;
-          margin: 0;
-        }
-      }
+    &.node-pseudo {
+      opacity: 0;
+      width: 0;
+      margin: 0;
+      height: 0;
+    }
 
-      & > div > .node-children {
-        & > .node:hover {
-          // TODO while dragging
-          background-color: yellow;
-        }
-        & > .node.node-pseudo:hover {
-          // TODO while dragging
-          background-color: green;
-        }
-      }
-
-
-      & > div > .node-children > .node-pseudo:first-of-type {
-        opacity: 1;
-        width: auto;
-        transition: visibility 0s, opacity 0.5s linear;
-        margin: 4px;
-      }
+    .node-spacer {
+      opacity: 0;
+      width: 0;
+      margin: 0;
     }
 
     &.node-hoverable.hovered > div > .node-children {
-      & > .node-spacer, & > .node-pseudo {
+      & > .node-spacer {
         opacity: 1;
         width: auto;
         transition: visibility 0s, opacity 0.5s linear;
-        margin: 4px;
+        height: 50px;
+      }
+
+      & > .node-pseudo {
+        opacity: 1;
+        width: auto;
+        transition: visibility 0s, opacity 0.5s linear;
+        height: 50px;
+        margin: 5px
+      }
+
+    }
+
+    &.node-hoverable > div > .node-children {
+      // hoverable pseudo nodes and ONLY spacers
+      & > .node-pseudo, & > .node-spacer:only-of-type {
+        opacity: 0;
+        width: 0;
+        height: 0;
+      }
+
+      & > .node-pseudo:only-of-type {
+        opacity: 1;
+        width: auto;
+        margin: 5px;
+        height: 50px;
+      }
+    }
+
+    &.node-hoverable.node-decorator > div > .node-children {
+      & > .node-pseudo:not(:only-of-type), & > .node-spacer {
+        opacity: 0;
+        width: 0;
+        height: 0;
+        margin: 0;
+      }
+
+      & > .node:not(.node-pseudo):hover {
+        background-color: yellow;
       }
     }
   }

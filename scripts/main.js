@@ -408,17 +408,20 @@ class Species {
             NOT: {
                 icon: "fa-exclamation", nodeType: "node-decorator node-hoverable",
                 name: "Not", desc: "Negates the child node",
-                ctr: (children) => new BehaviorInverter(children[0])
+                ctr: (children) => new BehaviorInverter(children[0]),
+                children: []
             },
             SEQ: {
                 icon: "fa-ellipsis-h", nodeType: "node-seq node-hoverable", spacer: "fa-arrow-right",
                 name: "Sequence", desc: "Executes all child nodes until one fails",
-                ctr: (children) => new SequenceBranch(children)
+                ctr: (children) => new SequenceBranch(children),
+                children: []
             },
             PARALLEL: {
                 icon: "fa-navicon", nodeType: "node-parallel node-hoverable", spacer: "fa-arrow-right",
                 name: "Parallel", desc: "Executes all child nodes in parallel",
-                ctr: (children) => new ParallelBranch(children)
+                ctr: (children) => new ParallelBranch(children),
+                children: []
             },
 
         };
@@ -429,13 +432,14 @@ class Species {
                 ctr: (children) => new ParallelBranch(children).repeat()
             };
 
-            let nodeId = 0;
+        let nodeId = 0;
         function clone(node, children = []) {
-            return {id: nodeId++, icon: node.icon, nodeType: node.nodeType, ctr: node.ctr, children: children}
+            let cloned = {id: nodeId++, icon: node.icon, nodeType: node.nodeType, ctr: node.ctr, spacer: node.spacer, children: children};
+            treeDefMap[cloned.id] = cloned;
+            return cloned
         }
 
-
-
+        let treeDefMap = {};
         let treeDef = [{icon: "fa-asterisk", nodeType: "node-root", children: [
                 {icon: "fa-snowflake-o", nodeType: "node-leaf"},
                 {icon: "fa-ellipsis-h", nodeType: "node-seq node-hoverable", spacer: "fa-arrow-right", children: [
@@ -468,6 +472,33 @@ class Species {
         treeDef = [clone(ROOT, [clone(nodes.FREEZE)])];
         console.log(treeDef);
 
+        function rebuildTree() {
+            treePanelBackplane.innerHTML = buildTree(treeDef);
+            let hoverAddNodes =  document.querySelectorAll("#tree-panel .node.node-hoverable");
+            hoverAddNodes.forEach(el => el.addEventListener("mouseover", e => {
+                e.stopPropagation();
+                el.classList.add("hovered")
+            }));
+            hoverAddNodes.forEach(el => el.addEventListener("mouseout", e => {
+                e.stopPropagation();
+                el.classList.remove("hovered");
+            }));
+            let rootNode = treePanelBackplane.querySelector(".node.node-root");
+
+
+            let centerMe = treePanelBackplane.querySelector("#tree-panel-backplane > .node-children");
+            let offsetLeft = (treePanelBackplane.clientWidth - centerMe.clientWidth) /2;
+            centerMe.style.left = offsetLeft +"px";
+            let offsetTop = (treePanelBackplane.clientHeight - centerMe.clientHeight) / 2;
+            centerMe.style.top = offsetTop +"px";
+
+            let overFlowX = Math.max(0, rootNode.clientWidth - treeWrapper.clientWidth);
+            let overFlowY = rootNode.clientHeight - treeWrapper.clientHeight;
+
+            treePanelBackplane.style.left = -offsetLeft - overFlowX / 2 +"px";
+            treePanelBackplane.style.top = -offsetTop- overFlowY / 2 +"px";
+        }
+
         treeButton.addEventListener("click", e => {
             pauseButton.click(); // TODO remove me only for develop
             if (!treeButton.classList.contains("inactive")) {
@@ -477,30 +508,7 @@ class Species {
                 trackerGraph.classList.toggle("hidden");
                 if (treeButton.classList.contains("active")) {
 
-                    treePanelBackplane.innerHTML = buildTree(treeDef);
-                    let hoverAddNodes =  document.querySelectorAll("#tree-panel .node.node-hoverable");
-                    hoverAddNodes.forEach(el => el.addEventListener("mouseover", e => {
-                        e.stopPropagation();
-                        el.classList.add("hovered")
-                    }));
-                    hoverAddNodes.forEach(el => el.addEventListener("mouseout", e => {
-                        e.stopPropagation();
-                        el.classList.remove("hovered");
-                    }));
-                    let rootNode = treePanelBackplane.querySelector(".node.node-root");
-
-
-                    let centerMe = treePanelBackplane.querySelector("#tree-panel-backplane > .node-children");
-                    let offsetLeft = (treePanelBackplane.clientWidth - centerMe.clientWidth) /2;
-                    centerMe.style.left = offsetLeft +"px";
-                    let offsetTop = (treePanelBackplane.clientHeight - centerMe.clientHeight) / 2;
-                    centerMe.style.top = offsetTop +"px";
-
-                    let overFlowX = Math.max(0, rootNode.clientWidth - treeWrapper.clientWidth);
-                    let overFlowY = rootNode.clientHeight - treeWrapper.clientHeight;
-
-                    treePanelBackplane.style.left = -offsetLeft - overFlowX / 2 +"px";
-                    treePanelBackplane.style.top = -offsetTop- overFlowY / 2 +"px";
+                    rebuildTree();
 
 
                     // Show Tree
@@ -540,11 +548,13 @@ class Species {
 
         geneList.innerHTML = geneHtml;
         let newNodeGrabbed = false;
+        let newNodeType = "";
 
         document.querySelectorAll("#panel-gene-selection li").forEach(el => el.addEventListener("mousedown", e => {
             let geneType = el.dataset["node"];
             let node = nodes[geneType];
             newNodeGrabbed = true;
+            newNodeType = geneType;
             newNode.classList.remove("hidden");
             newNode.style.left = (e.x-30) + "px";
             newNode.style.top = (e.y-30) + "px";
@@ -565,9 +575,9 @@ class Species {
 
                 let closestPseudo = e.target.closest(".node-pseudo");
                 if (closestPseudo) {
-                    console.log(closestPseudo.dataset[node-id])
+                    let closestHoverable = closestPseudo.closest(".node-hoverable")
+                    addToTree(closestHoverable.dataset["nodeId"], nodes[newNodeType]);
                 }
-                // TODO drop into place
             }
         });
 
@@ -580,7 +590,11 @@ class Species {
             geneInfo.innerHTML = "";
         }));
 
-
+        function addToTree(atNode, newNode) {
+            console.log(atNode, " ", newNode);
+            treeDefMap[atNode].children.push(clone(newNode));
+            rebuildTree();
+        }
 
         const halfWidth = (canvas.width / 2);
         const halfHeight = (canvas.height / 2);
