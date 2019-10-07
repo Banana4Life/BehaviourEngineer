@@ -629,7 +629,7 @@ class Species {
                                        clone(nodes.NOT,[clone(nodes.SEE_FOOD)])])
             ])])
         ])];
-        treeDef =  [clone(ROOT, [])];
+        // treeDef =  [clone(ROOT, [])];
         console.log(treeDef);
         let isPickup = false;
         let pickupNode;
@@ -688,11 +688,11 @@ class Species {
             let offsetTop = (treePanelBackplane.clientHeight - centerMe.clientHeight) / 2;
             centerMe.style.top = offsetTop +"px";
 
-            let overFlowX = Math.max(0, rootNode.clientWidth - treeWrapper.clientWidth);
+            let overFlowX = rootNode.clientWidth - treeWrapper.clientWidth;
             let overFlowY = rootNode.clientHeight - treeWrapper.clientHeight;
 
             treePanelBackplane.style.left = -offsetLeft - overFlowX / 2 +"px";
-            treePanelBackplane.style.top = -offsetTop- overFlowY / 2 +"px";
+            treePanelBackplane.style.top = -offsetTop - overFlowY / 2 +"px";
         }
 
         treeButton.addEventListener("click", e => {
