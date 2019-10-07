@@ -729,7 +729,7 @@ class Species {
         }
 
 
-        function setupWorld(onFinish) {
+        function setupWorld(sim, onFinish) {
             // for (let i = 0; i < bunchSize && sim.aliveParticles.length < sim.particlePoolSize; ++i) {
             //     randomizeAndPlace(sim.spawn());
             // }
@@ -738,7 +738,7 @@ class Species {
             // } else {
             //     onFinish();
             // }
-            generateFood();
+            generateFood(sim);
 
             sim.species.forEach(species => {
                 if (species !== sim.playerSpecies) {
@@ -756,7 +756,7 @@ class Species {
             onFinish();
         }
 
-        function generateFood() {
+        function generateFood(sim) {
             const gridRes = 70;
             let [startX, startY, ] = sim.topLeftCorner;
             let [lengthX, lengthY, ] = vec.distance(sim.topLeftCorner, sim.bottomRightCorner);
@@ -790,7 +790,7 @@ class Species {
             }
         }
 
-        setupWorld(() => {
+        setupWorld(sim, () => {
             renderLoop(window, 0, dt => {
                 sim.update(dt);
                 sim.render();

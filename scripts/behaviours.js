@@ -38,6 +38,8 @@ class Freeze extends TimedTask {
 }
 
 class RandomWalk extends TimedTask {
+    vx;
+    vy;
 
     executeBeforeTimer(context) {
         [this.vx, this.vy] = vec2d.randomDirection();
