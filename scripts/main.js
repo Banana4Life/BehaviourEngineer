@@ -636,10 +636,13 @@ class Species {
                 newNodeGrabbed = false;
                 newNode.classList.add("hidden");
 
-                let closestPseudo = e.target.closest(".node-pseudo");
-                if (closestPseudo) {
-                    let closestHoverable = closestPseudo.closest(".node-hoverable")
+                let closestNode = e.target.closest(".node");
+                if (closestNode.classList.contains("node-pseudo")) {
+                    let closestHoverable = closestNode.closest(".node-hoverable")
                     addToTree(closestHoverable.dataset["nodeId"], nodes[newNodeType]);
+                } else {
+                    let closestHoverable = closestNode.parentElement.closest(".node-hoverable");
+                    replaceInTree(closestHoverable.dataset["nodeId"], closestNode.dataset["nodeId"], nodes[newNodeType]);
                 }
             }
         });
@@ -659,6 +662,14 @@ class Species {
             rebuildTree();
         }
 
+        function replaceInTree(atNode, replaceAt, newNode) {
+            console.log("replace", replaceAt, " in ", atNode, " ", newNode);
+            let childrenList = treeDefMap[atNode].children;
+            let idx = childrenList.indexOf(treeDefMap[replaceAt])
+            childrenList[idx] = clone(newNode);
+            rebuildTree();
+        }
+
         const halfWidth = (canvas.width / 2);
         const halfHeight = (canvas.height / 2);
 
@@ -668,14 +679,14 @@ class Species {
         }
 
         function buildTree(nodeDefs, spacer) {
-            if (!nodeDefs) {
+            if (!nodeDefs || (nodeDefs.length === 0 && nodeDefs.type === "node-leaf")) {
                 return "";
             }
             let nodeString = `<div class="node-children">`;
             for (let nodeDef of nodeDefs) {
                 nodeString += `<span class="node ${nodeDef.nodeType}" data-node-id="${nodeDef.id}">
                                     <div>
-                                       <span class="fa ${nodeDef.icon}"></span>
+                                       <div class="node-parent"><div><span class="fa ${nodeDef.icon}"></span></div></div>
                                        ${buildTree(nodeDef.children, nodeDef.spacer)} 
                                     </div>
                                </span>`;
@@ -685,7 +696,12 @@ class Species {
             }
             nodeString += `<span class="node node-pseudo node-leaf">
                               <div>
-                                 <span class="fa fa-plus"></span>
+                                <div class="node-parent">
+                                    <div>
+                                    
+                                       <span class="fa fa-plus"></span>
+                                    </div>
+                                </div>
                               </div>
                            </span>`;
             nodeString += "<div class='clear-float'></div>";

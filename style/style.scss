@@ -22,6 +22,7 @@ html, body, #main, #game-panel, canvas#simulation, #tree-panel {
 
   .wrapper {
     height: calc(100% - 2em);
+
     & > canvas, & > div {
       border: 1px solid gray;
     }
@@ -71,6 +72,7 @@ div.wrapper {
 
   & > div {
     padding: 6px 6px 0px 6px;
+
     &:last-of-type {
       padding: 6px;
     }
@@ -81,6 +83,7 @@ div.wrapper {
   h3 {
     margin: 0;
   }
+
   span {
     font-weight: normal;
   }
@@ -149,6 +152,7 @@ div.smoothie-chart-tooltip {
   & > div {
     margin-top: 4px;
   }
+
   #play, #pause, #warp, #tick {
     border: 1px solid gray;
     width: calc(50% - 4px);
@@ -171,6 +175,7 @@ div.smoothie-chart-tooltip {
 
   &.active {
     background-color: #024802;
+
     &:hover {
       background-color: #135913;
     }
@@ -178,6 +183,7 @@ div.smoothie-chart-tooltip {
 
   &.active.negative {
     background-color: #3e0202;
+
     &:hover {
       background-color: #4f1313;
     }
@@ -224,12 +230,24 @@ div.smoothie-chart-tooltip {
     }
 
     & > div {
-      & > span {
-        width: 40px;
-        height: 40px;
-        background-color: #111111;
-        border: 1px solid gray;
-        margin: 5px;
+      & > .node-parent {
+        display: flex;
+        justify-content: center;
+
+        span {
+          width: 40px;
+          height: 40px;
+          background-color: #111111;
+          margin: 5px;
+        }
+
+        div {
+          width: 50px;
+          height: 50px;
+          border: 1px solid gray;
+          margin: 2px;
+        }
+
       }
 
       border: 1px solid gray;
@@ -237,14 +255,17 @@ div.smoothie-chart-tooltip {
 
     &.node-root > div {
     }
+
     &.node-leaf {
       & > div {
         & > span {
           border: 0;
         }
+
         border-bottom-color: blue;
       }
     }
+
     &.node-seq > div {
       border-bottom-color: green;
     }
@@ -258,11 +279,7 @@ div.smoothie-chart-tooltip {
     & > div > .node-children > .node-spacer:not(:nth-last-of-type(2)) {
       width: auto;
       margin: 2px;
-    }
-
-    &.node.node-pseudo:hover {
-      // TODO while dragging
-      background-color: green;
+      opacity: 1;
     }
 
     &.node-pseudo {
@@ -312,16 +329,28 @@ div.smoothie-chart-tooltip {
       }
     }
 
+
+    &:hover.hovered > div > .node-parent > div {
+      background-color: #90860b;
+    }
+
+    &.node-hoverable:hover > div > .node-children {
+      & > .node-pseudo .node-parent > div {
+        background-color: green;
+      }
+    }
+
+    &.node-hoverable > div {
+      padding: 0 10px;
+    }
+
     &.node-hoverable.node-decorator > div > .node-children {
       & > .node-pseudo:not(:only-of-type), & > .node-spacer {
         opacity: 0;
         width: 0;
         height: 0;
         margin: 0;
-      }
-
-      & > .node:not(.node-pseudo):hover {
-        background-color: yellow;
+        pointer-events: none;
       }
     }
   }
@@ -330,9 +359,11 @@ div.smoothie-chart-tooltip {
 #new-node {
   pointer-events: none;
   position: absolute;
+
   &.hidden {
     display: none;
   }
+
   z-index: 100;
 
   background-color: #111111;
