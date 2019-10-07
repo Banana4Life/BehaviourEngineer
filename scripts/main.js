@@ -573,7 +573,7 @@ class Species {
                     clone(nodes.SPLIT)
                 ]),
                 clone(nodes.INTERRUPT, [clone(nodes.RANDOM_WALK),
-                                       clone(nodes.NOT,clone(nodes.SEE_FOOD))])
+                                       clone(nodes.NOT,[clone(nodes.SEE_FOOD)])])
             ])
 
         ])];
