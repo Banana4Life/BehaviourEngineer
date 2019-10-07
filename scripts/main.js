@@ -815,11 +815,11 @@ class Species {
 
             sim.species.forEach(species => {
                 if (species !== sim.playerSpecies) {
-                    let first = sim.spawn(particleType.CELL);
-                    sim.placeRandomly(first);
-                    first.team = species.id;
-                    first.color = species.color;
-                    sim.tracker.addLive(first);
+                    //let first = sim.spawn(particleType.CELL);
+                    //sim.placeRandomly(first);
+                    //first.team = species.id;
+                    //first.color = species.color;
+                    //sim.tracker.addLive(first);
                 }
             });
 

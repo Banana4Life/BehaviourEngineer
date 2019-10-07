@@ -852,6 +852,7 @@ class Simulation {
         let newY = particle.y + vy * particle.speed * dt;
 
         [particle.x, particle.y] = this.applyTorusWorld(newX, newY);
+        particle.setVelocity(0, 0);
     }
 
     applyTorusWorld(newX, newY) {

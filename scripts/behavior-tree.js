@@ -620,10 +620,14 @@ class BehaviorInterrupter extends BehaviorWrapper {
 
 class SimpleTask extends BehaviorTask {
     onStart(context) {
+        console.log("simple task: starting", this.getState());
         this.filterContext(context);
         if (this.checkPrecondition(context)) {
-            return this.executeStart(context);
+            let result = this.executeStart(context);
+            console.log("simple task: after start,", result);
+            return result;
         }
+        console.log("simple task: pre condition failed", this.getState(), this.constructor.name);
         return BehaviorResult.Failure;
     }
 
@@ -683,23 +687,35 @@ class InstantTask extends SimpleTask {
 }
 
 class TimedTask extends SimpleTask {
+    timer;
+
     constructor(duration) {
         super();
         this.duration = duration;
+        this.timer = 0;
+    }
+
+    executeStart(context) {
+        console.log("timed task: not running, init", this.getState());
+        this.timer = this.duration;
+        this.executeBeforeTimer(context);
+        return super.executeStart(context);
     }
 
     execute(context) {
-        if (!this.isRunning()) {
-            this.timer = this.duration;
-            this.executeBeforeTimer(context);
-        }
+        console.log("timed task: tick", this.getState());
         this.timer -= context.dt;
+        console.log("timer:", this.timer);
         if (this.timer <= 0) {
+            console.log("timed task: completed", this.getState());
             return BehaviorResult.Success;
         }
+        console.log("timed task: during time", this.getState());
         if (this.executeDuringTimer(context)) {
+            console.log("timed task: stays running", this.getState());
             return BehaviorResult.Running;
         }
+        console.log("timed task: failed", this.getState());
         return BehaviorResult.Failure;
     }
 
