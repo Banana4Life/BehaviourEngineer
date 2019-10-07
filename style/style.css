@@ -188,7 +188,7 @@ div.smoothie-chart-tooltip {
       #tree-panel .node .node-spacer .node-spacer-indicator {
         position: relative;
         font-size: 1em;
-        top: -20px;
+        top: 10px;
         display: none; }
     #tree-panel .node .node-spacer:nth-last-of-type(2) {
       opacity: 0; }

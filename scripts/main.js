@@ -651,10 +651,18 @@ class Species {
                 newNodeGrabbed = false;
                 newNode.classList.add("hidden");
 
+                let closestSpacer = e.target.closest(".node-spacer");
+                if (closestSpacer) {
+                    let insertBefore = closestSpacer.nextSibling.dataset["nodeId"];
+                    let closestHoverable = closestSpacer.nextSibling.parentElement.closest(".node-hoverable")
+                    addBefore(closestHoverable.dataset["nodeId"],insertBefore,nodes[newNodeType])
+                    return;
+                }
+
                 // TODO if on spacer insert before/after another element
                 let closestNode = e.target.closest(".node");
                 if (closestNode.classList.contains("node-pseudo")) {
-                    let closestHoverable = closestNode.closest(".node-hoverable")
+                    let closestHoverable = closestNode.closest(".node-hoverable");
                     addToTree(closestHoverable.dataset["nodeId"], nodes[newNodeType]);
                 } else {
                     let closestHoverable = closestNode.parentElement.closest(".node-hoverable");
@@ -680,6 +688,14 @@ class Species {
             rebuildTree();
         }
 
+        function addBefore(atNode, beforeNode, newNode) {
+            console.log("insert before", beforeNode, " in ", atNode, " ", newNode);
+            let childrenList = treeDefMap[atNode].children;
+            let idx = childrenList.indexOf(treeDefMap[beforeNode])
+            childrenList.splice(idx, 0, clone(newNode));
+            rebuildTree();
+        }
+
         function replaceInTree(atNode, replaceAt, newNode) {
             console.log("replace", replaceAt, " in ", atNode, " ", newNode);
             let childrenList = treeDefMap[atNode].children;
@@ -699,7 +715,7 @@ class Species {
                 if (!noSpacer) {
                     nodeString += `<span class="node-spacer">
                                    <span class="fas ${spacer0}">
-                                      <span class="node-spacer-indicator fas fa-arrow-down"></span>
+                                      <span class="node-spacer-indicator fas fa-arrow-up"></span>
                                    </span>
                                </span>`;
                 }
