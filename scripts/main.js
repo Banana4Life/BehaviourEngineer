@@ -549,6 +549,8 @@ class Species {
 
         ])];
         console.log(treeDef);
+        let isPickup = false;
+        let pickupNode;
 
         function rebuildTree() {
             treePanelBackplane.innerHTML = buildTree(treeDef[0], treeDef);
@@ -565,18 +567,38 @@ class Species {
 
             let allNodesToClick =  document.querySelectorAll("#tree-panel .node .node-parent > div");
 
-            let pickupNode;
             allNodesToClick.forEach(el => el.addEventListener("mousedown", e => {
-                let closestNode = el.closest(".node")
+                let closestNode = el.closest(".node");
                 let closestHoverable = closestNode.parentElement.closest(".node-hoverable")
-                let id = closestNode.dataset["nodeId"]
-                let hovId = closestHoverable.dataset["nodeId"]
-                let node = treeDefMap[id];
+                let id = closestNode.dataset["nodeId"];
+                let hovId = closestHoverable.dataset["nodeId"];
+                pickupNode = treeDefMap[id];
+                isPickup = true;
 
+                newNode.classList.remove("hidden");
+                newNode.style.left = (e.x-30) + "px";
+                newNode.style.top = (e.y-30) + "px";
+                newNode.innerHTML = `<div data-node="#NODE#${id}">
+                                    <span class="fas fa-code-branch fa-flip-vertical"></span>
+                                </div>`;
                 removeFromTree(hovId, id);
-
                 el.style.backgroundColor = "red";
             }));
+
+            document.addEventListener("mousemove", e => {
+                e.preventDefault();
+                if (isPickup) {
+                    newNode.style.left = (e.x-30) + "px";
+                    newNode.style.top = (e.y-30) + "px";
+                }
+            });
+
+            document.addEventListener("mouseup", e => {
+                newNode.classList.add("hidden");
+                dropOn(e.target);
+                isPickup = false;
+            });
+
 
             let centerMe = treePanelBackplane.querySelector("#tree-panel-backplane > .node-children");
             let offsetLeft = (treePanelBackplane.clientWidth - centerMe.clientWidth) /2;
@@ -612,7 +634,9 @@ class Species {
 
         let isDown = false;
         treePanelBackplane.addEventListener("mousedown", e => {
-            isDown = true;
+            if (e.target === treePanelBackplane) {
+                isDown = true;
+            }
         });
         treePanelBackplane.addEventListener("mouseup", e => {
             isDown = false;
@@ -662,30 +686,43 @@ class Species {
         });
         document.addEventListener("mouseup", e => {
             if (newNodeGrabbed) {
-                newNodeGrabbed = false;
                 newNode.classList.add("hidden");
+                dropOn(e.target);
+                newNodeGrabbed = false;
+            }
+        });
 
-                let closestSpacer = e.target.closest(".node-spacer");
-                if (closestSpacer) {
-                    let insertBefore = closestSpacer.nextSibling.dataset["nodeId"];
-                    let closestHoverable = closestSpacer.nextSibling.parentElement.closest(".node-hoverable")
-                    addBefore(closestHoverable.dataset["nodeId"],insertBefore,nodes[newNodeType])
-                    return;
-                }
+        function dropOn(target) {
+            let newNode;
+            if (isPickup) {
+                newNode = pickupNode;
+            } else if (newNodeGrabbed) {
+                newNode = clone(nodes[newNodeType]);
+            } else {
+                return;
+            }
 
-                // TODO if on spacer insert before/after another element
-                let closestNode = e.target.closest(".node");
+            let closestSpacer = target.closest(".node-spacer");
+            if (closestSpacer) {
+                let insertBefore = closestSpacer.nextSibling.dataset["nodeId"];
+                let closestHoverable = closestSpacer.nextSibling.parentElement.closest(".node-hoverable")
+                addBefore(closestHoverable.dataset["nodeId"],insertBefore,newNode)
+                return;
+            }
+
+            let closestNode = target.closest(".node");
+            if (closestNode) {
                 if (closestNode.classList.contains("node-pseudo")) {
                     let closestHoverable = closestNode.closest(".node-hoverable");
-                    addToTree(closestHoverable.dataset["nodeId"], nodes[newNodeType]);
+                    addToTree(closestHoverable.dataset["nodeId"], newNode);
                 } else {
                     let closestHoverable = closestNode.parentElement.closest(".node-hoverable");
                     if (closestHoverable) {
-                        replaceInTree(closestHoverable.dataset["nodeId"], closestNode.dataset["nodeId"], nodes[newNodeType]);
+                        replaceInTree(closestHoverable.dataset["nodeId"], closestNode.dataset["nodeId"], newNode);
                     }
                 }
             }
-        });
+        }
 
         document.querySelectorAll("#panel-gene-selection li").forEach(el => el.addEventListener("mousemove", e => {
             let geneType = el.dataset["node"];
@@ -697,8 +734,8 @@ class Species {
         }));
 
         function addToTree(atNode, newNode) {
-            console.log(atNode, " ", newNode);
-            treeDefMap[atNode].children.push(clone(newNode));
+            console.log("Add ", atNode, " ", newNode);
+            treeDefMap[atNode].children.push(newNode);
             rebuildTree();
         }
 
@@ -706,7 +743,7 @@ class Species {
             console.log("insert before", beforeNode, " in ", atNode, " ", newNode);
             let childrenList = treeDefMap[atNode].children;
             let idx = childrenList.indexOf(treeDefMap[beforeNode])
-            childrenList.splice(idx, 0, clone(newNode));
+            childrenList.splice(idx, 0, newNode);
             rebuildTree();
         }
 
@@ -714,7 +751,7 @@ class Species {
             console.log("replace", replaceAt, " in ", atNode, " ", newNode);
             let childrenList = treeDefMap[atNode].children;
             let idx = childrenList.indexOf(treeDefMap[replaceAt]);
-            childrenList[idx] = clone(newNode);
+            childrenList[idx] = newNode;
             rebuildTree();
         }
         function removeFromTree(atNode, remove) {
