@@ -40,9 +40,7 @@ class Freeze extends TimedTask {
 class RandomWalk extends TimedTask {
 
     executeBeforeTimer(context) {
-        let angle = random(0, 2 * Math.PI);
-        this.vx = Math.cos(angle);
-        this.vy = Math.sin(angle);
+        [this.vx, this.vy] = vec2d.randomDirection();
     }
 
     executeDuringTimer(context) {

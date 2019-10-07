@@ -138,8 +138,16 @@ const vec2d = {
         if (Array.isArray(x)) {
             [x, y] = x;
         }
-        const len = vec2d.length(x, y);
-        return [x / len, y / len];
+        if (x === 0 && y === 0) {
+            return [0, 0];
+        } else if (x === 0) {
+            return [0, 1];
+        } else if (y === 0) {
+            return [1, 0];
+        } else {
+            const len = vec2d.length(x, y);
+            return [x / len, y / len];
+        }
     },
     normalizeOrZero: function (x, y) {
         if (Array.isArray(x)) {
@@ -151,6 +159,10 @@ const vec2d = {
         }
         return [x / len, y / len];
     },
+    randomDirection: function() {
+        let angle = random(0, 2 * Math.PI);
+        return [Math.cos(angle), Math.sin(angle)];
+    }
 };
 
 const vec = {
@@ -802,7 +814,7 @@ class Simulation {
     doMovement(particle, visibleNeighbours, dt) {
 
         let tooClose = visibleNeighbours.filter(([p,]) => p.team === particle.team && p.type === particleType.CELL)
-                         .filter(([p,d]) => d < sqr(particle.size) + sqr(p.size));
+                         .filter(([p,d]) => touches(particle, p, d));
         let dxSum = 0;
         let dySum = 0;
         if (tooClose.length > 0) {
@@ -812,8 +824,10 @@ class Simulation {
                 dxSum += dx;
                 dySum += dy;
             }
-            if (dxSum !== 0 || dySum !== 0) {
-                [dxSum, dySum] = vec2d.normalizeOrZero(dxSum, dySum)
+            if (dxSum === 0 && dySum === 0) {
+                [dxSum, dySum] = vec2d.randomDirection();
+            } else {
+                [dxSum, dySum] = vec2d.normalize(dxSum, dySum)
             }
         }
 

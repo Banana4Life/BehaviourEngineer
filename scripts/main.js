@@ -59,6 +59,10 @@ class Species {
 
     class GameSimulation extends Simulation {
 
+        tracker;
+        particleCounter;
+        behaviorFactory;
+
         constructor(canvas, trackerCanvas, gl, shader) {
             super(canvas, gl, shader);
             this.playerSpecies = new Species(0, "Player", color.blue);
@@ -69,6 +73,10 @@ class Species {
             ];
             this.tracker = new Tracker(trackerCanvas, this.species);
             this.particleCounter = 0;
+
+            this.behaviorFactory = () => {
+                throw new Error("Behavior tree factory not initialized!");
+            };
         }
 
         play() {
@@ -130,7 +138,7 @@ class Species {
                         dt: dt
                     };
                     if (!particle.currentBehaviour) {
-                        particle.currentBehaviour = complex_behavior.superBehavior().repeat();
+                        particle.currentBehaviour = this.generateBehaviorTree(particle);
                         particle.currentBehaviour.restart(ctx);
                     } else {
                         if (particle.currentBehaviour.isRunning()) {
@@ -147,6 +155,52 @@ class Species {
                     //     newBehaviour.onStart({sim: this, particle: particle, visibleNeighbours: visibleNeighbours, dt: dt}); // TODO result?
                     // }
                     // break;
+            }
+        }
+
+        updateBehaviorTreeFactory(tree) {
+
+            function traverse(children) {
+                if (children.length === 0) {
+                    return () => [];
+                }
+                let subtreeFactories = [];
+                for (let child of children) {
+                    subtreeFactories.push(buildSubtree(child));
+                }
+
+                return () => {
+                    let subtrees = [];
+                    for (let subtreeFactory of subtreeFactories) {
+                        subtrees.push(subtreeFactory());
+                    }
+                    return subtrees;
+                }
+            }
+
+            function buildSubtree(node) {
+                let childrenFactory = traverse(node.children);
+                return () => node.ctr(childrenFactory());
+            }
+
+            function buildFactory(root) {
+                if (Array.isArray(root) && root.length === 1) {
+                    return buildSubtree(root[0]);
+                }
+
+                let multiRootFactory = traverse(root);
+                return () => new ParallelBranch(multiRootFactory()).repeat();
+            }
+
+            this.behaviorFactory = buildFactory(tree);
+
+        }
+
+        generateBehaviorTree(particle) {
+            if (particle.team === 0) {
+                return this.behaviorFactory(particle);
+            } else {
+                return complex_behavior.superBehavior().repeat();
             }
         }
 
@@ -284,6 +338,7 @@ class Species {
     function runGame(canvas, gl, [particleShader]) {
         let cellTrackerCanvas = document.querySelector("canvas#cell-tracker");
         let sim = new GameSimulation(canvas, cellTrackerCanvas, gl, particleShader);
+        // expose the simulation for debugging
         GAME_SIMULATION = sim;
         window.addEventListener('mousemove', e => {
             let [x, y] = clickToElement(e, canvas);
