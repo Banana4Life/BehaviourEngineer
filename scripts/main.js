@@ -82,6 +82,8 @@ class Species {
         play() {
             this.simulationSpeedMulti = 1;
             this.simulationTicksToRun = -1;
+
+            this.updateBehaviorTreeFactory(this.treeDef);
         }
 
         pause() {
@@ -91,6 +93,8 @@ class Species {
 
         tick(ticks) {
             this.simulationTicksToRun += ticks;
+
+            this.updateBehaviorTreeFactory(this.treeDef);
         }
 
         createParticle() {
@@ -161,7 +165,7 @@ class Species {
         updateBehaviorTreeFactory(tree) {
 
             function traverse(children) {
-                if (children.length === 0) {
+                if (!children || children.length === 0) {
                     return () => [];
                 }
                 if (children.length === 1) {
@@ -441,7 +445,7 @@ class Species {
             RANDOM_WALK: {
                 icon: "fa-random", nodeType: "node-leaf",
                 name: "Random Walk", desc: "Chooses a random direction to walk into for 1.5 seconds",
-                ctr: () => new Freeze(1.5)
+                ctr: () => new RandomWalk(1.5)
             },
             SEEK_FOOD: {
                 icon: "fa-binoculars", nodeType: "node-leaf",
@@ -642,7 +646,9 @@ class Species {
                     addToTree(closestHoverable.dataset["nodeId"], nodes[newNodeType]);
                 } else {
                     let closestHoverable = closestNode.parentElement.closest(".node-hoverable");
-                    replaceInTree(closestHoverable.dataset["nodeId"], closestNode.dataset["nodeId"], nodes[newNodeType]);
+                    if (closestHoverable) {
+                        replaceInTree(closestHoverable.dataset["nodeId"], closestNode.dataset["nodeId"], nodes[newNodeType]);
+                    }
                 }
             }
         });
@@ -730,6 +736,9 @@ class Species {
                     randomizeAndPlace(first);
                 }
             });
+
+            sim.treeDef = treeDef;
+            sim.updateBehaviorTreeFactory(treeDef);
 
             onFinish();
         }
