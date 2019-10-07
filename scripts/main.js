@@ -173,18 +173,20 @@ class Species {
                     subtreeFactories.push(buildSubtree(child));
                 }
 
-                return () => {
+                let childrenFactory = () => {
                     let subtrees = [];
                     for (let subtreeFactory of subtreeFactories) {
                         subtrees.push(subtreeFactory());
                     }
                     return subtrees;
-                }
+                };
+                return childrenFactory;
             }
 
             function buildSubtree(node) {
                 let childrenFactory = traverse(node.children);
-                return () => node.ctr(childrenFactory());
+                let subtreeFactory = () => node.ctr(childrenFactory());
+                return subtreeFactory;
             }
 
             function buildFactory(root) {

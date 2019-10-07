@@ -191,9 +191,11 @@ class BehaviorComposite extends BehaviorNode {
 
     onReset(context) {
         super.onReset(context);
-        for (let child of this.children) {
-            if (child.isNew() || child.isComplete()) {
-                child.reset(context);
+        if (Array.isArray(this.children)) {
+            for (let child of this.children) {
+                if (child.isNew() || child.isComplete()) {
+                    child.reset(context);
+                }
             }
         }
     }
