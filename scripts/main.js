@@ -379,6 +379,7 @@ class Species {
         let tickButton = document.querySelector("#tick");
         let warpButton = document.querySelector("#warp");
         let treeButton = document.querySelector("#tree");
+        let restartButton = document.querySelector("#restart");
 
         let simWrapper = document.querySelector("#sim-wrapper");
         let treeWrapper = document.querySelector("#tree-wrapper");
@@ -446,6 +447,10 @@ class Species {
                     sim.simulationSpeedMulti = 1;
                 }
             }
+        });
+
+        restartButton.addEventListener("click", e => {
+            sim.reset();
         });
 
         const nodes = {
