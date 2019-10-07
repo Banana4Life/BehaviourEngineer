@@ -65,7 +65,7 @@ class BehaviorNode {
             this.onReset(context);
             this.state = BehaviorState.Ready;
         } else {
-            throw new Error("Cannot reset while not new or completed! " + this.state)
+            throw new Error("Cannot reset while not new or completed! Was: " + this.getState())
         }
     }
 
@@ -112,7 +112,7 @@ class BehaviorNode {
             // console.log(this.constructor.name + ": Start " + result);
             return result;
         } else {
-            throw new Error("Cannot start while not ready!");
+            throw new Error("Cannot start while not ready! Was: " + this.getState());
         }
     }
 
@@ -129,7 +129,7 @@ class BehaviorNode {
             // console.log(this.constructor.name + ": Cont " + result);
             return result;
         } else {
-            throw new Error("Cannot continue while not running!");
+            throw new Error("Cannot continue while not running! Was: " + this.getState());
         }
     }
 
@@ -143,7 +143,7 @@ class BehaviorNode {
         } else if (this.isComplete()) {
             // already completed
         } else {
-            throw new Error("Cannot interrupt while not doing something!");
+            throw new Error("Cannot interrupt while not doing something! Was: " + this.getState());
         }
     }
 
@@ -468,7 +468,7 @@ class BehaviorWrapper extends BehaviorNode {
     }
 
     onInterrupt(context) {
-        super.onInterrupt(context);
+        this.child.interrupt(context);
     }
 
     clone() {
@@ -520,14 +520,12 @@ class BehaviorFilter extends BehaviorWrapper {
     }
 
     onStart(context) {
-        super.onStart(context);
         let newContext = this.onPreStart(this.child, context);
         let result = this.child.start(newContext);
         return this.onPostStart(this.child, newContext, result);
     }
 
     onContinue(context) {
-        super.onStart(context);
         let newContext = this.onPreContinue(this.child, context);
         let result = this.child.continue(newContext);
         return this.onPostContinue(this.child, newContext, result);
@@ -609,7 +607,7 @@ class BehaviorInterrupter extends BehaviorWrapper {
     }
 
     onContinue(context) {
-        if (this.condition.start(context)) {
+        if (this.condition.forceRestart(context)) {
             return this.result;
         }
         return super.onContinue(context);
@@ -731,10 +729,10 @@ const BehaviorResult = {
 };
 
 const BehaviorState = {
-    New: 1,
-    Ready: 2,
-    Starting: 3,
-    Running: 4,
-    Successful: 5,
-    Failed: 6,
+    New: "NEW",
+    Ready: "READY",
+    Starting: "STARTING",
+    Running: "RUNNING",
+    Successful: "SUCCESSFUL",
+    Failed: "FAILED",
 };
