@@ -164,6 +164,9 @@ class Species {
                 if (children.length === 0) {
                     return () => [];
                 }
+                if (children.length === 1) {
+                    return buildSubtree();
+                }
                 let subtreeFactories = [];
                 for (let child of children) {
                     subtreeFactories.push(buildSubtree(child));
@@ -184,12 +187,17 @@ class Species {
             }
 
             function buildFactory(root) {
-                if (Array.isArray(root) && root.length === 1) {
-                    return buildSubtree(root[0]);
+                if (Array.isArray(root)) {
+                    if (root.length === 1) {
+                        return buildSubtree(root[0]);
+                    } else {
+                        let multiRootFactory = traverse(root);
+                        return () => new ParallelBranch(multiRootFactory()).repeat();
+                    }
+                } else {
+                    return buildSubtree(root);
                 }
 
-                let multiRootFactory = traverse(root);
-                return () => new ParallelBranch(multiRootFactory()).repeat();
             }
 
             this.behaviorFactory = buildFactory(tree);
