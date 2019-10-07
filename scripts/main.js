@@ -391,7 +391,7 @@ class Species {
         let geneInfo = document.querySelector("#panel-gene-info");
         let newNode = document.querySelector("#new-node");
 
-        playButton.addEventListener("click", e => {
+        function playButtonClicked() {
             if (!playButton.classList.contains("active")) {
                 pauseButton.classList.toggle("active");
                 playButton.classList.toggle("active");
@@ -406,8 +406,9 @@ class Species {
 
                 sim.play();
             }
-        });
-        pauseButton.addEventListener("click", e => {
+        }
+
+        function pauseButtonClicked() {
             if (!pauseButton.classList.contains("active")) {
                 treeButton.classList.toggle("inactive");
                 pauseButton.classList.toggle("active");
@@ -417,7 +418,10 @@ class Species {
                 warpButton.classList.remove("active"); // warp stops when pausing
                 sim.pause();
             }
-        });
+        }
+
+        playButton.addEventListener("click", playButtonClicked);
+        pauseButton.addEventListener("click", pauseButtonClicked);
 
         tickButton.addEventListener("click", e => {
             if (!tickButton.classList.contains("inactive")) {
