@@ -31,29 +31,22 @@ class Split extends InstantTask {
 
 class Freeze extends TimedTask {
     executeDuringTimer(context) {
-        context.particle.vx = 0;
-        context.particle.vy = 0;
+        context.particle.setVelocity(0, 0);
         return true;
     }
 }
 
 class RandomWalk extends TimedTask {
-    vx;
-    vy;
+    dirX;
+    dirY;
 
     executeBeforeTimer(context) {
-        [this.vx, this.vy] = vec2d.randomDirection();
+        [this.dirX, this.dirY] = vec2d.randomDirection();
     }
 
     executeDuringTimer(context) {
         let particle = context.particle;
-        particle.vx = this.vx * particle.speed;
-        particle.vy = this.vy * particle.speed;
-
-        if (isNaN(particle.vx)) {
-            debugger
-        }
-
+        particle.setVelocity(this.dirX * particle.speed, this.dirY * particle.speed);
         return true;
     }
 }
@@ -195,12 +188,7 @@ const utils = {
 
     pathTo: function(particle, goal) {
         let [dx, dy] = vec2d.normalize(goal.x - particle.x, goal.y - particle.y);
-        particle.vx = dx * particle.speed;
-        particle.vy = dy * particle.speed;
-
-        if (isNaN(particle.vx)) {
-            debugger
-        }
+        particle.setVelocity(dx * particle.speed, dy * particle.speed);
     },
 
     isWeakEnemy: function(particle, d, prey) {

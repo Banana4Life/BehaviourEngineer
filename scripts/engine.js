@@ -957,9 +957,19 @@ class Particle {
     spawn() {
         this.x = 0;
         this.y = 0;
-        this.vx = 0;
-        this.vy = 0;
+        this.setVelocity(0, 0);
         this.alive = true;
+    }
+
+    setVelocity(x, y) {
+        if (Array.isArray(x)) {
+            [x, y] = x;
+        }
+        if (isNaN(x) || isNaN(y)) {
+            debugger;
+        }
+        this.vx = x;
+        this.vy = y;
     }
 
     static crossover(parentA, parentB, child) {
