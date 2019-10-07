@@ -214,9 +214,11 @@ div.smoothie-chart-tooltip {
     text-align: center;
 
 
-    span.fa {
-      line-height: 40px;
-      font-size: 2em;
+    span {
+      &.fa, &.fas, &.far, &.fab {
+        line-height: 40px;
+        font-size: 2em;
+      }
     }
 
     .node-children > .node, .node-children > .node-spacer {

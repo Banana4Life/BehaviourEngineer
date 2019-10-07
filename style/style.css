@@ -143,7 +143,7 @@ div.smoothie-chart-tooltip {
     display: inline-block;
     margin: 5px;
     text-align: center; }
-    #tree-panel .node span.fa {
+    #tree-panel .node span.fa, #tree-panel .node span.fas, #tree-panel .node span.far, #tree-panel .node span.fab {
       line-height: 40px;
       font-size: 2em; }
     #tree-panel .node .node-children > .node, #tree-panel .node .node-children > .node-spacer {
