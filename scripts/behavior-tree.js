@@ -457,7 +457,9 @@ class BehaviorWrapper extends BehaviorNode {
 
 
     onReset(context) {
-        this.child.reset(context);
+        if (this.child) {
+            this.child.reset(context);
+        }
     }
 
     onStart(context) {
