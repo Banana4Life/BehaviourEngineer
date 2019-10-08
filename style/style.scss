@@ -352,10 +352,13 @@ div.smoothie-chart-tooltip {
       & .node-spacer:hover .node-spacer-indicator {
         color: yellow;
       }
-
     }
 
-
+    &.node-hoverable.node-2-decorator.hovered > div > .node-children {
+      & > .node-spacer .node-spacer-indicator {
+        display: none;
+      }
+    }
 
     &.node-hoverable > div > .node-children {
       // hoverable pseudo nodes and ONLY spacers

@@ -852,8 +852,8 @@ class Species {
             }
             let nodeString = `<div class="node-children">`;
             let spacer0 = "";
+            let noSpacer = parentDef.nodeType.indexOf("node-decorator") >= 0 || (parentDef.nodeType.indexOf("node-2-decorator") >= 0);
             for (let nodeDef of nodeDefs) {
-                let noSpacer = parentDef.nodeType.indexOf("node-decorator") >= 0;
                 if (!noSpacer) {
                     nodeString += `<span class="node-spacer">
                                    <span class="fas ${spacer0}">
@@ -868,9 +868,14 @@ class Species {
                                     </div>
                                </span>`;
                 spacer0 = spacer;
+                if (parentDef.nodeType.indexOf("node-2-decorator") >= 0 && nodeDefs.length === 2) {
+                    noSpacer = false;
+                }
             }
             let noPseudo = parentDef.nodeType === "node-leaf" ||
-                (parentDef.nodeType.indexOf("node-decorator") >= 0 && nodeDefs.length === 1);
+                (parentDef.nodeType.indexOf("node-decorator") >= 0 && nodeDefs.length === 1) ||
+                (parentDef.nodeType.indexOf("node-2-decorator") >= 0 && nodeDefs.length === 2)
+            ;
             if (!noPseudo) {
                 if (nodeDefs.length > 0) {
                     nodeString += `<span class="node-spacer">

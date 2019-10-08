@@ -226,6 +226,8 @@ div.smoothie-chart-tooltip {
       color: green; }
     #tree-panel .node.node-hoverable.hovered > div > .node-children .node-spacer:hover .node-spacer-indicator {
       color: yellow; }
+    #tree-panel .node.node-hoverable.node-2-decorator.hovered > div > .node-children > .node-spacer .node-spacer-indicator {
+      display: none; }
     #tree-panel .node.node-hoverable > div > .node-children > .node-pseudo, #tree-panel .node.node-hoverable > div > .node-children > .node-spacer:only-of-type {
       opacity: 0;
       height: 0; }
