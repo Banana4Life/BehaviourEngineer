@@ -637,7 +637,7 @@ class Species {
                                        clone(nodes.NOT,[clone(nodes.SEE_FOOD)])])
             ])])
         ])];
-        if (document.location.href.indexOf("localhost") === -1) {
+        if (document.location.href.indexOf("localhost") === -1 && document.location.href.indexOf("cheats") === -1) {
             treeDef =  [clone(ROOT, [])];
         }
         console.log(treeDef);
