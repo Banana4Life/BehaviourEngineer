@@ -778,7 +778,7 @@ class Species {
 
         function dropOn(target) {
             let newNode;
-            if (isPickup && newNode) {
+            if (isPickup && pickupNode) {
                 newNode = pickupNode;
             } else if (newNodeGrabbed) {
                 newNode = clone(nodes[newNodeType]);
@@ -798,6 +798,7 @@ class Species {
             if (closestNode) {
                 if (closestNode.classList.contains("node-pseudo")) {
                     let closestHoverable = closestNode.closest(".node-hoverable");
+                    // TODO 2-decorators - insert on second element before first
                     addToTree(closestHoverable.dataset["nodeId"], newNode);
                 } else {
                     let closestHoverable = closestNode.parentElement.closest(".node-hoverable");
