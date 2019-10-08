@@ -182,12 +182,8 @@ div.smoothie-chart-tooltip {
           height: 50px;
           border: 1px solid gray;
           margin: 2px; }
-    #tree-panel .node.node-leaf > div {
-      border-bottom-color: blue; }
-      #tree-panel .node.node-leaf > div > span {
-        border: 0; }
-    #tree-panel .node.node-seq > div {
-      border-bottom-color: green; }
+    #tree-panel .node.node-leaf > div > span {
+      border: 0; }
     #tree-panel .node .node-spacer > span {
       font-size: 1em;
       position: relative;
