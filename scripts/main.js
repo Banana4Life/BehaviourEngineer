@@ -778,7 +778,7 @@ class Species {
 
         function dropOn(target) {
             let newNode;
-            if (isPickup) {
+            if (isPickup && newNode) {
                 newNode = pickupNode;
             } else if (newNodeGrabbed) {
                 newNode = clone(nodes[newNodeType]);
@@ -872,21 +872,26 @@ class Species {
                     noSpacer = false;
                 }
             }
-            let noPseudo = parentDef.nodeType === "node-leaf" ||
-                (parentDef.nodeType.indexOf("node-decorator") >= 0 && nodeDefs.length === 1) ||
-                (parentDef.nodeType.indexOf("node-2-decorator") >= 0 && nodeDefs.length === 2)
-            ;
-            if (!noPseudo) {
-                if (nodeDefs.length > 0) {
+            let pseudoNodes = 0;
+            if (parentDef.nodeType === "node-leaf") {
+                pseudoNodes = 0;
+            } else if (parentDef.nodeType.indexOf("node-decorator") >= 0) {
+                pseudoNodes = 1 - nodeDefs.length;
+            } else if (parentDef.nodeType.indexOf("node-2-decorator")>= 0) {
+                pseudoNodes = 2 - nodeDefs.length;
+            } else {
+                pseudoNodes = 1;
+            }
+            for (let i = 0; i < pseudoNodes; i++) {
+                if (nodeDefs.length > 0 || i > 0) {
                     nodeString += `<span class="node-spacer">
-                                   <span class="fas ${spacer0}"></span>
+                                   <span class="fas ${spacer}"></span>
                                </span>`;
                 }
                 nodeString += `<span class="node node-pseudo node-leaf">
                               <div>
                                 <div class="node-parent">
                                     <div>
-                                    
                                        <span class="fas fa-plus"></span>
                                     </div>
                                 </div>

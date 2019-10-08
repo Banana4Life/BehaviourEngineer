@@ -360,6 +360,21 @@ div.smoothie-chart-tooltip {
       }
     }
 
+    &.node-hoverable.node-2-decorator > div > .node-children {
+      & > .node-pseudo {
+        opacity: 1;
+        width: auto;
+        margin: 5px;
+        height: 50px;
+      }
+
+      & > .node-spacer {
+        opacity: 1;
+        transition: visibility 0s, opacity 0.5s linear;
+        height: 50px;
+      }
+    }
+
     &.node-hoverable > div > .node-children {
       // hoverable pseudo nodes and ONLY spacers
       & > .node-pseudo, & > .node-spacer:only-of-type {

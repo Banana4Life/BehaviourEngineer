@@ -228,6 +228,15 @@ div.smoothie-chart-tooltip {
       color: yellow; }
     #tree-panel .node.node-hoverable.node-2-decorator.hovered > div > .node-children > .node-spacer .node-spacer-indicator {
       display: none; }
+    #tree-panel .node.node-hoverable.node-2-decorator > div > .node-children > .node-pseudo {
+      opacity: 1;
+      width: auto;
+      margin: 5px;
+      height: 50px; }
+    #tree-panel .node.node-hoverable.node-2-decorator > div > .node-children > .node-spacer {
+      opacity: 1;
+      transition: visibility 0s, opacity 0.5s linear;
+      height: 50px; }
     #tree-panel .node.node-hoverable > div > .node-children > .node-pseudo, #tree-panel .node.node-hoverable > div > .node-children > .node-spacer:only-of-type {
       opacity: 0;
       height: 0; }
