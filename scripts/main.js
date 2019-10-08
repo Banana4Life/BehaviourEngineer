@@ -527,7 +527,7 @@ class Species {
                 ctr: () => new RandomWalk(1.5)
             },
             MOVE_TO_FOOD: {
-                icon: "fas fa-binoculars", nodeType: "node-leaf",
+                icon: "fas fa-route", nodeType: "node-leaf",
                 name: "Walk to Food", desc: "Chooses a nearby food source and walks to it",
                 ctr: () => new MoveToFood()
             },
@@ -558,13 +558,13 @@ class Species {
                 children: []
             },
             SEQ: {
-                icon: "fas fa-ellipsis-h", nodeType: "node-seq node-hoverable", spacer: "fa-arrow-right",
+                icon: "fas fa-ellipsis-h", nodeType: "node-seq node-hoverable", spacer: "fas fa-arrow-right",
                 name: "Sequence", desc: "Executes all child nodes until one fails",
                 ctr: (children) => new SequenceBranch(children),
                 children: []
             },
             PARALLEL: {
-                icon: "fas fa-bars", nodeType: "node-parallel node-hoverable", spacer: "fa-arrow-right",
+                icon: "fas fa-bars", nodeType: "node-parallel node-hoverable", spacer: "fas fa-arrow-right",
                 name: "Parallel", desc: "Executes all child nodes in parallel",
                 ctr: (children) => new ParallelBranch(children),
                 children: []
@@ -582,13 +582,13 @@ class Species {
                 children: []
             },
             SELECTOR: {
-                icon: "fas fa-check", nodeType: "node-selector node-hoverable", spacer: "fa-step-forward",
+                icon: "fas fa-check", nodeType: "node-selector node-hoverable", spacer: "fas fa-step-forward",
                 name: "Selector", desc: "Executes all child nodes until one succeeds",
                 ctr: (children) => new SelectorBranch(children),
                 children: []
             },
             INTERRUPT: {
-                icon: "fas fa-exclamation-triangle", nodeType: "node-2-decorator node-hoverable", spacer: "fa-step-backward",
+                icon: "fas fa-exclamation-triangle", nodeType: "node-2-decorator node-hoverable", spacer: "far fa-hand-paper",
                 name: "Interrupt", desc: "Interrupts the first node if the first fails",
                 ctr: (children) => new BehaviorInterrupter(children[0], children[1]),
                 children: []
@@ -856,7 +856,7 @@ class Species {
             for (let nodeDef of nodeDefs) {
                 if (!noSpacer) {
                     nodeString += `<span class="node-spacer">
-                                   <span class="fas ${spacer0}">
+                                   <span class="${spacer0}">
                                       <span class="node-spacer-indicator fas fa-arrow-up"></span>
                                    </span>
                                </span>`;
@@ -885,7 +885,7 @@ class Species {
             for (let i = 0; i < pseudoNodes; i++) {
                 if (nodeDefs.length > 0 || i > 0) {
                     nodeString += `<span class="node-spacer">
-                                   <span class="fas ${spacer}"></span>
+                                   <span class="${spacer}"></span>
                                </span>`;
                 }
                 nodeString += `<span class="node node-pseudo node-leaf">
