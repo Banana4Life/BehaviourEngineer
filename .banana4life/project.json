@@ -1,0 +1,13 @@
+{
+  "name": "Behaviour Engineer",
+  "description": "Engineer all the behaviours and conquer the world!",
+  "jam": {
+    "name": "Ludum Dare",
+    "number": 45,
+    "theme": "Start with nothing",
+    "site": "https://ldjam.com/events/ludum-dare/45/behaviour-engineer",
+    "comments": []
+  },
+  "web": "https://banana4life.github.io/BehaviourEngineer/",
+  "authors": []
+}
