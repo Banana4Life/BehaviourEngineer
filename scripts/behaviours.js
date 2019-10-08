@@ -119,6 +119,7 @@ class Eat extends InstantTask {
                 context.sim.die(food);
                 break;
             case particleType.CORPSE:
+                // TODO this still can kill dead particles!
                 context.sim.kill(food); // eat corpse
                 break;
         }
