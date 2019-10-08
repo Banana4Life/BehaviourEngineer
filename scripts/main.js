@@ -516,6 +516,19 @@ class Species {
         });
 
         const nodes = {
+            PERCEPTION: {
+                icon: "fas fa-eye", nodeType: "node-leaf",
+                name: "Radial Perception", desc: "Perceives other particles in the area",
+                ctr: (children) => new PerceptionRadial(20),
+                children: []
+            },
+            SEE_FOOD: {
+                icon: "fab fa-pagelines", nodeType: "node-leaf",
+                name: "Food Perception", desc: "Perceives food particles in the area",
+                ctr: (children) => new SeeFood(),
+                children: []
+            },
+
             FREEZE: {
                 icon: "fas fa-snowflake", nodeType: "node-leaf",
                 name: "Freeze", desc: "Does nothing for half a second",
@@ -541,6 +554,7 @@ class Species {
                 name: "Split", desc: "Split into two Cells",
                 ctr: () => new Split(0.5)
             },
+
             FIGHT: {
                 icon: "far fa-hand-rock", nodeType: "node-leaf",
                 name: "Fight", desc: "Fight and kill a weaker enemy",
@@ -551,12 +565,7 @@ class Species {
                 name: "Eat", desc: "Eat targeted food source",
                 ctr: () => new Eat()
             },
-            NOT: {
-                icon: "fas fa-exclamation", nodeType: "node-decorator node-hoverable",
-                name: "Not", desc: "Negates the child node",
-                ctr: (children) => new BehaviorInverter(children[0]),
-                children: []
-            },
+
             SEQ: {
                 icon: "fas fa-ellipsis-h", nodeType: "node-seq node-hoverable", spacer: "fas fa-arrow-right",
                 name: "Sequence", desc: "Executes all child nodes until one fails",
@@ -569,36 +578,35 @@ class Species {
                 ctr: (children) => new ParallelBranch(children),
                 children: []
             },
-            PERCEPTION: {
-                icon: "fas fa-eye", nodeType: "node-leaf",
-                name: "Radial Perception", desc: "Perceives other particles in the area",
-                ctr: (children) => new PerceptionRadial(20),
-                children: []
-            },
-            SEE_FOOD: {
-                icon: "fab fa-pagelines", nodeType: "node-leaf",
-                name: "Food Perception", desc: "Perceives food particles in the area",
-                ctr: (children) => new SeeFood(),
-                children: []
-            },
+
             SELECTOR: {
                 icon: "fas fa-check", nodeType: "node-selector node-hoverable", spacer: "fas fa-step-forward",
                 name: "Selector", desc: "Executes all child nodes until one succeeds",
                 ctr: (children) => new SelectorBranch(children),
                 children: []
             },
+
+            REPEAT: {
+                icon: "fas fa-redo", nodeType: "node-decorator node-hoverable",
+                name: "Repeat", desc: "Repeat a node for ever",
+                ctr: (children) => new BehaviorRepeater(children[0]),
+                children: []
+            },
+
+
+            NOT: {
+                icon: "fas fa-exclamation", nodeType: "node-decorator node-hoverable",
+                name: "Not", desc: "Negates the child node",
+                ctr: (children) => new BehaviorInverter(children[0]),
+                children: []
+            },
+
             INTERRUPT: {
                 icon: "fas fa-exclamation-triangle", nodeType: "node-2-decorator node-hoverable", spacer: "far fa-hand-paper",
                 name: "Interrupt", desc: "Interrupts the first node if the first fails",
                 ctr: (children) => new BehaviorInterrupter(children[0], children[1]),
                 children: []
             },
-            REPEAT: {
-                icon: "fas fa-redo", nodeType: "node-decorator node-hoverable",
-                name: "Repeat", desc: "Repeat a node for ever",
-                ctr: (children) => new BehaviorRepeater(children[0]),
-                children: []
-            }
 
         };
 
