@@ -17,8 +17,6 @@ class Species {
 (function () {
 
     class Tracker {
-        chart;
-        speciesState;
 
         constructor(canvas, species) {
             this.chart = new SmoothieChart({interpolation: 'bezier', minValue: 0, labels: {disabled: false}, tooltip: true, responsive: true});
@@ -68,10 +66,6 @@ class Species {
     }
 
     class GameSimulation extends Simulation {
-
-        tracker;
-        particleCounter;
-        behaviorFactory;
 
         constructor(canvas, trackerCanvas, gl, shader) {
             super(canvas, gl, shader);
