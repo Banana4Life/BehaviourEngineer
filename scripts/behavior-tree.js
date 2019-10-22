@@ -441,7 +441,6 @@ class BehaviorCondition extends BehaviorTask {
 }
 
 class BehaviorWrapper extends BehaviorNode {
-    child;
 
     constructor(child) {
         super();
@@ -602,8 +601,6 @@ class BehaviorInverter extends BehaviorFilter {
 }
 
 class BehaviorInterrupter extends BehaviorWrapper {
-    condition;
-    result;
 
     constructor(child, condition, result = BehaviorResult.Success) {
         super(child);
@@ -702,8 +699,6 @@ class InstantTask extends SimpleTask {
 }
 
 class TimedTask extends SimpleTask {
-    timer;
-
     constructor(duration) {
         super();
         this.duration = duration;
