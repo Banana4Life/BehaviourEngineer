@@ -371,11 +371,6 @@ class RandomSequenceBranch extends SequenceBranch {
 }
 
 class ParallelBranch extends BehaviorBranch {
-    minSuccessful;
-    maxFailed;
-
-    successful;
-    failed;
 
     constructor(children, minSuccessful, maxFailed) {
         super(children);
