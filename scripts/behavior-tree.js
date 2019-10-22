@@ -18,7 +18,6 @@ class Behavior {
 
 
 class BehaviorNode {
-    state;
 
     constructor() {
         this.state = BehaviorState.New;
