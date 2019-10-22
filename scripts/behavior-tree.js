@@ -173,7 +173,6 @@ class BehaviorNode {
 }
 
 class BehaviorComposite extends BehaviorNode {
-    children;
 
     constructor(children) {
         super();
