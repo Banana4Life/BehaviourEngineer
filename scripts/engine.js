@@ -15,6 +15,18 @@ const mat4 = {
         ]
     },
 
+    perspectiveProjection: function(fieldOfViewYInRadians, aspect, near, far) {
+        const f = Math.tan((Math.PI / 2) - (fieldOfViewYInRadians / 2));
+        const rangeInv = 1.0 / (near - far);
+
+        return [
+            f / aspect, 0, 0, 0,
+            0, f, 0, 0,
+            0, 0, (near + far) * rangeInv, -1,
+            0, 0, near * far * rangeInv * 2, 0
+        ]
+    },
+
     orthographicProjection: function (width, height, depth) {
         return [
             2 / width, 0, 0, 0,
@@ -99,25 +111,18 @@ const mat4 = {
         ];
     },
 
-    rotation: function (w, x, y, z) {
+    rotation: function (w, x = 0, y = 0, z = 0) {
+        if (Array.isArray(w)) {
+            [w, x, y, z] = w
+        }
 
-        let a = [
-            w, z, -y, x,
-            -z, w, x, y,
-            y, -x, w, z,
-            -x, y, -z, w
-        ];
-
-        let b = [
-            w, z, -y, -x,
-            -z, w, x, -y,
-            y, -x, w, -z,
-            x, y, z, w
-        ];
-
-        return mat4.multiply(a, b);
-
-    }
+        return this.transpose([
+            1 - 2 * (y * y + z * z), 2 * (x * y - z * w), 2 * (x * z + y * w), 0,
+            2 * (x * y + z * w), 1 - 2 * (x * x + z * z), 2 * (y * z - x * w), 0,
+            2 * (x * z - y * w), 2 * (y * z + x * z), 1 - 2 * (x * x + y * y), 0,
+            0, 0, 0, 1
+        ])
+    },
 
 };
 
