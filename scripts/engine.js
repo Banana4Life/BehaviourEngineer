@@ -126,6 +126,20 @@ const mat4 = {
 
 };
 
+const quaternion = {
+    multiply: function(qa, qb) {
+        let qaw = qa[0], qax = qa[1], qay = qa[2], qaz = qa[3];
+        let qbw = qb[0], qbx = qb[1], qby = qb[2], qbz = qb[3];
+
+        return [
+            qax * qbw + qaw * qbx + qay * qbz - qaz * qby,
+            qay * qbw + qaw * qby + qaz * qbx - qax * qbz,
+            qaz * qbw + qaw * qbz + qax * qby - qay * qbx,
+            qaw * qbw - qax * qbx - qay * qby - qaz * qbz,
+        ];
+    },
+};
+
 const vec2d = {
     squaredLength(x, y) {
         if (Array.isArray(x)) {
@@ -587,6 +601,11 @@ class Transform {
         this.setPosition(this.posX + x, this.posY + y, this.posZ + z);
     }
 
+    moveForward(x, y, z) {
+        let [x2, y2, z2, ] = mat4.multiplyV4(this.rotation, [x, y, z, 0])
+        this.move(x2, y2, z2)
+    }
+
     setScale(x, y = x, z = x) {
         if (Array.isArray(x)) {
             [x, y, z] = x;
@@ -677,7 +696,7 @@ class Transform {
 
     getTransformation() {
         if (this.dirty) {
-            this.transform = mat4.multiply(this.rotation, mat4.multiply(this.scale, this.translation));
+            this.transform = mat4.multiply(this.translation, mat4.multiply(this.scale, this.rotation));
             this.dirty = false;
         }
         return this.transform;
